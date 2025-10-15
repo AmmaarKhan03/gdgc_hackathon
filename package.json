@@ -1,0 +1,19 @@
+{
+  "name": "gcgc_hack",
+  "private": true,
+  "workspaces": [
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "dev": "npm-run-all -p dev:*",
+    "dev:server": "npm --workspace server run dev",
+    "dev:client": "npm --workspace client run dev",
+    "lint": "eslint ."
+  },
+  "devDependencies": {
+    "eslint": "^9.0.0",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^3.0.0"
+  }
+}

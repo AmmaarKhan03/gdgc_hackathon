@@ -1,29 +1,28 @@
-import { useState } from 'react';
-import { api } from '../lib/api';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Label } from '@/components/ui/label'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
 
 export default function Login() {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [msg, setMsg] = useState<string | null>(null);
-
-    async function submit(e: React.FormEvent) {
-        e.preventDefault();
-        try {
-            const { data } = await api.post('/auth/login', { email, password });
-            localStorage.setItem('token', data.token);
-            location.href = '/dash';
-        } catch (e: any) {
-            setMsg(e?.response?.data?.message || 'Login failed');
-        }
-    }
-
     return (
-        <form onSubmit={submit} style={{ display:'grid', gap:12, maxWidth:320, margin:'80px auto' }}>
-            <h2>Sign in</h2>
-            <input placeholder="email" value={email} onChange={e=>setEmail(e.target.value)} />
-            <input placeholder="password" type="password" value={password} onChange={e=>setPassword(e.target.value)} />
-            <button>Login</button>
-            {msg && <p>{msg}</p>}
-        </form>
-    );
+        <div className="min-h-[70vh] grid place-items-center">
+            <Card className="w-full max-w-sm">
+                <CardHeader>
+                    <CardTitle>Sign in</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="email">Email</Label>
+                        <Input id="email" type="email" placeholder="you@example.com" />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="password">Password</Label>
+                        <Input id="password" type="password" />
+                    </div>
+                    <Button className="w-full">Login</Button>
+                </CardContent>
+            </Card>
+        </div>
+    )
 }
+

@@ -1,10 +1,18 @@
+<<<<<<< Updated upstream
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+=======
+import { useState } from 'react';
+import { api } from '../lib/api';
+import {Card, CardTitle, CardHeader, CardContent} from "@/components/ui/card";
+import {Button} from "@/components/ui/button"
+>>>>>>> Stashed changes
 
 export default function Login() {
     return (
+<<<<<<< Updated upstream
         <div className="min-h-[70vh] grid place-items-center">
             <Card className="w-full max-w-sm">
                 <CardHeader>
@@ -24,5 +32,22 @@ export default function Login() {
             </Card>
         </div>
     )
+=======
+        <>
+            <Card>
+                <CardHeader>
+                    <CardTitle>
+                        Hello this is the card title for Login
+                    </CardTitle>
+                </CardHeader>
+
+                <CardContent>
+                    Hello this is the card content for login
+                    <Button>Press me</Button>
+                </CardContent>
+            </Card>
+        </>
+    );
+>>>>>>> Stashed changes
 }
 

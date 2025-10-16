@@ -26,7 +26,7 @@ export default function AppShell() {
         <div className="min-h-screen flex">
 
             {/* aside in charge of side menu button when pressed drawer appears */}
-            <aside className="fixed left-1 top-1 h-screen w-13 border-r backdrop-blur-sm flex flex-col items-center">
+            <aside className="fixed left-0 top-0 backdrop-blur-sm bottom-0 z-40 w-12 border-r flex items-start justify-center">
                 {/* top-left menu button */}
                 <Button
                     variant="ghost"

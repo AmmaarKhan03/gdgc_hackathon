@@ -11,11 +11,13 @@ export default function AppShell() {
     const location = useLocation();
 
     const items = [
-        {label: "Dashboard", to: "/dashboard" }
+        {label: "Dashboard", to: "/dashboard" },
+        {label: "Users", to: "/users" },
     ];
 
     const pageTitles: Record<string, string> = {
         "/dashboard": "Dashboard",
+        "/users": "Users"
     };
 
     const title = pageTitles[location.pathname] || "Gym Checker";

@@ -41,12 +41,12 @@ export default function AppShell() {
             </aside>
 
             {/* Header top bar, currently only shows pages title */}
-            <div className="ml-12 flex-1 flex flex-col">
-                <header className="h-14 border-b flex items-center px-4">
-                    <div className="font-medium">{title}</div>
+            <div className="flex-1 flex flex-col w-full">
+                <header className="h-14 border-b flex items-center px-4 bg-white w-full fixed top-0 left-0 right-0 z-30">
+                    <div className="font-medium pl-12">{title}</div> {/* pl-12 offsets for the sidebar */}
                 </header>
 
-                <main className="flex-2 p-5">
+                <main className="p-5 pt-20 pl-12">  {/* padding-top keeps content below header */}
                     <Outlet />
                 </main>
             </div>

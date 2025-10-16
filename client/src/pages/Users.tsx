@@ -1,19 +1,20 @@
 import {useUserStore} from "@/store/userStore";
 import {Status} from "@/store/userStore";
 import {Card, CardHeader, CardTitle, CardContent} from "@/components/ui/card";
+import {Button} from "@/components/ui/button";
 
-const lowerStatus = (string) => {
-    if (!string) return "";
-    return string[0] + string.slice(1).toLowerCase();
+const lowerStatus = (status: string) => {
+    if (!status) return "";
+    return status[0] + status.slice(1).toLowerCase();
 }
 
-const statusBar = (string) => {
-    if (!string) return "";
+const statusBar = (status: string) => {
+    if (!status) return "";
 
-    if (string === "ACTIVE") return "bg-green-100 text-green-700"
-    if (string === "INACTIVE") return "bg-red-100 text-red-700"
-    if (string === "SUSPENDED") return "bg-red-200 text-red-700"
-    if (string === "PENDING") return "bg-yellow-200 text-yellow-700"
+    if (status === "ACTIVE") return "bg-green-100 text-green-700"
+    if (status === "INACTIVE") return "bg-red-100 text-red-700"
+    if (status === "SUSPENDED") return "bg-red-200 text-red-700"
+    if (status === "PENDING") return "bg-yellow-200 text-yellow-700"
 }
 
 export default function Users() {
@@ -37,15 +38,36 @@ export default function Users() {
                                     />
                                     <div className="space-x-4">
                                         <span className="text-lg font-semibold text-gray-700"> {user.name.firstName} {user.name.lastName}</span>
-                                        <span className={`text-xs px-2 py-0.5 rounded-full ${statusBar(user.status)}`}>
-                                            {lowerStatus(user.status)}
+                                        <span className={`text-xs px-2 py-0.5 rounded-full ${statusBar(user.gymStatus)}`}>
+                                            {lowerStatus(user.gymStatus)}
                                         </span>
                                     </div>
                                 </div>
                             </CardTitle>
                         </CardHeader>
 
-                        <CardContent></CardContent>
+                        <CardContent>
+                            <div className="text-sm">
+                                <div className="text-muted-foreground">Phone</div>
+                                <div>{user.userFields.email}</div>
+                            </div>
+
+                            <div className="text-sm">
+                                <div className="text-muted-foreground">Address</div>
+                                <div>
+                                    {user.userFields.address.street}
+                                    <br />
+                                    {user.userFields.address.city}, {user.userFields.address.state} {user.userFields.address.zip}
+                                </div>
+                            </div>
+
+
+                            <div className="pt-3 flex items-center gap-2">
+                                <Button className="!bg-red-600 hover:!bg-red-500" onClick={() => deleteUser(user.id)}>
+                                    Delete
+                                </Button>
+                            </div>
+                        </CardContent>
                     </Card>
                 ))}
             </div>

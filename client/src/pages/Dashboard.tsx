@@ -23,9 +23,10 @@ export default function Dashboard() {
                 </Card>
             </div>
 
-            <div>
-                <h1 className="text-md mb-4">Gym Usage Overview</h1>
-                <BarChartDemo/>
+            <div className="px-5">
+                <BarChartDemo
+                    chartTitle={"Gym Usage for the week"}
+                />
             </div>
         </div>
     );

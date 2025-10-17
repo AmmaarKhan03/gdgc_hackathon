@@ -1,6 +1,7 @@
 import {Suspense} from 'react'
 import {createBrowserRouter, RouterProvider} from "react-router-dom";
 import AppShell from "@/layouts/AppShell";
+import {Navigate} from "react-router-dom"
 
 import Dashboard from "@/pages/Dashboard";
 import Users from "@/pages/Users";
@@ -16,6 +17,7 @@ const router = createBrowserRouter([
         path: "/",
         element: <AppShell/>,
         children: [
+            { index: true, element: <Navigate to="dashboard" replace /> },
             {path: "dashboard", element: <Dashboard/>},
             {path: "users", element: <Users/>},
             {path: "gymanalytics", element: <GymAnalytics/>},

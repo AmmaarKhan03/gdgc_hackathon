@@ -2,7 +2,7 @@
 import * as React from "react";
 import {BarChart} from "@mui/x-charts/BarChart";
 import {chartsGridClasses} from "@mui/x-charts/ChartsGrid";
-import {Card, CardContent} from "@/components/ui/card";
+import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 
 const OPEN_HOUR = 5;   // 5 AM
 const CLOSE_HOUR = 23; // 11 PM
@@ -13,6 +13,10 @@ const hourLabel = (h: number) => {
     const hour12 = ((h + 11) % 12) + 1;
     return `${hour12} ${ampm}`;
 };
+
+interface BarChartProps {
+    chartTitle: string
+}
 
 // fake occupancy curve with morning & evening peaks
 const occupancyAt = (h: number) => {
@@ -30,7 +34,7 @@ const occupancyAt = (h: number) => {
     return Math.max(0, Math.round(base + low + floor + noise));
 };
 
-export default function GymTrafficChart() {
+export default function GymTrafficChart({chartTitle}: BarChartProps ) {
     const now = new Date();
     const currentHour = now.getHours(); // 0–23
 
@@ -64,6 +68,9 @@ export default function GymTrafficChart() {
     return (
         <div className="w-full overflow-x-auto">
             <Card className="max-w-full">
+                <CardHeader className="items-center">
+                    <CardTitle className="text-xl">{chartTitle}</CardTitle>
+                </CardHeader>
                 <CardContent className="p-4">
                 <div style={{marginBottom: 8}}>
                     <strong>{todayName}</strong> — Now:{" "}

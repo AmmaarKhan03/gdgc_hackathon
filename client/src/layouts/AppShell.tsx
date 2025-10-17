@@ -3,28 +3,30 @@ import {useState} from "react";
 import {NavLink, Outlet, useLocation} from "react-router-dom";
 import {Button} from "@/components/ui/button";
 import {Drawer, List, ListItemButton, ListItemIcon, ListItemText} from "@mui/material";
-import {Menu, MailIcon, X} from "lucide-react";
-import {useUserStore} from "@/store/userStore";
+import {Menu, MailIcon, X, Snail, BarChart3, Dumbbell, LayoutDashboard, User} from "lucide-react";
 
 
 export default function AppShell() {
     const [open, setOpen] = useState<boolean>(false);
     const location = useLocation();
 
-    const users = useUserStore(state => state.users);
-    const randomUser = users[Math.floor(Math.random() * users.length)];
-
     const items = [
-        {label: "Dashboard", to: "/dashboard"},
-        {label: "Users", to: "/users"},
+        {label: "Dashboard", to: "/dashboard", icon: <LayoutDashboard />},
+        {label: "Users", to: "/users", icon: <User />},
+        {label: "Profile", to: "/profile", icon: <Snail />},
+        {label: "Workout Hub", to: "/workouthub", icon: <Dumbbell />},
+        {label: "Gym Analytics", to: "/gymAnalytics", icon: <BarChart3 />},
     ];
 
     const pageTitles: Record<string, string> = {
         "/dashboard": "Dashboard",
-        "/users": "Users"
+        "/users": "Users",
+        "/profile": "Profile",
+        "/workouthub": "Workout Hub",
+        "/gymAnalytics": "Gym Analytics",
     };
 
-    const title = pageTitles[location.pathname] || "Gym Checker";
+    const title = pageTitles[location.pathname] || "Slug Hub";
 
     return (
         <div className="min-h-screen flex">
@@ -53,14 +55,21 @@ export default function AppShell() {
                     <div className="font-medium pl-12">{title}</div>
 
                     {/* centered greeting (independent of flex) */}
-                    {location.pathname === "/dashboard" && randomUser && (
-                        <div className="absolute left-1/2 -translate-x-1/2 text-md font-semibold text-gray-700">
-                            Welcome back {randomUser.name.firstName}!
+                    <div className="absolute left-1/2 -translate-x-1/2 text-md font-semibold text-gray-700">
+                        <div className="flex items-center">
+                            Slug Hub <Snail className="!text-yellow-400"/>
                         </div>
-                    )}
+                        {/* Other possible Name
+                                Slug Fit
+                                Slug Strong
+                                Campus Core
+                                Fit UCSC
+                             */}
+                    </div>
+
                 </header>
 
-                <main className="p-5 pt-20 pl-12">  {/* padding-top keeps content below header */}
+                <main className="p-5 pt-14 pb-5 pl-12">  {/* padding-top keeps content below header */}
                     <Outlet/>
                 </main>
             </div>
@@ -77,8 +86,6 @@ export default function AppShell() {
                     </div>
 
                     {/* handles the list of pages we have will map them out in order and when pressed will link us to the respective page*/}
-                    {/* TODO: figure out a way to change the icon depending on what the link is ex: if its ask/request maybe have a question mark icon*/}
-                    {/* currently all items have the mail icon*/}
                     <List>
                         {items.map((it) => (
                             <ListItemButton
@@ -88,7 +95,7 @@ export default function AppShell() {
                                 onClick={() => setOpen(false)}
                                 selected={location.pathname === it.to}
                             >
-                                <ListItemIcon><MailIcon size={18}/></ListItemIcon>
+                                <ListItemIcon>{it.icon}</ListItemIcon>
                                 <ListItemText primary={it.label}/>
                             </ListItemButton>
                         ))}

@@ -4,6 +4,9 @@ import AppShell from "@/layouts/AppShell";
 
 import Dashboard from "@/pages/Dashboard";
 import Users from "@/pages/Users";
+import GymAnalytics from "@/pages/GymAnalytics";
+import Profile from "@/pages/Profile";
+import WorkoutHub from "@/pages/WorkoutHub";
 
 // app routes page, we will input new app pages here and link them below within router
 // syntax path: "/path" or "/path1/path2", followed by element: <Page/>, element will hold the actual page we created
@@ -15,6 +18,9 @@ const router = createBrowserRouter([
         children: [
             {path: "dashboard", element: <Dashboard/>},
             {path: "users", element: <Users/>},
+            {path: "gymanalytics", element: <GymAnalytics/>},
+            {path: "profile", element: <Profile/>},
+            {path: "workoutHub", element: <WorkoutHub/>},
             // EX when user clicks on another users profile
             //{ path: "users/id", element: <UsersProfile/>}
         ],

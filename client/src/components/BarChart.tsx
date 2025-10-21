@@ -3,6 +3,7 @@ import * as React from "react";
 import {BarChart} from "@mui/x-charts/BarChart";
 import {chartsGridClasses} from "@mui/x-charts/ChartsGrid";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
+import {useRef, useState} from "react";
 
 const OPEN_HOUR = 5;   // 5 AM
 const CLOSE_HOUR = 23; // 11 PM
@@ -33,6 +34,24 @@ const occupancyAt = (h: number) => {
     const noise = (Math.random() - 0.5) * 4; // tiny jitter
     return Math.max(0, Math.round(base + low + floor + noise));
 };
+
+function useContainerWidth() {
+    const ref = useRef<HTMLDivElement>(null);
+    const [width, setWidth] = React.useState(0);
+
+    React.useLayoutEffect(() => {
+        const element = ref.current;
+        if (!element) return;
+        const ro = new ResizeObserver(() => setWidth(element.clientWidth));
+        ro.observe(element);
+        setWidth(element.clientWidth);
+        return () => ro.disconnect();
+    }, []);
+
+    return [ref, width];
+}
+
+const [containerRef, width] = useContainerWidth();
 
 export default function GymTrafficChart({chartTitle}: BarChartProps ) {
     const now = new Date();
@@ -78,7 +97,7 @@ export default function GymTrafficChart({chartTitle}: BarChartProps ) {
                     students
                 </div>
 
-                    <div className="min-w-[900px]">
+                    <div ref={containerRef} className="w-full">
                 <BarChart
                     dataset={dataset}
                     xAxis={[

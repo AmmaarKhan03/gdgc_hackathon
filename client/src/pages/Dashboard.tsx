@@ -17,7 +17,6 @@ export default function Dashboard() {
     const stats = [
         {label: "Total Users", value: totalUsers},
         {label: "Current Users", value: currentUsers},
-        {label: "Capacity", value: `${percentOfCurrentUsers}%`},
         {label: "Check-ins Today", value: 73},
     ];
 
@@ -35,7 +34,7 @@ export default function Dashboard() {
             </div>
 
             <div className="px-5 space-y-5">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
 
 
                     {stats.map((item, index) => (
@@ -55,37 +54,49 @@ export default function Dashboard() {
                     ))}
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <Card className="">
-                        <CardHeader>
-                            <CardTitle>
-                                Current Capacity {percentOfCurrentUsers}
-                            </CardTitle>
-                        </CardHeader>
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-6">
+                    {/* LEFT SIDE - 1/3 width */}
+                    <div className="col-span-1">
+                        <Card>
+                            <CardHeader className="items-center">
+                                <CardTitle>Current Capacity</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="flex items-center justify-center p-4">
+                                    <PieChart
+                                        data={[
+                                            {value: totalUsers - currentUsers, color: "#e5e7eb"},
+                                            {value: currentUsers, color: "#E38627"}
+                                        ]}
+                                        totalValue={totalUsers}
+                                        lineWidth={20}
+                                        rounded
+                                        startAngle={-90}
+                                        label={() => `${percentOfCurrentUsers}%`}
+                                        labelPosition={0}
+                                        labelStyle={{
+                                            fontSize: "20px",
+                                            fontWeight: "bold",
+                                            fill: "black",
+                                        }}
+                                        style={{height: "200px"}}
+                                    />
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
 
-                        <CardContent>
-                            <PieChart
-                                data={[
-                                    {value: currentUsers, color: "#E38627"},
-                                    {value: totalUsers - currentUsers, color: "#e5e7eb" }
-                                ]}
-                                totalValue={totalUsers}
-                                lineWidth={20}
-                                rounded
-                                labelStyle={{
-                                    fontSize: "8px",
-                                    fontWeight: "bold",
-                                    fill: "#111",
-                                }}
-                                
-                                style={{ height: "180px" }}
-                            />
-                        </CardContent>
-                    </Card>
+                    {/* RIGHT SIDE - 2/3 width */}
+                    <div className="col-span-2">
+
+                        <BarChartDemo chartTitle={"Weekly usage"}/>
 
                 </div>
             </div>
+
         </div>
-    );
+</div>
+)
+    ;
 }
 

@@ -1,14 +1,42 @@
 // src/layouts/AppShell.tsx
-import {useState} from "react";
+import {useRef, useState, useEffect} from "react";
 import {NavLink, Outlet, useLocation} from "react-router-dom";
 import {Button} from "@/components/ui/button";
 import {Drawer, List, ListItemButton, ListItemIcon, ListItemText} from "@mui/material";
 import {Menu, MailIcon, X, Snail, BarChart3, Dumbbell, LayoutDashboard, User} from "lucide-react";
+import AccountCircleRoundedIcon from '@mui/icons-material/AccountCircleRounded';
 
 
 export default function AppShell() {
     const [open, setOpen] = useState<boolean>(false);
     const location = useLocation();
+    const [openProfileOption, setOpenProfileOptions] = useState(false);
+    const menuRef = useRef<HTMLDivElement>(null);
+
+    // use useEffect so on every click it knows to change openProfileOptions
+    useEffect(() => {
+        // function used to listen is user clicks anywhere on the page to close the menu
+        function onClick(e: MouseEvent) { // pass in a mouseEvent to listen for
+            if (!menuRef.current) return; // if menuRef.current is null or undefined meaning its not ready to open yet do nothing
+            if (!menuRef.current.contains(e.target as Node)) setOpenProfileOptions(false); // if the  click was outside the profile menu close the menu
+        }
+
+        // function that will listen to a keyboard event
+        function onEsc(e: KeyboardEvent) { // fucntion called onEsc that listens for KeyBoardEvent
+            if (e.key === "Escape") setOpenProfileOptions(false); // if event.key === "Escape" we close the menu
+        }
+
+        if (openProfileOption) { // will check of the dropdown is currently open
+            document.addEventListener("mousedown", onClick); // will listen for any mouse clicks and call the onClick function
+            document.addEventListener("keydown", onEsc); // will listen for any keyboard clicks and call the onEsc function
+        }
+
+        // will stop listening to any events if the dropdown is up and not in use
+        return () => {
+            document.removeEventListener("mousedown", onClick);
+            document.removeEventListener("keydown", onEsc);
+        }
+    }, [openProfileOption]); // only run the useEffect when opProfile Changes
 
     const items = [
         {label: "Dashboard", to: "/dashboard", icon: <LayoutDashboard />},
@@ -55,7 +83,7 @@ export default function AppShell() {
                     <div className="font-medium pl-12">{title}</div>
 
                     {/* centered greeting (independent of flex) */}
-                    <div className="absolute left-1/2 -translate-x-1/2 text-md font-semibold text-gray-700">
+                    <div className="absolute left-1/2 -translate-x-1/2 text-md font-semibold text-gray-700 flex items-center justify-beteen gap-1">
                         <div className="flex items-center">
                             Slug Hub <Snail className="!text-yellow-400"/>
                         </div>
@@ -65,6 +93,42 @@ export default function AppShell() {
                                 Campus Core
                                 Fit UCSC
                              */}
+                    </div>
+
+                    <div className="ml-auto" ref={menuRef}>
+                        <AccountCircleRoundedIcon
+                            className="!h-8 !w-8 text-gray-700 cursor-pointer hover:text-yellow-500 transition"
+                            onClick={() => setOpenProfileOptions((v) => !v)}
+                        />
+
+                        {openProfileOption && (
+                            <div className="absolute right-0 top-12 w-44 bg-white border rounded shadow-md z-50">
+                                <NavLink
+                                    to="/dashboard"
+                                    className="block px-4 py-2 text-sm hover:bg-gray-100"
+                                    onClick={() => setOpenProfileOptions(false)}
+                                >
+                                    Dashboard
+                                </NavLink>
+
+                                <NavLink
+                                    to="/profile"
+                                    className="block px-4 py-2 text-sm hover:bg-gray-100"
+                                    onClick={() => setOpenProfileOptions(false)}
+                                >
+                                    Profile
+                                </NavLink>
+                                <NavLink
+                                    to="/settings"
+                                    className="block px-4 py-2 text-sm hover:bg-gray-100"
+                                    onClick={() => setOpenProfileOptions(false)}
+                                >
+                                    Settings
+                                </NavLink>
+
+                                <p className="block px-4 py-2 text-sm hover:bg-gray-100 text-red-500 font-semi-bold hover:text-red-600">Sign out</p>
+                            </div>
+                        )}
                     </div>
 
                 </header>

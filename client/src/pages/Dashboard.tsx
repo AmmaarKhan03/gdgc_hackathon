@@ -15,9 +15,9 @@ export default function Dashboard() {
     const percentOfCurrentUsers = Math.floor((currentUsers / totalUsers) * 100);
 
     const stats = [
-        {label: "Total Users", value: totalUsers},
-        {label: "Current Users", value: currentUsers},
-        {label: "Check-ins Today", value: 73},
+        {label: "Total Users", value: totalUsers, color: "bg-blue-100 border-blue-400 text-blue-800"},
+        {label: "Current Users", value: currentUsers, color: "bg-yellow-100 border-yellow-400 text-yellow-800"},
+        {label: "Check-ins Today", value: 73, color: "bg-green-100 border-green-400 text-green-800"},
     ];
 
 
@@ -38,7 +38,7 @@ export default function Dashboard() {
 
 
                     {stats.map((item, index) => (
-                        <Card key={index} className="shadow-sm border rounded-lg">
+                        <Card key={index} className={`shadow-sm border rounded-lg ${item.color}`}>
                             <CardHeader>
                                 <CardTitle className="text-lg text-center">
                                     {item.label}

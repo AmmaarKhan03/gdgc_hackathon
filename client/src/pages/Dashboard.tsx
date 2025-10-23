@@ -31,8 +31,9 @@ export default function Dashboard() {
 
     const stats = [
         {label: "Total Users", value: totalUsers, color: "bg-blue-100 border-blue-400 text-blue-800"},
-        {label: "Current Users", value: currentUsers, color: "bg-yellow-100 border-yellow-400 text-yellow-800"},
-        {label: "Check-ins Today", value: 73, color: "bg-green-100 border-green-400 text-green-800"},
+        {label: "Currently Working Out", value: currentUsers, color: "bg-yellow-100 border-yellow-400 text-yellow-800"},
+        {label: "Total Check-ins Today", value: 73, color: "bg-green-100 border-green-400 text-green-800"},
+        {label: "Temp Card", value: "Temp Value", color: "bg-purple-100 border-purple-400 text-purple-800"},
     ];
 
 
@@ -41,30 +42,23 @@ export default function Dashboard() {
         <div className="px-5 space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <section className="lg:col-span-2 space-y-6">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 items-stretch">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 items-stretch">
                         {stats.map((item, index) => (
                             <Card
                                 key={index}
-                                className={`h-full shadow-sm border rounded-lg ${item.color} flex flex-col min-h-[160px]`}
+                                className={`h-full shadow-sm border rounded-lg ${item.color} flex flex-col min-h-[100px]`}
                             >
                                 <CardHeader className="pb-1">
                                     <CardTitle className="text-lg text-center">{item.label}</CardTitle>
                                 </CardHeader>
                                 <CardContent className="flex-1 flex items-center justify-center">
-                                    <h1 className="text-4xl font-semibold text-center">{item.value}</h1>
+                                    <p className="text-4xl font-semibold text-center">{item.value}</p>
                                 </CardContent>
                             </Card>
                         ))}
                     </div>
 
-                    <Card className="shadow-sm">
-                        <CardHeader className="pb-2">
-                            <CardTitle>Weekly usage</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <BarChartDemo chartTitle="Weekly usage" />
-                        </CardContent>
-                    </Card>
+                    <BarChartDemo chartTitle="Weekly Usage"/>
                 </section>
 
                 <aside className="lg:col-span-1 space-y-6 lg:sticky lg:top-4 h-fit">

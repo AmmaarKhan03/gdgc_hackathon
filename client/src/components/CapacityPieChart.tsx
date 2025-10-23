@@ -23,8 +23,8 @@ export default function CapacityPieChart({
     const percent = Math.floor((current / Math.max(capacity, 1)) * 100);
 
     const chartConfig: ChartConfig = {
-        current: {label: "Current", color: "hsl(var(--chart-1))"},
-        capacity: {label: "Capacity", color: "hsl(var(--chart-2))"},
+        current: {label: "Current", color: "#e5e7eb"},
+        capacity: {label: "Capacity", color: "#ef4444"},
     }
 
     const data = [
@@ -50,11 +50,13 @@ export default function CapacityPieChart({
                             data={data}
                             dataKey="value"
                             nameKey="key"
-                            innerRadius={50}
-                            outerRadius={70}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius="85%"
+                            outerRadius="100%"
                             startAngle={90}
                             endAngle={450}
-                            strokeWidth={5}
+                            strokeWidth={6}
                             isAnimationActive={false}
                         >
                             <Label

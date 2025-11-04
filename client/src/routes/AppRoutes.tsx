@@ -5,9 +5,7 @@ import {Navigate} from "react-router-dom"
 
 import Dashboard from "@/pages/Dashboard";
 import Users from "@/pages/Users";
-import GymAnalytics from "@/pages/GymAnalytics";
 import Profile from "@/pages/Profile";
-import WorkoutHub from "@/pages/WorkoutHub";
 
 import Posts from "@/pages/Posts";
 import PostComments from "@/pages/postComments";

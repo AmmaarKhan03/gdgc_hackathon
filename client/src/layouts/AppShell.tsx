@@ -1,10 +1,11 @@
 // src/layouts/AppShell.tsx
 import {useRef, useState, useEffect} from "react";
-import {NavLink, Outlet, useLocation} from "react-router-dom";
+import {NavLink, Outlet, useLocation, useNavigate} from "react-router-dom";
 import {Button} from "@/components/ui/button";
 import {Drawer, List, ListItemButton, ListItemIcon, ListItemText} from "@mui/material";
 import {Menu, MailIcon, X, Snail, BarChart3, Dumbbell, LayoutDashboard, User} from "lucide-react";
 import AccountCircleRoundedIcon from '@mui/icons-material/AccountCircleRounded';
+import {useAuthStore} from "@/store/authStore";
 
 
 export default function AppShell() {
@@ -12,6 +13,14 @@ export default function AppShell() {
     const location = useLocation();
     const [openProfileOption, setOpenProfileOptions] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
+    const logout = useAuthStore((state) => state.logout);
+    const navigate = useNavigate();
+
+    const handleSignOut = () => {
+        logout();
+        setOpenProfileOptions(false);
+        navigate("/auth/login", { replace: true });
+    }
 
     // use useEffect so on every click it knows to change openProfileOptions
     useEffect(() => {
@@ -126,7 +135,14 @@ export default function AppShell() {
                                     Settings
                                 </NavLink>
 
-                                <p className="block px-4 py-2 text-sm hover:bg-gray-100 text-red-500 font-semi-bold hover:text-red-600">Sign out</p>
+                                <NavLink
+                                    to="/auth/login"
+                                    className="block px-4 py-2 text-sm hover:bg-gray-100 !text-red-500 hover:!text-red-600"
+                                    onClick={handleSignOut}
+                                >
+                                    Sign out
+                                </NavLink>
+
                             </div>
                         )}
                     </div>

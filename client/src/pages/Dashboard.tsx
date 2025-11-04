@@ -5,6 +5,7 @@ import {Button} from "@/components/ui/button"
 import BarChartDemo from "@/components/BarChart";
 import {useUserStore} from "@/store/userStore";
 import CapacityPieChart from "@/components/CapacityPieChart";
+import {usePostStore} from "@/store/postStore";
 
 const chartData = [
     {gym: "capacity", value: 300, color: "gray"},
@@ -28,6 +29,7 @@ export default function Dashboard() {
     const currentUsers = users.length;
     const totalUsers = 153
     const percentOfCurrentUsers = Math.floor((currentUsers / totalUsers) * 100);
+    const posts = usePostStore(state => state.posts);
 
     const stats = [
         {label: "Total Students", value: totalUsers, color: "bg-blue-100 border-blue-400 text-blue-800"},
@@ -58,15 +60,26 @@ export default function Dashboard() {
                         ))}
                     </div>
 
-                    <Card>
+                    <Card className="space-y-2">
                         <CardHeader>
                             <CardTitle>
-                                Hello
+                                Recent Posts
                             </CardTitle>
                         </CardHeader>
 
-                        <CardContent>
+                        <CardContent className="space-y-4">
 
+                            {posts.map((post, index) => (
+                                <Card>
+                                    <CardHeader>
+                                        <CardTitle className="text-lg text-center">{post.title}</CardTitle>
+                                    </CardHeader>
+
+                                    <CardContent className="flex-1 flex items-center justify-center">
+                                        {post.description}
+                                    </CardContent>
+                                </Card>
+                            ))}
                         </CardContent>
                     </Card>
                 </section>

@@ -94,7 +94,7 @@ export default function AppShell() {
                     {/* centered greeting (independent of flex) */}
                     <div className="absolute left-1/2 -translate-x-1/2 text-md font-semibold text-gray-700 flex items-center justify-beteen gap-1">
                         <div className="flex items-center">
-                            Slug Hub <Snail className="!text-yellow-400"/>
+                            Slug Study  <Snail className="!text-yellow-400"/>
                         </div>
                         {/* Other possible Name
                                 Slug Fit

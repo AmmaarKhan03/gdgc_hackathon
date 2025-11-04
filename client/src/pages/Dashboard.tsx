@@ -30,10 +30,10 @@ export default function Dashboard() {
     const percentOfCurrentUsers = Math.floor((currentUsers / totalUsers) * 100);
 
     const stats = [
-        {label: "Total Users", value: totalUsers, color: "bg-blue-100 border-blue-400 text-blue-800"},
-        {label: "Currently Working Out", value: currentUsers, color: "bg-yellow-100 border-yellow-400 text-yellow-800"},
-        {label: "Total Check-ins Today", value: 73, color: "bg-green-100 border-green-400 text-green-800"},
-        {label: "Temp Card", value: "Temp Value", color: "bg-purple-100 border-purple-400 text-purple-800"},
+        {label: "Total Students", value: totalUsers, color: "bg-blue-100 border-blue-400 text-blue-800"},
+        {label: "Active Sessions", value: currentUsers, color: "bg-yellow-100 border-yellow-400 text-yellow-800"},
+        {label: "New Posts Created", value: 73, color: "bg-green-100 border-green-400 text-green-800"},
+        {label: "New Reviews/Feedback", value: "Temp Value", color: "bg-purple-100 border-purple-400 text-purple-800"},
     ];
 
 
@@ -58,11 +58,21 @@ export default function Dashboard() {
                         ))}
                     </div>
 
-                    <BarChartDemo chartTitle="Weekly Usage"/>
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>
+                                Hello
+                            </CardTitle>
+                        </CardHeader>
+
+                        <CardContent>
+
+                        </CardContent>
+                    </Card>
                 </section>
 
                 <aside className="lg:col-span-1 space-y-6 lg:sticky lg:top-4 h-fit">
-                    <CapacityPieChart current={currentUsers} capacity={totalUsers} />
+                    <CapacityPieChart current={currentUsers} capacity={totalUsers}/>
                 </aside>
             </div>
         </div>

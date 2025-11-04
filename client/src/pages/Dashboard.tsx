@@ -1,12 +1,13 @@
-import {useState} from 'react';
+import {useState, useEffect} from 'react';
 import {api} from '../lib/api';
-import {Card, CardTitle, CardHeader, CardContent} from "@/components/ui/card";
+import {Card, CardTitle, CardHeader, CardContent, CardFooter} from "@/components/ui/card";
 import {Button} from "@/components/ui/button"
 import BarChartDemo from "@/components/BarChart";
 import {useUserStore} from "@/store/userStore";
 import CapacityPieChart from "@/components/CapacityPieChart";
 import {usePostStore} from "@/store/postStore";
 import {MessageSquare, ThumbsUp, Tag as TagIcon, Clock, User as UserIcon, FolderOpen} from "lucide-react";
+import {useNavigate} from "react-router-dom";
 
 const chartData = [
     {gym: "capacity", value: 300, color: "gray"},
@@ -49,7 +50,21 @@ const categoryClasses: Record<string, string> = {
     resource: "bg-sky-100 text-sky-800 border border-sky-300",
 };
 
+
+
 export default function Dashboard() {
+    const navigate = useNavigate();
+    const [liked, setLiked] = useState<Set<string>>(new Set()); {/* will make a set of multiple posts that have been liked*/}
+    const toggleLiked = (id: string) => {
+        setLiked(prev => {
+            const next = new Set(prev);
+            next.has(id) ? next.delete(id) : next.add(id); //once we get the posts id we will check the set to see if id is in it. Depending on state we will take away like or add one
+            return next;
+        })
+    }
+    const goToComments = (id: string) => {
+        navigate(`/posts/${id}/comments`);
+    };
 
     const users = useUserStore(state => state.users);
     const testUser = users[3];
@@ -100,29 +115,34 @@ export default function Dashboard() {
                                 <Card key={post.id} className="shadow-sm border rounded-lg">
                                     <CardHeader className="pb-2">
                                         <CardTitle className="relative flex items-center justify-between">
-                                             <span className="text-sm font-medium text-gray-700 relative flex items-center justify-between space-x-2">
+                                            {/*Users name*/}
+                                            <span
+                                                className="text-sm font-medium text-gray-700 relative flex items-center justify-between space-x-2">
                                                  <UserIcon className="h-5 w-5"/>
                                                  <span>{post.userName}</span>
                                              </span>
+
+                                            {/*Post Subject*/}
                                             <div
-                                                className="absolute left-1/2 transform -translate-x-1/2 text-lg text-center w-full">
+                                                className="absolute left-1/2 transform -translate-x-1/2 text-lg text-center w-full justify-between">
                                                 {post.title}{" "}
                                                 <span className="text-gray-500">
                                                     — {subjectToUpper(post.subject)}
                                                 </span>
                                             </div>
 
-                                            <span className="justify-self-end" />
+                                            {/*Posts status */}
+                                            {post.postStatus && (
+                                                <span
+                                                    className={`text-xs font-medium px-2 py-0.5 rounded-full border ${statusClasses[post.postStatus] || "bg-gray-100 text-gray-800 border-gray-300"}`}>
+                                                    {post.postStatus}
+                                                </span>
+                                            )}
                                         </CardTitle>
 
                                         <div
                                             className="mt-2 flex flex-wrap items-center gap-2 justify-center sm:justify-start text-sm">
 
-                                            <span
-                                                className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs ${categoryClasses}`}>
-                                                <FolderOpen className="h-3.5 w-3.5"/>
-                                                {post.category}
-                                            </span>
 
                                             {post.createdAt && (
                                                 <span className="inline-flex items-center gap-1 text-gray-600">
@@ -131,22 +151,6 @@ export default function Dashboard() {
                                                         title={formatDate(post.createdAt)}>{formatDate(post.createdAt)}</span>
                                                 </span>
                                             )}
-
-                                            {post.postStatus && (
-                                                <span
-                                                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs ${statusClasses}`}>
-                                                    {post.postStatus}
-                                                </span>
-                                            )}
-
-                                            <span className="inline-flex items-center gap-1 text-gray-700">
-                                                <MessageSquare className="h-4 w-4"/>
-                                                {post.replies ?? 0}
-                                            </span>
-                                            <span className="inline-flex items-center gap-1 text-gray-700">
-                                                <ThumbsUp className="h-4 w-4"/>
-                                                {post.likes ?? 0}
-                                            </span>
                                         </div>
                                     </CardHeader>
 
@@ -154,9 +158,28 @@ export default function Dashboard() {
                                         <div className="flex-1 flex justify-center">
                                             {post.description}
                                         </div>
-
-                                        {post.likes}
                                     </CardContent>
+
+                                    <CardFooter className="flex flex-1 items-center space-y-2">
+                                        <div className="mt-2 flex items-center gap-4 text-gray-700">
+                                            <span className="inline-flex items-center gap-1">
+                                                <Button
+                                                    onClick={() => toggleLiked(post.id)}
+                                                >
+                                                    <ThumbsUp className={`h-5 w-5 ${liked.has(post.id) ? "fill-current" : ""}`}/>
+                                                    { (post.likes ?? 0) + (liked.has(post.id) ? 1 : 0) }
+                                                </Button>
+                                            </span>
+                                            <span className="inline-flex items-center gap-1">
+                                                <Button
+                                                    onClick={() => goToComments(post.id)}
+                                                >
+                                                    <MessageSquare className="h-5 w-5"/>
+                                                    {post.replies ?? 0}
+                                                </Button>
+                                            </span>
+                                        </div>
+                                    </CardFooter>
                                 </Card>
                             ))}
                         </CardContent>

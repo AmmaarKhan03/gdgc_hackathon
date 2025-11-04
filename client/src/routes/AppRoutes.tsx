@@ -10,6 +10,7 @@ import Profile from "@/pages/Profile";
 import WorkoutHub from "@/pages/WorkoutHub";
 
 import Posts from "@/pages/Posts";
+import PostComments from "@/pages/postComments";
 import Reviews from "@/pages/Reviews";
 
 import Login from "@/pages/auth/Login";
@@ -53,6 +54,7 @@ const router = createBrowserRouter([
             {path: "dashboard", element: <Dashboard/>},
             {path: "users", element: <Users/>},
             {path: "posts", element: <Posts/>},
+            {path: "posts/:id/comments", element: <PostComments/>},
             {path: "profile", element: <Profile/>},
             {path: "reviews", element: <Reviews/>},
             // EX when user clicks on another users profile

@@ -39,7 +39,7 @@ function useContainerWidth() {
     const ref = useRef<HTMLDivElement>(null);
     const [width, setWidth] = React.useState(0);
 
-    React.useLayoutEffect(() => {
+    React.useEffect(() => {
         const element = ref.current;
         if (!element) return;
         const ro = new ResizeObserver(() => setWidth(element.clientWidth));
@@ -51,11 +51,11 @@ function useContainerWidth() {
     return [ref, width];
 }
 
-const [containerRef, width] = useContainerWidth();
-
 export default function GymTrafficChart({chartTitle}: BarChartProps ) {
     const now = new Date();
     const currentHour = now.getHours(); // 0–23
+
+    const [containerRef, width] = useContainerWidth();
 
     // hours array 5…23
     const hours = Array.from(

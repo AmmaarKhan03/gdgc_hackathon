@@ -9,13 +9,42 @@ import GymAnalytics from "@/pages/GymAnalytics";
 import Profile from "@/pages/Profile";
 import WorkoutHub from "@/pages/WorkoutHub";
 
+import Login from "@/pages/auth/Login";
+import Register from "@/pages/auth/Register";
+import ForgotPassword from "@/pages/auth/ForgotPassword";
+import {useAuthStore} from "@/store/authStore";
+
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+    const isAuthenticated =
+        useAuthStore.getState().isAuthenticated ||
+        localStorage.getItem("isAuthenticated") === "true";
+
+    return isAuthenticated ? children : <Navigate to="/auth/login" replace />;
+}
+
 // app routes page, we will input new app pages here and link them below within router
 // syntax path: "/path" or "/path1/path2", followed by element: <Page/>, element will hold the actual page we created
 
 const router = createBrowserRouter([
     {
         path: "/",
-        element: <AppShell/>,
+        element: <Navigate to="/auth/login" replace />,
+    },
+    {
+        path: "/auth",
+        children: [
+            { path: "login", element: <Login /> },
+            { path: "register", element: <Register /> },
+            { path: "forgot-password", element: <ForgotPassword /> },
+        ],
+    },
+    {
+        path: "/",
+        element: (
+            <ProtectedRoute>
+                <AppShell/>
+            </ProtectedRoute>
+        ),
         children: [
             { index: true, element: <Navigate to="dashboard" replace /> },
             {path: "dashboard", element: <Dashboard/>},

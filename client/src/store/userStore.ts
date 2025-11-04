@@ -22,7 +22,7 @@ interface name {
     lastName: string;
 }
 
-interface User {
+export interface User {
     id: string;
     name: name;
     userFields: userFields;

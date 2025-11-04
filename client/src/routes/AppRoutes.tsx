@@ -5,9 +5,11 @@ import {Navigate} from "react-router-dom"
 
 import Dashboard from "@/pages/Dashboard";
 import Users from "@/pages/Users";
-import GymAnalytics from "@/pages/GymAnalytics";
 import Profile from "@/pages/Profile";
-import WorkoutHub from "@/pages/WorkoutHub";
+
+import Posts from "@/pages/Posts";
+import PostComments from "@/pages/postComments";
+import Reviews from "@/pages/Reviews";
 
 import Login from "@/pages/auth/Login";
 import Register from "@/pages/auth/Register";
@@ -49,9 +51,10 @@ const router = createBrowserRouter([
             { index: true, element: <Navigate to="dashboard" replace /> },
             {path: "dashboard", element: <Dashboard/>},
             {path: "users", element: <Users/>},
-            {path: "gymanalytics", element: <GymAnalytics/>},
+            {path: "posts", element: <Posts/>},
+            {path: "posts/:id/comments", element: <PostComments/>},
             {path: "profile", element: <Profile/>},
-            {path: "workoutHub", element: <WorkoutHub/>},
+            {path: "reviews", element: <Reviews/>},
             // EX when user clicks on another users profile
             //{ path: "users/id", element: <UsersProfile/>}
         ],

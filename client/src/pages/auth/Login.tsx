@@ -34,7 +34,7 @@ export default function Login() {
         setLoading(false);
 
         if (ok) {
-            navigate("/dashboard", {replace: true});
+            await navigate("/dashboard", {replace: true});
         } else {
             setError("Invalid credentials. Try user@gmail.com / password.");
         }

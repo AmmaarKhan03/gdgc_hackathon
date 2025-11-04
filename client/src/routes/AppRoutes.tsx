@@ -9,6 +9,9 @@ import GymAnalytics from "@/pages/GymAnalytics";
 import Profile from "@/pages/Profile";
 import WorkoutHub from "@/pages/WorkoutHub";
 
+import Posts from "@/pages/Posts";
+import Reviews from "@/pages/Reviews";
+
 import Login from "@/pages/auth/Login";
 import Register from "@/pages/auth/Register";
 import ForgotPassword from "@/pages/auth/ForgotPassword";
@@ -49,9 +52,9 @@ const router = createBrowserRouter([
             { index: true, element: <Navigate to="dashboard" replace /> },
             {path: "dashboard", element: <Dashboard/>},
             {path: "users", element: <Users/>},
-            {path: "gymanalytics", element: <GymAnalytics/>},
+            {path: "posts", element: <Posts/>},
             {path: "profile", element: <Profile/>},
-            {path: "workoutHub", element: <WorkoutHub/>},
+            {path: "reviews", element: <Reviews/>},
             // EX when user clicks on another users profile
             //{ path: "users/id", element: <UsersProfile/>}
         ],

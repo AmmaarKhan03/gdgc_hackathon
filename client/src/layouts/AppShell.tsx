@@ -51,16 +51,16 @@ export default function AppShell() {
         {label: "Dashboard", to: "/dashboard", icon: <LayoutDashboard />},
         {label: "Users", to: "/users", icon: <User />},
         {label: "Profile", to: "/profile", icon: <Snail />},
-        {label: "Workout Hub", to: "/workouthub", icon: <Dumbbell />},
-        {label: "Gym Analytics", to: "/gymAnalytics", icon: <BarChart3 />},
+        {label: "Posts", to: "/posts", icon: <Dumbbell />},
+        {label: "Reviews", to: "/reviews", icon: <BarChart3 />},
     ];
 
     const pageTitles: Record<string, string> = {
         "/dashboard": "Dashboard",
         "/users": "Users",
         "/profile": "Profile",
-        "/workouthub": "Workout Hub",
-        "/gymAnalytics": "Gym Analytics",
+        "/posts": "Posts",
+        "/reviews": "Reviews",
     };
 
     const title = pageTitles[location.pathname] || "Slug Hub";

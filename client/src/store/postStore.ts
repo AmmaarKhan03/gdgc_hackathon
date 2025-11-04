@@ -33,7 +33,7 @@ interface postStore {
 export const mockPosts: Post[] = [
     {
         id: "POST-001",
-        title: "Need help debugging pointers in CSE 13S",
+        title: "Help debugging pointers in CSE 13S",
         description:
             "I'm stuck on a segmentation fault in my linked list assignment. Looking for someone to review my code and help me understand memory allocation.",
         category: "tutoring",

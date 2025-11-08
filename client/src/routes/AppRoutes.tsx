@@ -8,7 +8,7 @@ import Users from "@/pages/Users";
 import Profile from "@/pages/Profile";
 
 import Posts from "@/pages/Posts";
-import PostComments from "@/pages/postComments";
+import PostComments from "@/pages/PostComments";
 import Reviews from "@/pages/Reviews";
 
 import Login from "@/pages/auth/Login";

@@ -50,28 +50,18 @@ const categoryClasses: Record<string, string> = {
     resource: "bg-sky-100 text-sky-800 border border-sky-300",
 };
 
-
-
 export default function Dashboard() {
     const navigate = useNavigate();
-    const [liked, setLiked] = useState<Set<string>>(new Set()); {/* will make a set of multiple posts that have been liked*/}
-    const toggleLiked = (id: string) => {
-        setLiked(prev => {
-            const next = new Set(prev);
-            next.has(id) ? next.delete(id) : next.add(id); //once we get the posts id we will check the set to see if id is in it. Depending on state we will take away like or add one
-            return next;
-        })
-    }
     const goToComments = (id: string) => {
         navigate(`/posts/${id}/comments`);
     };
 
     const users = useUserStore(state => state.users);
-    const testUser = users[3];
     const currentUsers = users.length;
-    const totalUsers = 153
-    const percentOfCurrentUsers = Math.floor((currentUsers / totalUsers) * 100);
+    const totalUsers = 153;
     const posts = usePostStore(state => state.posts);
+    const likedPostIds = usePostStore((state) => state.likedPostIds);
+    const toggleLike = usePostStore((state) => state.toggleLike);
 
     const stats = [
         {label: "Total Students", value: totalUsers, color: "bg-blue-100 border-blue-400 text-blue-800"},
@@ -164,10 +154,10 @@ export default function Dashboard() {
                                         <div className="mt-2 flex items-center gap-4 text-gray-700">
                                             <span className="inline-flex items-center gap-1">
                                                 <Button
-                                                    onClick={() => toggleLiked(post.id)}
+                                                    onClick={() => toggleLike(post.id)}
                                                 >
-                                                    <ThumbsUp className={`h-5 w-5 ${liked.has(post.id) ? "fill-current" : ""}`}/>
-                                                    { (post.likes ?? 0) + (liked.has(post.id) ? 1 : 0) }
+                                                    <ThumbsUp className={`h-5 w-5 ${likedPostIds.has(post.id) ? "fill-current" : ""}`}/>
+                                                    {post.likes ?? 0}
                                                 </Button>
                                             </span>
                                             <span className="inline-flex items-center gap-1">

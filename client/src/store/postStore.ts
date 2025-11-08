@@ -28,6 +28,8 @@ interface postStore {
     newPost: (newPost: Post) => void
     updatePost: (id: string, updatedPost: Post) => void
     deletePost: (id: string) => void
+    likedPostIds: Set<string>;
+    toggleLike: (postId: string) => void;
 }
 
 export const mockPosts: Post[] = [
@@ -97,6 +99,9 @@ export const mockPosts: Post[] = [
 export const usePostStore = create<postStore>((set) => ({
     posts: mockPosts,
 
+    likedPostIds: new Set<string>(),
+
+
     newPost: (post) => set((state) => ({
         posts: [...state.posts, post]
     })),
@@ -109,5 +114,30 @@ export const usePostStore = create<postStore>((set) => ({
 
     deletePost: (id) => set((state) => ({
         posts: state.posts.filter((p) => p.id !== id)
-    }))
+    })),
+
+    toggleLike: (postId) =>
+        set((state) => {
+            const liked = new Set(state.likedPostIds);
+            const alreadyLiked = liked.has(postId);
+
+            if (alreadyLiked) {
+                liked.delete(postId);
+            } else {
+                liked.add(postId);
+            }
+
+            const nextPosts = state.posts.map((post) => {
+                if (post.id !== postId) return post;
+
+                const currentPost = post.likes ?? 0;
+                const delta = alreadyLiked ? -1 : +1;
+                return { ...post, likes: Math.max(0, currentPost + delta) };
+            })
+
+            return {
+                posts: nextPosts,
+                likedPostIds: liked,
+            }
+        })
 }))

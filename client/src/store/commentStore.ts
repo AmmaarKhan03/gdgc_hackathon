@@ -18,6 +18,7 @@ interface CommentStore {
     addComment: (newComment: Omit<Comment, "id" | "createdAt" | "likes">) => Comment; //newComment of object Comment but omit(remove) keys "id" | "createdAt" | "likes", return a full Comment object
     toggleLike: (postId: string, commentId: string) => void; // pass in postId string, and comments id string
     getThread: (postId: string) => CommentTree[]; // grabs the postId and return the array of comments or a tree of comments for that post id
+    likedCommentIds: Set<string>;
 }
 
 // variable to hold and exact array instance of comments for a post
@@ -86,6 +87,8 @@ const mockComments: Record<string, Comment[]> = {
 export const useCommentStore = create<CommentStore>((set, get) => ({
     commentsByPostId: mockComments,
 
+    likedCommentIds: new Set<string>(),
+
     // pass in the postId, parentCommentsId, usersId, users name, and the text for the comment
     addComment: ({postId, parentId, userId, userName, text}) => {
         // create a new comment
@@ -115,13 +118,30 @@ export const useCommentStore = create<CommentStore>((set, get) => ({
 
     // pass the postId and commentId for post we want to like
     toggleLike: (postId, commentId) =>
-        // grab the current state
         set((state) => {
-            const arr = state.commentsByPostId[postId] ?? []; // arr is Comment[] holds all comments from root Post
-            const next = arr.map((comment) =>
-                comment.id === commentId ? {...comment, likes: comment.likes + 1} : comment
-            );
-            return {commentsByPostId: {...state.commentsByPostId, [postId]: next}};
+            const arr = state.commentsByPostId[postId] ?? [];
+
+            // read & copy the set so Zustand subscribers see a new reference
+            const liked = new Set(state.likedCommentIds);
+            const alreadyLiked = liked.has(commentId);
+
+            const nextArr = arr.map((c) => {
+                if (c.id !== commentId) return c;
+                const delta = alreadyLiked ? -1 : +1;
+                return { ...c, likes: Math.max(0, c.likes + delta) };
+            });
+
+            // update the set membership
+            if (alreadyLiked) {
+                liked.delete(commentId);
+            } else {
+                liked.add(commentId);
+            }
+
+            return {
+                commentsByPostId: { ...state.commentsByPostId, [postId]: nextArr },
+                likedCommentIds: liked,
+            };
         }),
 
     getThread: (postId) => {

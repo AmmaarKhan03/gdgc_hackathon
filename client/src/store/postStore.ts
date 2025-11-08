@@ -46,7 +46,7 @@ export const mockPosts: Post[] = [
         createdAt: new Date("2025-11-01T10:30:00Z").toISOString(),
         updatedAt: new Date("2025-11-01T11:00:00Z").toISOString(),
         postStatus: "OPEN",
-        replies: 2,
+        replies: 0,
         likes: 5,
     },
     {
@@ -61,7 +61,7 @@ export const mockPosts: Post[] = [
         userName: "Samantha Lee",
         createdAt: new Date("2025-11-02T14:15:00Z").toISOString(),
         postStatus: "OPEN",
-        replies: 3,
+        replies: 0,
         likes: 7,
     },
     {
@@ -76,7 +76,7 @@ export const mockPosts: Post[] = [
         userName: "Carlos Ramirez",
         createdAt: new Date("2025-11-02T18:45:00Z").toISOString(),
         postStatus: "IN_PROGRESS",
-        replies: 1,
+        replies: 0,
         likes: 4,
     },
     {

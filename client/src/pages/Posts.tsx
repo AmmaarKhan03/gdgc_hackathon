@@ -5,9 +5,16 @@ export default function Posts()  {
 
     const posts = usePostStore(state => state.posts);
 
+
     return (
-        <>
-            this is the post page
+        <div className="px-5 space-y-6">
+
+            <input
+                className="rounded-l border"
+                type="text"
+                placeholder="Search for relavent posts"
+
+            />
 
             {posts.map((post) => (
                 <Card>
@@ -22,6 +29,6 @@ export default function Posts()  {
                     </CardContent>
                 </Card>
             ))}
-        </>
+        </div>
     )
 }

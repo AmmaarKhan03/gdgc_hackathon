@@ -3,7 +3,7 @@ import {useRef, useState, useEffect} from "react";
 import {NavLink, Outlet, useLocation, useNavigate} from "react-router-dom";
 import {Button} from "@/components/ui/button";
 import {Drawer, List, ListItemButton, ListItemIcon, ListItemText} from "@mui/material";
-import {Menu, MailIcon, X, Snail, BarChart3, Dumbbell, LayoutDashboard, User} from "lucide-react";
+import {Menu, MailIcon, X, Snail, BarChart3, Dumbbell, LayoutDashboard, User, MessageSquare} from "lucide-react";
 import AccountCircleRoundedIcon from '@mui/icons-material/AccountCircleRounded';
 import {useAuthStore} from "@/store/authStore";
 
@@ -49,10 +49,10 @@ export default function AppShell() {
 
     const items = [
         {label: "Dashboard", to: "/dashboard", icon: <LayoutDashboard />},
+        {label: "Posts", to: "/posts", icon: <MessageSquare />},
         {label: "Users", to: "/users", icon: <User />},
-        {label: "Profile", to: "/profile", icon: <Snail />},
-        {label: "Posts", to: "/posts", icon: <Dumbbell />},
         {label: "Reviews", to: "/reviews", icon: <BarChart3 />},
+        {label: "Profile", to: "/profile", icon: <Snail />},
     ];
 
     const pageTitles: Record<string, string> = {

@@ -8,6 +8,7 @@ import CapacityPieChart from "@/components/CapacityPieChart";
 import {usePostStore} from "@/store/postStore";
 import {MessageSquare, ThumbsUp, Tag as TagIcon, Clock, User as UserIcon, FolderOpen} from "lucide-react";
 import {useNavigate} from "react-router-dom";
+import {useCommentStore} from "@/store/commentStore";
 
 const chartData = [
     {gym: "capacity", value: 300, color: "gray"},
@@ -62,6 +63,7 @@ export default function Dashboard() {
     const posts = usePostStore(state => state.posts);
     const likedPostIds = usePostStore((state) => state.likedPostIds);
     const toggleLike = usePostStore((state) => state.toggleLike);
+    const commentsByPost = useCommentStore((state) => state.commentsByPostId);
 
     const stats = [
         {label: "Total Students", value: totalUsers, color: "bg-blue-100 border-blue-400 text-blue-800"},
@@ -72,7 +74,6 @@ export default function Dashboard() {
 
 
     return (
-
         <div className="px-5 space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <section className="lg:col-span-2 space-y-6">
@@ -165,7 +166,7 @@ export default function Dashboard() {
                                                     onClick={() => goToComments(post.id)}
                                                 >
                                                     <MessageSquare className="h-5 w-5"/>
-                                                    {post.replies ?? 0}
+                                                    {commentsByPost[post.id]?.length ?? 0}
                                                 </Button>
                                             </span>
                                         </div>

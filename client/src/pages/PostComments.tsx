@@ -5,6 +5,7 @@ import {usePostStore} from "@/store/postStore";
 import {MessageSquare, ThumbsUp, Tag as TagIcon, Clock, User as UserIcon, FolderOpen} from "lucide-react";
 import {useState, useEffect, useRef} from "react";
 import {useCommentStore} from "@/store/commentStore";
+import {CommentTree} from "@/store/commentStore";
 
 const subjectToUpper = (subject: string) => {
     if (!subject) return;
@@ -38,7 +39,7 @@ function CommentNode({
                          onLike,
                          depth = 0,
                      }: {
-    node: ReturnType<typeof useCommentStore.getState>["getThread"][number];
+    node: CommentTree;
     onReply: (parentId: string, text: string) => void;
     onLike: (id: string) => void;
     depth?: number;
@@ -50,55 +51,59 @@ function CommentNode({
         <div className="mt-3">
             <div
                 className="rounded-md border p-3"
-                style={{ marginLeft: depth * 16 }}
+                style={{marginLeft: depth * 16}}
             >
                 <div className="flex items-center gap-2 text-sm text-gray-700">
-                    <UserIcon className="h-4 w-4" />
+                    <UserIcon className="h-4 w-4"/>
                     <span className="font-medium">{node.userName}</span>
                     <span className="text-gray-400">• {new Date(node.createdAt).toLocaleString()}</span>
                 </div>
-                <p className="mt-1">{node.text}</p>
+                <p className="mt-3">{node.text}</p>
 
-                <div className="mt-2 flex items-center gap-3 text-gray-700">
+                <div className="mt-5 flex items-center gap-3 text-gray-700">
                     <Button
                         size="sm"
-                        variant="ghost"
                         className="h-7 px-2 inline-flex items-center gap-1"
                         onClick={() => onLike(node.id)}
                     >
-                        <ThumbsUp className="h-4 w-4" />
+                        <ThumbsUp className="h-4 w-4"/>
                         {node.likes}
                     </Button>
                     <Button
                         size="sm"
-                        variant="ghost"
                         className="h-7 px-2 inline-flex items-center gap-1"
                         onClick={() => setShowForm((s) => !s)}
                     >
-                        <MessageSquare className="h-4 w-4" />
+                        <MessageSquare className="h-4 w-4"/>
                         Reply
                     </Button>
                 </div>
 
                 {showForm && (
-                    <div className="mt-2 flex gap-2">
-                        <input
-                            className="flex-1 border rounded px-2 py-1"
+                    <div className="mt-5 flex flex-col gap-2 sapce-y-5">
+                        <textarea
+                            className="border rounded px-2 py-1 w-full max-w-xl"
                             placeholder="Write a reply…"
                             value={text}
                             onChange={(e) => setText(e.target.value)}
+                            maxLength={500}
+                            rows={3}
                         />
-                        <Button
-                            size="sm"
-                            onClick={() => {
-                                if (!text.trim()) return;
-                                onReply(node.id, text.trim());
-                                setText("");
-                                setShowForm(false);
-                            }}
-                        >
-                            Post
-                        </Button>
+
+                        <span>
+                            <Button
+                                size="sm"
+                                className="self-start"
+                                onClick={() => {
+                                    if (!text.trim()) return;
+                                    onReply(node.id, text.trim());
+                                    setText("");
+                                    setShowForm(false);
+                                }}
+                            >
+                                Post
+                            </Button>
+                        </span>
                     </div>
                 )}
             </div>
@@ -136,6 +141,8 @@ export default function PostComments() {
     const toggleLike = useCommentStore((state) => state.toggleLike);
     const getThread = useCommentStore((state) => state.getThread);
 
+    const thread = useCommentStore((s) => s.getThread(id || ""));
+
     if (!id) {
         return (
             <div className="p-4">
@@ -164,7 +171,7 @@ export default function PostComments() {
         });
     }
 
-    const onReplyChild = (parentId: string, text: string) => {\
+    const onReplyChild = (parentId: string, text: string) => {
         addComment({
             postId: id,
             parentId,
@@ -177,67 +184,58 @@ export default function PostComments() {
     const [rootText, setRootText] = useState("");
 
     return (
-        <div className="px-5 space-y-6">
-            <Card key={post.id} className="shadow-sm border rounded-lg">
-                <CardHeader className="pb-2">
-                    <CardTitle className="relative flex items-center justify-between">
-                        {/*Users name*/}
-                        <span
-                            className="text-sm font-medium text-gray-700 relative flex items-center justify-between space-x-2">
-                            <UserIcon className="h-5 w-5"/>
-                            <span>{post.userName}</span>
-                        </span>
+        <div className="px-5 space-y-4">
 
-                        {/*Post Subject*/}
-                        <div
-                            className="absolute left-1/2 transform -translate-x-1/2 text-lg text-center w-full justify-between">
-                            {post.title}{" "}
-                            <span className="text-gray-500">
-                                — {subjectToUpper(post.subject)}
-                            </span>
-                        </div>
-
-                        {/*Posts status */}
-                        {post.postStatus && (
-                            <span
-                                className={`text-xs font-medium px-2 py-0.5 rounded-full border ${statusClasses[post.postStatus] || "bg-gray-100 text-gray-800 border-gray-300"}`}>
-                                {post.postStatus}
-                            </span>
-                        )}
+            <Card>
+                <CardHeader>
+                    <CardTitle className="text-lg">
+                        {post.title} <span className="text-gray-500">— {subjectToUpper(post.subject)}</span>
                     </CardTitle>
-
-                    <div
-                        className="mt-2 flex flex-wrap items-center gap-2 justify-center sm:justify-start text-sm">
-                        {post.createdAt && (
-                            <span className="inline-flex items-center gap-1 text-gray-600">
-                                <Clock className="h-4 w-4"/>
-                                <span
-                                    title={formatDate(post.createdAt)}>{formatDate(post.createdAt)}</span>
-                            </span>
-                        )}
-                    </div>
                 </CardHeader>
+                <CardContent className="space-y-4">
+                    <p className="text-gray-800">{post.description}</p>
 
-                <CardContent>
-                    <div className="flex-1 flex justify-center">
-                        {post.description}
+                    {/* root reply box */}
+                    <div className="mt-4 flex gap-2">
+                        <textarea
+                            className="border rounded px-2 py-1 w-full max-w-xl"
+                            placeholder="Write a comment…"
+                            value={rootText}
+                            onChange={(e) => setRootText(e.target.value)}
+                            maxLength={500}
+                            rows={3}
+                        />
+                    </div>
+
+                    <span>
+                        <Button
+                            onClick={() => {
+                                if (!rootText.trim()) return;
+                                onReplyRoot(rootText.trim());
+                                setRootText("");
+                            }}
+                        >
+                            Comment
+                        </Button>
+                    </span>
+
+                    {/* thread */}
+                    <div className="mt-4">
+                        {thread.length === 0 ? (
+                            <p className="text-gray-500">No comments yet.</p>
+                        ) : (
+                            thread.map((node) => (
+                                <CommentNode
+                                    key={node.id}
+                                    node={node}
+                                    onReply={(parentId, text) => onReplyChild(parentId, text)}
+                                    onLike={(commentId) => id && toggleLike(id, commentId)}
+                                />
+                            ))
+                        )}
                     </div>
                 </CardContent>
-
-                <CardFooter className="flex flex-1 items-center space-y-2">
-                    <div className="mt-2 flex items-center gap-4 text-gray-700">
-                        <span className="inline-flex items-center gap-1">
-                            <Button
-                                onClick={() => toggleLiked(post.id)}
-                            >
-                                <ThumbsUp
-                                    className={`h-5 w-5 ${liked.has(post.id) ? "fill-current" : ""}`}/>
-                                {(post.likes ?? 0) + (liked.has(post.id) ? 1 : 0)}
-                            </Button>
-                        </span>
-                    </div>
-                </CardFooter>
             </Card>
         </div>
-    )
+    );
 }

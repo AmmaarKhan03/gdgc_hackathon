@@ -4,6 +4,7 @@ import {Button} from "@/components/ui/button";
 import {usePostStore} from "@/store/postStore";
 import {MessageSquare, ThumbsUp, Tag as TagIcon, Clock, User as UserIcon, FolderOpen} from "lucide-react";
 import {useState, useEffect, useRef} from "react";
+import {useCommentStore} from "@/store/commentStore";
 
 const subjectToUpper = (subject: string) => {
     if (!subject) return;
@@ -31,6 +32,90 @@ const categoryClasses: Record<string, string> = {
     resource: "bg-sky-100 text-sky-800 border border-sky-300",
 };
 
+function CommentNode({
+                         node,
+                         onReply,
+                         onLike,
+                         depth = 0,
+                     }: {
+    node: ReturnType<typeof useCommentStore.getState>["getThread"][number];
+    onReply: (parentId: string, text: string) => void;
+    onLike: (id: string) => void;
+    depth?: number;
+}) {
+    const [showForm, setShowForm] = useState(false);
+    const [text, setText] = useState("");
+
+    return (
+        <div className="mt-3">
+            <div
+                className="rounded-md border p-3"
+                style={{ marginLeft: depth * 16 }}
+            >
+                <div className="flex items-center gap-2 text-sm text-gray-700">
+                    <UserIcon className="h-4 w-4" />
+                    <span className="font-medium">{node.userName}</span>
+                    <span className="text-gray-400">• {new Date(node.createdAt).toLocaleString()}</span>
+                </div>
+                <p className="mt-1">{node.text}</p>
+
+                <div className="mt-2 flex items-center gap-3 text-gray-700">
+                    <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-7 px-2 inline-flex items-center gap-1"
+                        onClick={() => onLike(node.id)}
+                    >
+                        <ThumbsUp className="h-4 w-4" />
+                        {node.likes}
+                    </Button>
+                    <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-7 px-2 inline-flex items-center gap-1"
+                        onClick={() => setShowForm((s) => !s)}
+                    >
+                        <MessageSquare className="h-4 w-4" />
+                        Reply
+                    </Button>
+                </div>
+
+                {showForm && (
+                    <div className="mt-2 flex gap-2">
+                        <input
+                            className="flex-1 border rounded px-2 py-1"
+                            placeholder="Write a reply…"
+                            value={text}
+                            onChange={(e) => setText(e.target.value)}
+                        />
+                        <Button
+                            size="sm"
+                            onClick={() => {
+                                if (!text.trim()) return;
+                                onReply(node.id, text.trim());
+                                setText("");
+                                setShowForm(false);
+                            }}
+                        >
+                            Post
+                        </Button>
+                    </div>
+                )}
+            </div>
+
+            {node.children.map((child) => (
+                <CommentNode
+                    key={child.id}
+                    node={child}
+                    onReply={onReply}
+                    onLike={onLike}
+                    depth={depth + 1}
+                />
+            ))}
+        </div>
+    );
+}
+
 export default function PostComments() {
     const {id} = useParams<{ id: string }>();
     const navigate = useNavigate();
@@ -47,6 +132,9 @@ export default function PostComments() {
     }
 
     const post = usePostStore((state) => state.posts.find((post) => post.id === id));
+    const addComment = useCommentStore((state) => state.addComment);
+    const toggleLike = useCommentStore((state) => state.toggleLike);
+    const getThread = useCommentStore((state) => state.getThread);
 
     if (!id) {
         return (
@@ -65,6 +153,28 @@ export default function PostComments() {
             </div>
         );
     }
+
+    const onReplyRoot = (text: string) => {
+        addComment({
+            postId: id,
+            parentId: null,
+            userId: "U001",
+            userName: "Iva Hackathon",
+            text,
+        });
+    }
+
+    const onReplyChild = (parentId: string, text: string) => {\
+        addComment({
+            postId: id,
+            parentId,
+            userId: "U001",
+            userName: "Iva Hackathon",
+            text,
+        });
+    }
+
+    const [rootText, setRootText] = useState("");
 
     return (
         <div className="px-5 space-y-6">

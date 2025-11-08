@@ -46,6 +46,8 @@ function CommentNode({
 }) {
     const [showForm, setShowForm] = useState(false);
     const [text, setText] = useState("");
+    const likedCommentIds = useCommentStore((state) => state.likedCommentIds);
+    const toggleLike = useCommentStore((state) => state.toggleLike);
 
     return (
         <div className="mt-3">
@@ -64,9 +66,9 @@ function CommentNode({
                     <Button
                         size="sm"
                         className="h-7 px-2 inline-flex items-center gap-1"
-                        onClick={() => onLike(node.id)}
+                        onClick={() => toggleLike(node.postId, node.id)}
                     >
-                        <ThumbsUp className="h-4 w-4"/>
+                        <ThumbsUp className={`h-5 w-5 ${likedCommentIds.has(node.id) ? "fill-current" : ""}`}/>
                         {node.likes}
                     </Button>
                     <Button

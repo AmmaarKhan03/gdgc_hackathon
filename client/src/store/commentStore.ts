@@ -26,11 +26,10 @@ const treeCache = new WeakMap<Comment[], CommentTree[]>(); // make a new WeakMap
                                                            // and already built CommentTree[] as its second parameter
 // we use WeakMap so if the array of objects is not being referenced its memory is garbage
 
-
 // function to actually build the tree of comments
 // define a list variable of type Comments object array
 // its return type will be a CommentTree
-function buildTree(list: Comment[]): CommentTree[] {
+export function buildTree(list: Comment[]): CommentTree[] {
     // return the cached tree if we already have built it
     const cached = treeCache.get(list);
     if (cached) return cached;

@@ -4,8 +4,9 @@ import {Button} from "@/components/ui/button";
 import {usePostStore} from "@/store/postStore";
 import {MessageSquare, ThumbsUp, Tag as TagIcon, Clock, User as UserIcon, FolderOpen} from "lucide-react";
 import {useState, useEffect, useRef} from "react";
-import {useCommentStore} from "@/store/commentStore";
+import {useCommentStore, buildTree} from "@/store/commentStore";
 import {CommentTree} from "@/store/commentStore";
+import { useMemo } from "react";
 
 const subjectToUpper = (subject: string) => {
     if (!subject) return;
@@ -32,6 +33,8 @@ const categoryClasses: Record<string, string> = {
     discussion: "bg-indigo-100 text-indigo-800 border border-indigo-300",
     resource: "bg-sky-100 text-sky-800 border border-sky-300",
 };
+
+const EMPTY_COMMENTS: Comment[] = [];
 
 function CommentNode({
                          node,
@@ -82,7 +85,7 @@ function CommentNode({
                 </div>
 
                 {showForm && (
-                    <div className="mt-5 flex flex-col gap-2 sapce-y-5">
+                    <div className="mt-5 flex flex-col gap-2 space-y-5">
                         <textarea
                             className="border rounded px-2 py-1 w-full max-w-xl"
                             placeholder="Write a reply…"
@@ -143,7 +146,11 @@ export default function PostComments() {
     const toggleLike = useCommentStore((state) => state.toggleLike);
     const getThread = useCommentStore((state) => state.getThread);
 
-    const thread = useCommentStore((s) => s.getThread(id || ""));
+    const rawList = useCommentStore(
+        (s) => s.commentsByPostId[id!] ?? EMPTY_COMMENTS
+    );
+
+    const thread = useMemo(() => buildTree(rawList), [rawList]);
 
     if (!id) {
         return (

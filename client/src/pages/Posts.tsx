@@ -72,8 +72,13 @@ export default function Posts() {
         return Array.from(byId.values()); // return an array of posts from byId Map
     }, [buckets, activeFilters, searchQuery, posts]); // only run useMemo when buckets, activeFilters, searchQuery, or posts changes
 
+    // when a check box is clicked adds that filter or removes it
     const toggleFilter = (key: FilterKey) => {
+        // check the current selected filters
+        // use prev as last checked state
         setSelectedFilters((prev) =>
+            // if prev already has the filtered key remove it and create new array of filters
+            // else make add it and make new array with new filter key
             prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
         );
     }

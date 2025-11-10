@@ -4,6 +4,10 @@ import {useState, useEffect, useMemo} from "react";
 import {Button} from "@/components/ui/button";
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
+import FormGroup from "@mui/material/FormGroup";
+import Popover from "@mui/material/Popover";
+import Divider from "@mui/material/Divider";
+import FilterAltIcon from "@mui/icons-material/FilterAlt";
 
 type FilterKey = "title" | "description" | "subject" | "category";
 
@@ -13,6 +17,7 @@ export default function Posts() {
 
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedFilters, setSelectedFilters] = useState<FilterKey[]>([]);
+    const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 
     const filterOptions = [
         {label: "Title", value: "title"},
@@ -22,7 +27,8 @@ export default function Posts() {
     ];
 
     // if selected filters is greater than 0 show only the selected filters else show all filters
-    const activeFilters = selectedFilters.length > 0 ? selectedFilters : (["title", "description", "subject", "category"] as const);
+    const allKeys = ["title", "description", "subject", "category"] as FilterKey[];
+    const activeFilters = selectedFilters.length > 0 ? selectedFilters : (allKeys);
 
     const {filteredTitle, filteredDescription, filteredSubject, filteredCategory} = useMemo(() => {
         const query = searchQuery.trim().toLowerCase();
@@ -87,11 +93,16 @@ export default function Posts() {
         setSearchQuery(event.target.value);
     }
 
+    const open = Boolean(anchorEl);
+    const id = open ? "filter-popover" : undefined;
+
+    const selectAll = () => setSelectedFilters(allKeys);
+    const clearAll = () => setSelectedFilters([]);
 
     return (
         <div className="px-5 space-y-6">
 
-            <div className="">
+            <div className="flex items-center gap-3">
                 <input
                     className="rounded-l border"
                     type="text"
@@ -99,20 +110,75 @@ export default function Posts() {
                     value={searchQuery}
                     onChange={handleSearch}
                 />
-                <div>
-                    {filterOptions.map((option) =>
-                        <FormControlLabel
-                            key={option.value}
-                            control={
-                                <Checkbox
-                                    checked={selectedFilters.includes(option.value as FilterKey)}
-                                    onChange={() => toggleFilter(option.value as FilterKey)}
-                                />
-                            }
-                            label={option.label}
-                        />
+
+                <Button
+                    onClick={(event) => setAnchorEl(event.currentTarget)}
+                    className="flex items-center gap-2"
+                    aria-describedby={id}
+                >
+                    <FilterAltIcon fontSize="small"/>
+                    Filters
+                    {selectedFilters.length > 0 && (
+                        <span>
+                            {selectedFilters.length}
+                        </span>
                     )}
-                </div>
+                </Button>
+
+                <Popover
+                    id={id}
+                    open={open}
+                    anchorEl={anchorEl}
+                    onClose={() => setAnchorEl(null)}
+                    anchorOrigin={{vertical: "bottom", horizontal: "left"}}
+                    transformOrigin={{vertical: "top", horizontal: "left"}}
+                    sx={{mt:1}}
+                >
+                    <div className="px-2 py-1">
+                        <div className="flex items-center justify-between px-1 py-1 space-x-2">
+                            <span className="text-sm font-medium">Filter Fields</span>
+                            <div className="flex gap-2">
+                                <Button
+                                    className="text-sm underline"
+                                    onClick={selectAll}
+                                    type="button"
+                                >
+                                    Select all
+                                </Button>
+
+                                <Button
+                                    className="text-sm underline"
+                                    onClick={clearAll}
+                                    type="button"
+                                >
+                                    Clear all
+                                </Button>
+                            </div>
+                        </div>
+                        <Divider/>
+                        <FormGroup sx={{ px: 1, py: 1 }}>
+                            {filterOptions.map((opt) => (
+                                <FormControlLabel
+                                    key={opt.value}
+                                    control={
+                                        <Checkbox
+                                            checked={selectedFilters.includes(opt.value as FilterKey)}
+                                            onChange={() => toggleFilter(opt.value as FilterKey)}
+                                            size="small"
+                                        />
+                                    }
+                                    label={opt.label}
+                                />
+                            ))}
+                        </FormGroup>
+                        <Divider/>
+                        <div className="flex justify-end px-1 py-1">
+                            <Button onClick={() => setAnchorEl(null)}>
+                                Done
+                            </Button>
+                        </div>
+                    </div>
+                </Popover>
             </div>
             {filteredPosts.length === 0 ? (
                 <p className="text-sm text-gray-500">No posts match your filters.</p>

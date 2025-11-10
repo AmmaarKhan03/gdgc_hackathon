@@ -1,13 +1,16 @@
-import {usePostStore} from "@/store/postStore";
+import {usePostStore, Post} from "@/store/postStore";
 import {Card, CardHeader, CardTitle, CardContent} from "@/components/ui/card";
-import {useState, useEffect} from "react";
+import {useState, useEffect, useMemo} from "react";
 
-export default function Posts()  {
+export default function Posts() {
 
     const posts = usePostStore(state => state.posts);
 
     const [searchQuery, setSearchQuery] = useState("");
-    const [debouncedQuery, setDebouncedQuery] = useState('');
+    const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
+
+
+    const [filteredItems, setFilteredItems] = useState([""]);
     const filteredPosts = posts.filter(post =>
         post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         post.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -22,6 +25,7 @@ export default function Posts()  {
     return (
         <div className="px-5 space-y-6">
 
+
             <input
                 className="rounded-l border"
                 type="text"
@@ -29,20 +33,20 @@ export default function Posts()  {
                 value={searchQuery}
                 onChange={handleSearch}
             />
-
-            {filteredPosts.map((post, index) => (
-                <Card key={index}>
-                    <CardHeader>
-                        <CardTitle>
-                            {post.title}
-                        </CardTitle>
-                    </CardHeader>
-
-                    <CardContent>
-                        {post.description}
-                    </CardContent>
-                </Card>
-            ))}
+            {filteredPosts.length === 0 ? (
+                <p className="text-sm text-gray-500">No posts match your filters.</p>
+            ) : (
+                filteredPosts.map((post) => (
+                    <Card key={post.id ?? post.title}>
+                        <CardHeader>
+                            <CardTitle>{post.title}</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-1">
+                            {post.description}
+                        </CardContent>
+                    </Card>
+                ))
+            )}
         </div>
     )
 }

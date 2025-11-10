@@ -4,7 +4,7 @@ type Category = "review" | "feedback" | "tutoring";
 type Subject = "science" | "math" | "writing" | "computer science" | "engineering" | "art" | "business" | "history" | "social studies" | "music" | "other";
 type PostStatus = "OPEN" | "IN_PROGRESS" | "CLOSED";
 
-interface Post {
+export interface Post {
     id: string
     title: string
     description: string

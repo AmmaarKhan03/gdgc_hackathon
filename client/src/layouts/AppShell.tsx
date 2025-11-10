@@ -4,6 +4,7 @@ import {NavLink, Outlet, useLocation, useNavigate} from "react-router-dom";
 import {Button} from "@/components/ui/button";
 import {Drawer, List, ListItemButton, ListItemIcon, ListItemText} from "@mui/material";
 import {Menu, MailIcon, X, Snail, BarChart3, Dumbbell, LayoutDashboard, User, MessageSquare} from "lucide-react";
+import Groups2OutlinedIcon from '@mui/icons-material/Groups2Outlined';
 import AccountCircleRoundedIcon from '@mui/icons-material/AccountCircleRounded';
 import {useAuthStore} from "@/store/authStore";
 
@@ -50,6 +51,7 @@ export default function AppShell() {
     const items = [
         {label: "Dashboard", to: "/dashboard", icon: <LayoutDashboard />},
         {label: "Posts", to: "/posts", icon: <MessageSquare />},
+        {label: "Sessions", to: "/sessions", icon: <Groups2OutlinedIcon/>},
         {label: "Users", to: "/users", icon: <User />},
         {label: "Reviews", to: "/reviews", icon: <BarChart3 />},
         {label: "Profile", to: "/profile", icon: <Snail />},
@@ -60,6 +62,7 @@ export default function AppShell() {
         "/users": "Users",
         "/profile": "Profile",
         "/posts": "Posts",
+        "/sessions": "Sessions",
         "/reviews": "Reviews",
     };
 

@@ -8,6 +8,7 @@ import Users from "@/pages/Users";
 import Profile from "@/pages/Profile";
 
 import Posts from "@/pages/Posts";
+import Sessions from "@/pages/Sessions";
 import PostComments from "@/pages/PostComments";
 import Reviews from "@/pages/Reviews";
 
@@ -53,6 +54,8 @@ const router = createBrowserRouter([
             {path: "users", element: <Users/>},
             {path: "posts", element: <Posts/>},
             {path: "posts/:id/comments", element: <PostComments/>},
+            {path: "sessions", element: <Sessions/>},
+            // {path: "sessions/:id", element: <IndividualSession/>},
             {path: "profile", element: <Profile/>},
             {path: "reviews", element: <Reviews/>},
             // EX when user clicks on another users profile

@@ -159,7 +159,7 @@ export const mockPosts: Post[] = [
         description:
             "Working on a psychology research paper and need help running an ANOVA test in R. I have the dataset ready, just confused about the statistical interpretation.",
         category: "tutoring",
-        subject: "psychology",
+        subject: "other",
         tags: ["stats", "R", "ANOVA"],
         userId: "U011",
         userName: "Hannah Brooks",
@@ -173,8 +173,8 @@ export const mockPosts: Post[] = [
         title: "Looking for lab partner for BIO 20L",
         description:
             "Need a reliable partner who can meet consistently. I’m good with note-taking and data organization.",
-        category: "study group",
-        subject: "biology",
+        category: "meetup",
+        subject: "science",
         tags: ["bio lab", "partner", "20L"],
         userId: "U012",
         userName: "Marcus Hill",
@@ -189,7 +189,7 @@ export const mockPosts: Post[] = [
         description:
             "Trying to build a simple developer portfolio using React but the layout looks boring. Any suggestions or template recommendations?",
         category: "feedback",
-        subject: "web development",
+        subject: "computer science",
         tags: ["react", "portfolio", "frontend"],
         userId: "U013",
         userName: "Javier Gomez",
@@ -219,7 +219,7 @@ export const mockPosts: Post[] = [
         description:
             "Currently studying Japanese 1. Would like someone to practice hiragana and simple conversation with once or twice a week.",
         category: "meetup",
-        subject: "language learning",
+        subject: "other",
         tags: ["japanese", "study buddy", "hiragana"],
         userId: "U015",
         userName: "Rei Sato",
@@ -234,7 +234,7 @@ export const mockPosts: Post[] = [
         description:
             "It's a 3-page short story for my literature class. Mainly looking for feedback on pacing and emotional tone.",
         category: "review",
-        subject: "literature",
+        subject: "writing",
         tags: ["creative writing", "short story", "editing"],
         userId: "U016",
         userName: "Eleanor Davis",

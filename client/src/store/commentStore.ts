@@ -1,4 +1,5 @@
 import {create} from 'zustand'
+import {mockComments} from "@/types/mockData";
 
 export interface Comment {
     id: string
@@ -57,31 +58,6 @@ export function buildTree(list: Comment[]): CommentTree[] {
     treeCache.set(list, tree);
     return tree;
 }
-
-const mockComments: Record<string, Comment[]> = {
-    "POST-001": [
-        {
-            id: "C-1",
-            postId: "POST-001",
-            parentId: null,
-            userId: "U010",
-            userName: "Alex",
-            text: "Can you share a minimal repro?",
-            createdAt: new Date("2025-11-01T11:10:00Z").toISOString(),
-            likes: 1,
-        },
-        {
-            id: "C-2",
-            postId: "POST-001",
-            parentId: "C-1",
-            userId: "U001",
-            userName: "Ivan Argueta",
-            text: "Yep, pushing now—thanks!",
-            createdAt: new Date("2025-11-01T11:15:00Z").toISOString(),
-            likes: 0,
-        },
-    ],
-};
 
 export const useCommentStore = create<CommentStore>((set, get) => ({
     commentsByPostId: mockComments,

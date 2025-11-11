@@ -8,7 +8,7 @@ import FormGroup from "@mui/material/FormGroup";
 import Popover from "@mui/material/Popover";
 import Divider from "@mui/material/Divider";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
-import {MessageSquare, ThumbsUp, Tag as TagIcon, Clock, User as UserIcon, FolderOpen} from "lucide-react";
+import {MessageSquare, ThumbsUp, User as UserIcon} from "lucide-react";
 import {useNavigate} from "react-router-dom";
 import {useCommentStore} from "@/store/commentStore";
 

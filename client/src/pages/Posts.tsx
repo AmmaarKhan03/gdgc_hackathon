@@ -8,7 +8,7 @@ import FormGroup from "@mui/material/FormGroup";
 import Popover from "@mui/material/Popover";
 import Divider from "@mui/material/Divider";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
-import {MessageSquare, ThumbsUp, User as UserIcon, ArrowRightToLine, ArrowLeftToLine, MoveRight, MoveLeft} from "lucide-react";
+import {MessageSquare, ThumbsUp, User as UserIcon, ArrowRightToLine, ArrowLeftToLine, MoveRight, MoveLeft, Clock} from "lucide-react";
 import {useNavigate} from "react-router-dom";
 import {useCommentStore} from "@/store/commentStore";
 
@@ -261,6 +261,19 @@ export default function Posts() {
                                             <span className={`ml-auto text-xs font-medium px-2 py-0.5 rounded-full border ${statusClasses[post.postStatus]}`}>
                                                 {post.postStatus}
                                             </span>
+                                        )}
+                                    </div>
+
+                                    <div
+                                        className="mt-2 flex flex-wrap items-center gap-2 justify-center sm:justify-start text-sm">
+
+
+                                        {post.createdAt && (
+                                            <span className="inline-flex items-center gap-1 text-gray-600">
+                                                    <Clock className="h-4 w-4"/>
+                                                    <span
+                                                        title={formatDate(post.createdAt)}>{formatDate(post.createdAt)}</span>
+                                                </span>
                                         )}
                                     </div>
                                 </CardHeader>

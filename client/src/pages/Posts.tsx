@@ -8,7 +8,7 @@ import FormGroup from "@mui/material/FormGroup";
 import Popover from "@mui/material/Popover";
 import Divider from "@mui/material/Divider";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
-import {MessageSquare, ThumbsUp, User as UserIcon} from "lucide-react";
+import {MessageSquare, ThumbsUp, User as UserIcon, ArrowRightToLine, ArrowLeftToLine, MoveRight, MoveLeft} from "lucide-react";
 import {useNavigate} from "react-router-dom";
 import {useCommentStore} from "@/store/commentStore";
 
@@ -28,6 +28,8 @@ export default function Posts() {
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedFilters, setSelectedFilters] = useState<FilterKey[]>([]);
     const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+    const [page, setPage] = useState(1);
+    const pageSize = 10;
 
     const filterOptions = [
         {label: "Title", value: "title"},
@@ -87,6 +89,22 @@ export default function Posts() {
 
         return Array.from(byId.values()); // return an array of posts from byId Map
     }, [buckets, activeFilters, searchQuery, posts]); // only run useMemo when buckets, activeFilters, searchQuery, or posts changes
+
+    useEffect(() => {
+        setPage(1);
+    }, [searchQuery, selectedFilters, posts]);
+
+    const totalPages = Math.max(1, Math.ceil(filteredPosts.length / pageSize));
+    useEffect(() => {
+        if (page > totalPages) setPage(totalPages);
+    }, [page, totalPages]);
+
+    const startPage = (page - 1) * pageSize;
+    const endPage = startPage + pageSize;
+    const pagedPosts = useMemo(() =>
+        filteredPosts.slice(startPage, endPage),
+        [filteredPosts, startPage, endPage],
+    )
 
     // when a check box is clicked adds that filter or removes it
     const toggleFilter = (key: FilterKey) => {
@@ -220,7 +238,7 @@ export default function Posts() {
                     {filteredPosts.length === 0 ? (
                         <p className="text-sm text-gray-500">No posts match your filters.</p>
                     ) : (
-                        filteredPosts.map((post) => (
+                        pagedPosts.map((post) => (
                             <Card className="h-full flex flex-col shadow-sm border rounded-lg"
                                   key={post.id ?? post.title}>
                                 <CardHeader className="pb-2">
@@ -277,6 +295,59 @@ export default function Posts() {
                         ))
                     )}
                 </CardContent>
+
+                <CardFooter className="flex items-center justify-between pt-0">
+                    {/* Left: range info */}
+                    <span className="text-sm text-gray-600">
+    {filteredPosts.length === 0
+        ? "0 results"
+        : `${startPage + 1}–${Math.min(endPage, filteredPosts.length)} of ${filteredPosts.length}`}
+  </span>
+
+                    {/* Right: arrows + page number */}
+                    <div className="flex items-center gap-2">
+                        <Button
+                            type="button"
+                            onClick={() => setPage(1)}
+                            disabled={page === 1}
+                            aria-label="First page"
+                            className="h-9 px-3"
+                        >
+                            <ArrowLeftToLine/>
+                        </Button>
+                        <Button
+                            type="button"
+                            onClick={() => setPage((p) => Math.max(1, p - 1))}
+                            disabled={page === 1}
+                            aria-label="Previous page"
+                            className="h-9 px-3"
+                        >
+                            <MoveLeft/>
+                        </Button>
+                        <span className="text-sm tabular-nums">
+                            Page {page} of {totalPages}
+                        </span>
+
+                        <Button
+                            type="button"
+                            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                            disabled={page === totalPages}
+                            aria-label="Next page"
+                            className="h-9 px-3"
+                        >
+                            <MoveRight/>
+                        </Button>
+                        <Button
+                            type="button"
+                            onClick={() => setPage(totalPages)}
+                            disabled={page === totalPages}
+                            aria-label="Last page"
+                            className="h-9 px-3"
+                        >
+                            <ArrowRightToLine/>
+                        </Button>
+                    </div>
+                </CardFooter>
             </Card>
         </div>
     )

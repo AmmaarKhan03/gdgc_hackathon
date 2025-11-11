@@ -26,12 +26,12 @@ export default function AppShell() {
     useEffect(() => {
         // function used to listen is user clicks anywhere on the page to close the menu
         function onClick(e: MouseEvent) { // pass in a mouseEvent to listen for
-            if (!menuRef.current) return; // if menuRef.current is null or undefined meaning its not ready to open yet do nothing
+            if (!menuRef.current) return; // if menuRef.current is null or undefined meaning it's not ready to open yet do nothing
             if (!menuRef.current.contains(e.target as Node)) setOpenProfileOptions(false); // if the  click was outside the profile menu close the menu
         }
 
         // function that will listen to a keyboard event
-        function onEsc(e: KeyboardEvent) { // fucntion called onEsc that listens for KeyBoardEvent
+        function onEsc(e: KeyboardEvent) { // function called onEsc that listens for KeyBoardEvent
             if (e.key === "Escape") setOpenProfileOptions(false); // if event.key === "Escape" we close the menu
         }
 

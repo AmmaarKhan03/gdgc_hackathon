@@ -8,9 +8,18 @@ import FormGroup from "@mui/material/FormGroup";
 import Popover from "@mui/material/Popover";
 import Divider from "@mui/material/Divider";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
-import {MessageSquare, ThumbsUp, User as UserIcon, ArrowRightToLine, ArrowLeftToLine, MoveRight, MoveLeft} from "lucide-react";
+import {
+    MessageSquare,
+    ThumbsUp,
+    User as UserIcon,
+    ArrowRightToLine,
+    ArrowLeftToLine,
+    MoveRight,
+    MoveLeft
+} from "lucide-react";
 import {useNavigate} from "react-router-dom";
 import {useCommentStore} from "@/store/commentStore";
+import {motion} from "framer-motion";
 
 type FilterKey = "title" | "description" | "subject" | "category";
 
@@ -102,7 +111,7 @@ export default function Posts() {
     const startPage = (page - 1) * pageSize;
     const endPage = startPage + pageSize;
     const pagedPosts = useMemo(() =>
-        filteredPosts.slice(startPage, endPage),
+            filteredPosts.slice(startPage, endPage),
         [filteredPosts, startPage, endPage],
     )
 
@@ -254,40 +263,48 @@ export default function Posts() {
                         <p className="text-sm text-gray-500">No posts match your filters.</p>
                     ) : (
                         pagedPosts.map((post) => (
-                            <Card
-                                className={`bg-white rounded-lg border shadow-sm hover:shadow transition-all ${statusBar(post.category)}`}
-                                key={post.id ?? post.title}>
-                                <CardHeader className="pb-2">
-                                    <div className="relative flex items-center w-full">
+                            <motion.div
+                                key={post.id}
+                                whileHover={{y: -6, scale: 1.01}}
+                                whileTap={{y: -2}}
+                                transition={{type: "tween", ease: "easeOut", duration: 0.18 }}
+                                className="relative z-0"
+                            >
+                                <Card
+                                    className={`bg-white rounded-lg border shadow-sm hover:shadow transition-all ${statusBar(post.category)}`}
+                                    key={post.id ?? post.title}>
+                                    <CardHeader className="pb-2">
+                                        <div className="relative flex items-center w-full">
 
 
-                                        <div className="flex items-center gap-2">
-                                            <UserIcon className="h-5 w-5"/>
-                                            <span className="text-sm font-medium text-gray-700 truncate">
+                                            <div className="flex items-center gap-2">
+                                                <UserIcon className="h-5 w-5"/>
+                                                <span className="text-sm font-medium text-gray-700 truncate">
                                                 {post.userName}
                                             </span>
-                                        </div>
+                                            </div>
 
-                                        <h3 className="absolute left-1/2 -translate-x-1/2 text-base font-semibold text-center break-words">
-                                            {post.title}{" "}
-                                            <span className="text-gray-500">— {subjectToUpper(post.subject)}</span>
-                                        </h3>
+                                            <h3 className="absolute left-1/2 -translate-x-1/2 text-base font-semibold text-center break-words">
+                                                {post.title}{" "}
+                                                <span className="text-gray-500">— {subjectToUpper(post.subject)}</span>
+                                            </h3>
 
-                                        {post.postStatus && (
-                                            <span className={`ml-auto text-xs font-medium px-2 py-0.5 rounded-full border ${statusClasses[post.postStatus]}`}>
+                                            {post.postStatus && (
+                                                <span
+                                                    className={`ml-auto text-xs font-medium px-2 py-0.5 rounded-full border ${statusClasses[post.postStatus]}`}>
                                                 {post.postStatus}
                                             </span>
-                                        )}
-                                    </div>
-                                </CardHeader>
+                                            )}
+                                        </div>
+                                    </CardHeader>
 
 
-                                <CardContent className="flex-1 flex justify-center">
-                                    {post.description}
-                                </CardContent>
+                                    <CardContent className="flex-1 flex justify-center">
+                                        {post.description}
+                                    </CardContent>
 
-                                <CardFooter className="flex flex-1 items-center space-y-2">
-                                    <div className="mt-2 flex items-center gap-4 text-gray-700">
+                                    <CardFooter className="flex flex-1 items-center space-y-2">
+                                        <div className="mt-2 flex items-center gap-4 text-gray-700">
                                             <span className="inline-flex items-center gap-1">
                                                 <Button
                                                     onClick={() => toggleLike(post.id)}
@@ -297,7 +314,7 @@ export default function Posts() {
                                                     {post.likes ?? 0}
                                                 </Button>
                                             </span>
-                                        <span className="inline-flex items-center gap-1">
+                                            <span className="inline-flex items-center gap-1">
                                                 <Button
                                                     onClick={() => goToComments(post.id)}
                                                 >
@@ -305,22 +322,19 @@ export default function Posts() {
                                                     {commentsByPost[post.id]?.length ?? 0}
                                                 </Button>
                                             </span>
-                                    </div>
-                                </CardFooter>
-                            </Card>
+                                        </div>
+                                    </CardFooter>
+                                </Card>
+                            </motion.div>
                         ))
                     )}
                 </CardContent>
 
                 <CardFooter className="flex items-center justify-between pt-0">
-                    {/* Left: range info */}
                     <span className="text-sm text-gray-600">
-    {filteredPosts.length === 0
-        ? "0 results"
-        : `${startPage + 1}–${Math.min(endPage, filteredPosts.length)} of ${filteredPosts.length}`}
-  </span>
+                        {filteredPosts.length === 0 ? "0 results" : `${startPage + 1}–${Math.min(endPage, filteredPosts.length)} of ${filteredPosts.length}`}
+                    </span>
 
-                    {/* Right: arrows + page number */}
                     <div className="flex items-center gap-2">
                         <Button
                             type="button"
@@ -331,6 +345,7 @@ export default function Posts() {
                         >
                             <ArrowLeftToLine/>
                         </Button>
+
                         <Button
                             type="button"
                             onClick={() => setPage((p) => Math.max(1, p - 1))}
@@ -340,6 +355,7 @@ export default function Posts() {
                         >
                             <MoveLeft/>
                         </Button>
+
                         <span className="text-sm tabular-nums">
                             Page {page} of {totalPages}
                         </span>
@@ -353,6 +369,7 @@ export default function Posts() {
                         >
                             <MoveRight/>
                         </Button>
+
                         <Button
                             type="button"
                             onClick={() => setPage(totalPages)}

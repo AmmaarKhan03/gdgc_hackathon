@@ -101,7 +101,7 @@ export default function Posts() {
 
     useEffect(() => {
         setPage(1);
-    }, [searchQuery, selectedFilters, posts]);
+    }, [searchQuery, selectedFilters]);
 
     const totalPages = Math.max(1, Math.ceil(filteredPosts.length / pageSize));
     useEffect(() => {
@@ -136,15 +136,34 @@ export default function Posts() {
     const selectAll = () => setSelectedFilters(allKeys);
     const clearAll = () => setSelectedFilters([]);
 
-    const statusClasses: Record<string, string> = {
-        OPEN: "!bg-green-100 !text-green-800 !border !border-green-300",
-        CLOSED: "!bg-red-100 !text-red-800 !border !border-red-300",
-        RESOLVED: "!bg-blue-100 !text-blue-800 border !border-blue-300",
+    const categoryClasses: Record<string, string> = {
+        review: "!bg-blue-100 !text-blue-800 !border !border-blue-300",
+        feedback: "!bg-amber-100 !text-amber-800 !border !border-amber-300",
+        tutoring: "!bg-green-100 !text-green-800 border !border-green-300",
+        career: "!bg-red-100 !text-red-800 border !border-red-300",
+        meetup: "!bg-purple-100 !text-purple-800 border !border-purple-300",
     };
+
+    function categoryTypeBar(postCategory?: string) {
+        return {
+            review: 'border-l-4 border-l-blue-600 border-b-blue-600',
+            feedback: 'border-l-4 border-l-amber-500 border-b-amber-500',
+            tutoring: 'border-l-4 border-l-green-600 border-b-green-600',
+            career: 'border-l-4 border-l-red-400 border-b-red-400',
+            meetup: 'border-l-4 border-l-purple-500 border-b-purple-500',
+        }[postCategory ?? 'review'] ?? '';
+    }
+
 
     const subjectToUpper = (subject: string) => {
         if (!subject) return;
         return subject.split(" ").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
+    }
+
+    const categoryToUpper = (subject: string) => {
+        if (!subject) return;
+
+        return subject.charAt(0).toUpperCase() + subject.slice(1)
     }
 
     const formatDate = (iso: string | undefined) => {
@@ -155,16 +174,6 @@ export default function Posts() {
             timeStyle: "short",
         });
     };
-
-    function statusBar(postStatus?: string) {
-        return {
-            review: 'border-l-4 border-blue-600',
-            feedback: 'border-l-4 border-amber-500',
-            tutoring: 'border-l-4 border-green-600',
-            career: 'border-l-4 border-red-400',
-            meetup: 'border-l-4 border-purple-500',
-        }[postStatus ?? 'review'] ?? '';
-    }
 
 
     return (
@@ -177,7 +186,7 @@ export default function Posts() {
                             {searchQuery.trim() ? "Search Results" : "All Posts"}
                         </div>
 
-                        <div className="flex-1 flex justify-center">
+                        <div className="flex-1 flex justify-center space-x-3">
                             <input
                                 className="h-9 w-3/4 max-w-md px-3 border rounded-l rounded-r"
                                 type="text"
@@ -185,9 +194,6 @@ export default function Posts() {
                                 value={searchQuery}
                                 onChange={handleSearch}
                             />
-                        </div>
-
-                        <div className="flex-1 flex justify-end items-center gap-2">
 
                             <Button
                                 onClick={(event) => setAnchorEl(event.currentTarget)}
@@ -254,11 +260,17 @@ export default function Posts() {
                                 </div>
                             </Popover>
                         </div>
+
+                        <div className="flex-1 flex justify-end items-center gap-2">
+                            <Button>
+                                Create Post
+                            </Button>
+                        </div>
                     </CardTitle>
                 </CardHeader>
 
 
-                <CardContent className="grid grid-cols-1 gap-4 items-stretch">
+                <CardContent className="grid grid-cols-1 gap-10 items-stretch mt-5">
                     {filteredPosts.length === 0 ? (
                         <p className="text-sm text-gray-500">No posts match your filters.</p>
                     ) : (
@@ -271,7 +283,7 @@ export default function Posts() {
                                 className="relative z-0"
                             >
                                 <Card
-                                    className={`bg-white rounded-lg border shadow-sm hover:shadow transition-all ${statusBar(post.category)}`}
+                                    className={`bg-white rounded-sm border shadow-sm hover:shadow transition-all ${categoryTypeBar(post.category)}`}
                                     key={post.id ?? post.title}>
                                     <CardHeader className="pb-2">
                                         <div className="relative flex items-center w-full">
@@ -289,10 +301,10 @@ export default function Posts() {
                                                 <span className="text-gray-500">— {subjectToUpper(post.subject)}</span>
                                             </h3>
 
-                                            {post.postStatus && (
+                                            {post.category && (
                                                 <span
-                                                    className={`ml-auto text-xs font-medium px-2 py-0.5 rounded-full border ${statusClasses[post.postStatus]}`}>
-                                                {post.postStatus}
+                                                    className={`ml-auto text-xs font-medium px-2 py-0.5 rounded-full border ${categoryClasses[post.category]}`}>
+                                                {categoryToUpper(post.category)}
                                             </span>
                                             )}
                                         </div>
@@ -307,6 +319,7 @@ export default function Posts() {
                                         <div className="mt-2 flex items-center gap-4 text-gray-700">
                                             <span className="inline-flex items-center gap-1">
                                                 <Button
+                                                    type="button"
                                                     onClick={() => toggleLike(post.id)}
                                                 >
                                                     <ThumbsUp
@@ -316,6 +329,7 @@ export default function Posts() {
                                             </span>
                                             <span className="inline-flex items-center gap-1">
                                                 <Button
+                                                    type="button"
                                                     onClick={() => goToComments(post.id)}
                                                 >
                                                     <MessageSquare className="h-5 w-5"/>

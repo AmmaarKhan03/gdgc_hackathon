@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import {useNavigate} from "react-router-dom";
 import {useCommentStore} from "@/store/commentStore";
+import {motion} from "framer-motion";
 
 const subjectToUpper = (subject: string) => {
     if (!subject) return;
@@ -85,6 +86,7 @@ export default function Dashboard() {
     ];
 
 
+
     return (
         <div className="px-5 space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -113,56 +115,68 @@ export default function Dashboard() {
                         </CardHeader>
 
                         <CardContent className="space-y-4">
-
                             {pagedPosts.map((post, index) => (
-                                <Card key={post.id} className="shadow-sm border rounded-lg">
-                                    <CardHeader className="pb-2">
+                                <motion.div
+                                    key={post.id}
+                                    whileHover={{y: -6, scale: 1.01}}
+                                    whileTap={{scale: 0.995}}
+                                    transition={{ type: "spring", stiffness: 350, damping: 24 }}
+                                    style={{transformStyle: "preserve-3d"}}
+                                    className="relative z-0 [perspective:1000px]"
+                                >
+                                    <Card
+                                        key={post.id}
+                                        className="shadow-sm border rounded-lg hover:z-10"
+                                    >
                                         <CardHeader className="pb-2">
-                                            <div className="relative flex items-center w-full">
+                                            <CardHeader className="pb-2">
+                                                <div className="relative flex items-center w-full">
 
 
-                                                <div className="flex items-center gap-2">
-                                                    <UserIcon className="h-5 w-5"/>
-                                                    <span className="text-sm font-medium text-gray-700 truncate">
+                                                    <div className="flex items-center gap-2">
+                                                        <UserIcon className="h-5 w-5"/>
+                                                        <span className="text-sm font-medium text-gray-700 truncate">
                                                 {post.userName}
                                             </span>
-                                                </div>
+                                                    </div>
 
-                                                <h3 className="absolute left-1/2 -translate-x-1/2 text-base font-semibold text-center break-words">
-                                                    {post.title}{" "}
-                                                    <span className="text-gray-500">— {subjectToUpper(post.subject)}</span>
-                                                </h3>
+                                                    <h3 className="absolute left-1/2 -translate-x-1/2 text-base font-semibold text-center break-words">
+                                                        {post.title}{" "}
+                                                        <span
+                                                            className="text-gray-500">— {subjectToUpper(post.subject)}</span>
+                                                    </h3>
 
-                                                {post.postStatus && (
-                                                    <span className={`ml-auto text-xs font-medium px-2 py-0.5 rounded-full border ${statusClasses[post.postStatus]}`}>
+                                                    {post.postStatus && (
+                                                        <span
+                                                            className={`ml-auto text-xs font-medium px-2 py-0.5 rounded-full border ${statusClasses[post.postStatus]}`}>
                                                 {post.postStatus}
                                             </span>
-                                                )}
-                                            </div>
+                                                    )}
+                                                </div>
 
-                                            <div
-                                                className="mt-2 flex flex-wrap items-center gap-2 justify-center sm:justify-start text-sm">
+                                                <div
+                                                    className="mt-2 flex flex-wrap items-center gap-2 justify-center sm:justify-start text-sm">
 
 
-                                                {post.createdAt && (
-                                                    <span className="inline-flex items-center gap-1 text-gray-600">
+                                                    {post.createdAt && (
+                                                        <span className="inline-flex items-center gap-1 text-gray-600">
                                                     <Clock className="h-4 w-4"/>
                                                     <span
                                                         title={formatDate(post.createdAt)}>{formatDate(post.createdAt)}</span>
                                                 </span>
-                                                )}
-                                            </div>
+                                                    )}
+                                                </div>
+                                            </CardHeader>
                                         </CardHeader>
-                                    </CardHeader>
 
-                                    <CardContent>
-                                        <div className="flex-1 flex justify-center">
-                                            {post.description}
-                                        </div>
-                                    </CardContent>
+                                        <CardContent>
+                                            <div className="flex-1 flex justify-center">
+                                                {post.description}
+                                            </div>
+                                        </CardContent>
 
-                                    <CardFooter className="flex flex-1 items-center space-y-2">
-                                        <div className="mt-2 flex items-center gap-4 text-gray-700">
+                                        <CardFooter className="flex flex-1 items-center space-y-2">
+                                            <div className="mt-2 flex items-center gap-4 text-gray-700">
                                             <span className="inline-flex items-center gap-1">
                                                 <Button
                                                     onClick={() => toggleLike(post.id)}
@@ -172,7 +186,7 @@ export default function Dashboard() {
                                                     {post.likes ?? 0}
                                                 </Button>
                                             </span>
-                                            <span className="inline-flex items-center gap-1">
+                                                <span className="inline-flex items-center gap-1">
                                                 <Button
                                                     onClick={() => goToComments(post.id)}
                                                 >
@@ -180,9 +194,10 @@ export default function Dashboard() {
                                                     {commentsByPost[post.id]?.length ?? 0}
                                                 </Button>
                                             </span>
-                                        </div>
-                                    </CardFooter>
-                                </Card>
+                                            </div>
+                                        </CardFooter>
+                                    </Card>
+                                </motion.div>
                             ))}
                         </CardContent>
 

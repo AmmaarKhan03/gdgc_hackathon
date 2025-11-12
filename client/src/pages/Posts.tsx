@@ -29,7 +29,7 @@ export default function Posts() {
     const [selectedFilters, setSelectedFilters] = useState<FilterKey[]>([]);
     const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
     const [page, setPage] = useState(1);
-    const pageSize = 10;
+    const pageSize = 5;
 
     const filterOptions = [
         {label: "Title", value: "title"},
@@ -147,23 +147,38 @@ export default function Posts() {
         });
     };
 
+    function statusBar(postStatus?: string) {
+        return {
+            review: 'border-l-4 border-blue-600',
+            feedback: 'border-l-4 border-amber-500',
+            tutoring: 'border-l-4 border-green-600',
+            career: 'border-l-4 border-red-400',
+            meetup: 'border-l-4 border-purple-500',
+        }[postStatus ?? 'review'] ?? '';
+    }
+
 
     return (
         <div className="px-5 space-y-6">
 
             <Card className="">
-                <CardHeader>
-                    <CardTitle className="flex items-center justify-between gap-4">
-                        {searchQuery.trim() ? "Search Results" : "All Posts"}
+                <CardHeader className="flex items-center justify-between w-full">
+                    <CardTitle className="flex items-center justify-between w-full">
+                        <div className="flex-1 text-left">
+                            {searchQuery.trim() ? "Search Results" : "All Posts"}
+                        </div>
 
-                        <div className="flex items-center gap-2">
+                        <div className="flex-1 flex justify-center">
                             <input
-                                className="h-9 px-3 border rounded-md"
+                                className="h-9 w-3/4 max-w-md px-3 border rounded-l rounded-r"
                                 type="text"
-                                placeholder="Search for relavent posts"
+                                placeholder="Search for relevant posts"
                                 value={searchQuery}
                                 onChange={handleSearch}
                             />
+                        </div>
+
+                        <div className="flex-1 flex justify-end items-center gap-2">
 
                             <Button
                                 onClick={(event) => setAnchorEl(event.currentTarget)}
@@ -234,13 +249,14 @@ export default function Posts() {
                 </CardHeader>
 
 
-                <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
+                <CardContent className="grid grid-cols-1 gap-4 items-stretch">
                     {filteredPosts.length === 0 ? (
                         <p className="text-sm text-gray-500">No posts match your filters.</p>
                     ) : (
                         pagedPosts.map((post) => (
-                            <Card className="h-full flex flex-col shadow-sm border rounded-lg"
-                                  key={post.id ?? post.title}>
+                            <Card
+                                className={`bg-white rounded-lg border shadow-sm hover:shadow transition-all ${statusBar(post.category)}`}
+                                key={post.id ?? post.title}>
                                 <CardHeader className="pb-2">
                                     <div className="relative flex items-center w-full">
 

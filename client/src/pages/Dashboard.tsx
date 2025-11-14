@@ -27,6 +27,12 @@ const subjectToUpper = (subject: string) => {
     return subject.split(" ").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
 }
 
+const categoryToUpper = (subject: string) => {
+    if (!subject) return;
+
+    return subject.charAt(0).toUpperCase() + subject.slice(1)
+}
+
 const formatDate = (iso: string | undefined) => {
     if (!iso) return;
 
@@ -47,6 +53,16 @@ const categoryClasses: Record<string, string> = {
     discussion: "bg-indigo-100 text-indigo-800 border border-indigo-300",
     resource: "bg-sky-100 text-sky-800 border border-sky-300",
 };
+
+function categoryTypeBar(postCategory?: string) {
+    return {
+        review: 'border-l-4 border-l-blue-600 border-b-blue-600',
+        feedback: 'border-l-4 border-l-amber-500 border-b-amber-500',
+        tutoring: 'border-l-4 border-l-green-600 border-b-green-600',
+        career: 'border-l-4 border-l-red-400 border-b-red-400',
+        meetup: 'border-l-4 border-l-purple-500 border-b-purple-500',
+    }[postCategory ?? 'review'] ?? '';
+}
 
 export default function Dashboard() {
     const navigate = useNavigate();
@@ -132,7 +148,7 @@ export default function Dashboard() {
     }, [likedPosts, maxLikes]);
 
 
-    function getCategoryVector(post: Post): number[]  {
+    function getCategoryVector(post: Post): number[] {
         const vector = new Array(CATEGORIES.length).fill(0); // create vector that is size of CATEGORIES and set all values to 0
 
         const index = CATEGORIES.indexOf(post.category); // grab the index of the category within categories
@@ -191,7 +207,7 @@ export default function Dashboard() {
     }
 
     // function that will check how similar the liked posts are to posts
-    function cosineSimilarity (user: number[], post: number[]): number {
+    function cosineSimilarity(user: number[], post: number[]): number {
         if (user.length != post.length) return 0;
 
         let dot = 0;
@@ -228,7 +244,7 @@ export default function Dashboard() {
                 const vector = getPostVector(post, maxLikes);
                 const score = cosineSimilarity(userVector, vector);
 
-                scored.push({ post, score });
+                scored.push({post, score});
             }
 
             scored.sort((a, b) => b.score - a.score);
@@ -276,14 +292,13 @@ export default function Dashboard() {
                                 <motion.div
                                     key={post.id}
                                     whileHover={{y: -6, scale: 1.01}}
-                                    whileTap={{scale: 0.995}}
-                                    transition={{ type: "spring", stiffness: 350, damping: 24 }}
-                                    style={{transformStyle: "preserve-3d"}}
-                                    className="relative z-0 [perspective:1000px]"
+                                    whileTap={{y: -2}}
+                                    transition={{type: "tween", ease: "easeOut", duration: 0.18}}
+                                    className="relative z-0"
                                 >
                                     <Card
-                                        key={post.id}
-                                        className="shadow-sm border rounded-lg hover:z-10"
+                                        className={`bg-white rounded-sm border shadow-sm hover:shadow transition-all ${categoryTypeBar(post.category)}`}
+                                        key={post.id ?? post.title}
                                     >
                                         <CardHeader className="pb-2">
                                             <CardHeader className="pb-2">
@@ -303,11 +318,11 @@ export default function Dashboard() {
                                                             className="text-gray-500">— {subjectToUpper(post.subject)}</span>
                                                     </h3>
 
-                                                    {post.postStatus && (
+                                                    {post.category && (
                                                         <span
-                                                            className={`ml-auto text-xs font-medium px-2 py-0.5 rounded-full border ${statusClasses[post.postStatus]}`}>
-                                                {post.postStatus}
-                                            </span>
+                                                            className={`ml-auto text-xs font-medium px-2 py-0.5 rounded-full border ${categoryClasses[post.category]}`}>
+                                                            {categoryToUpper(post.category)}
+                                                        </span>
                                                     )}
                                                 </div>
 

@@ -372,56 +372,6 @@ export default function Dashboard() {
                                 </motion.div>
                             ))}
                         </CardContent>
-
-                        <CardFooter className="flex items-center justify-between pt-0">
-                            {/* Left: range info */}
-                            <span className="text-sm text-gray-600">
-                                {posts.length === 0 ? "0 results" : `${startPage + 1}–${Math.min(endPage, posts.length)} of ${posts.length}`} </span>
-
-                            {/* Right: arrows + page number */}
-                            <div className="flex items-center gap-2">
-                                <Button
-                                    type="button"
-                                    onClick={() => setPage(1)}
-                                    disabled={page === 1}
-                                    aria-label="First page"
-                                    className="h-9 px-3"
-                                >
-                                    <ArrowLeftToLine/>
-                                </Button>
-                                <Button
-                                    type="button"
-                                    onClick={() => setPage((p) => Math.max(1, p - 1))}
-                                    disabled={page === 1}
-                                    aria-label="Previous page"
-                                    className="h-9 px-3"
-                                >
-                                    <MoveLeft/>
-                                </Button>
-                                <span className="text-sm tabular-nums">
-                            Page {page} of {totalPages}
-                        </span>
-
-                                <Button
-                                    type="button"
-                                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                                    disabled={page === totalPages}
-                                    aria-label="Next page"
-                                    className="h-9 px-3"
-                                >
-                                    <MoveRight/>
-                                </Button>
-                                <Button
-                                    type="button"
-                                    onClick={() => setPage(totalPages)}
-                                    disabled={page === totalPages}
-                                    aria-label="Last page"
-                                    className="h-9 px-3"
-                                >
-                                    <ArrowRightToLine/>
-                                </Button>
-                            </div>
-                        </CardFooter>
                     </Card>
                 </section>
 

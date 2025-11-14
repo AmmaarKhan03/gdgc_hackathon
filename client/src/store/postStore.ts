@@ -57,12 +57,17 @@ interface postStore {
     deletePost: (id: string) => void
     likedPostIds: Set<string>;
     toggleLike: (postId: string) => void;
+    recommendedPosts: Post[];
+    isRefreshingRecs: boolean;
 }
 
 export const usePostStore = create<postStore>((set) => ({
     posts: mockPosts,
 
     likedPostIds: new Set<string>(),
+
+    recommendedPosts: [],
+    isRefreshingRecs: false,
 
 
     newPost: (post) => set((state) => ({

@@ -385,7 +385,7 @@ export default function Dashboard() {
                             </CardTitle>
                         </CardHeader>
 
-                        <CardContent>
+                        <CardContent className="space-y-3">
 
                             {isRefreshingRecs && (
                                 <p className="text-xs text-gray-400 mb-2">
@@ -400,16 +400,26 @@ export default function Dashboard() {
                             )}
 
                             {recommendedPosts.map((post) => (
-                                <div
+                                <motion.div
                                     key={post.id}
-                                    className="border rounded-md p-2 cursor-pointer hover:bg-gray-50"
-                                    onClick={() => navigate(`/posts/${post.id}/comments`)}
+                                    whileHover={{y: -6, scale: 1.01}}
+                                    whileTap={{y: -2}}
+                                    transition={{type: "tween", ease: "easeOut", duration: 0.18}}
+                                    className="relative z-0"
                                 >
-                                    <div className="text-sm font-semibold">{post.title}</div>
-                                    <div className="text-xs text-gray-500">
-                                        {subjectToUpper(post.subject)} • {post.category}
+                                    <div
+                                        key={post.id}
+                                        className={`bg-white rounded-sm border shadow-sm hover:shadow transition-all border rounded-md p-2 cursor-pointer ${categoryTypeBar(post.category)}`}
+                                        onClick={() => navigate(`/posts/${post.id}/comments`)}
+                                    >
+                                        <div>
+                                            <span className="text-md font-semibold">{post.title}</span> - <span className="text-md text-gray-500 font-">{post.userName}</span>
+                                        </div>
+                                        <div className="text-xs text-gray-500">
+                                            {subjectToUpper(post.subject)} • {post.category}
+                                        </div>
                                     </div>
-                                </div>
+                                </motion.div>
                             ))}
                         </CardContent>
                     </Card>

@@ -84,7 +84,162 @@ export default function Dashboard() {
         {label: "New Posts Created", value: 73, color: "bg-green-100 border-green-400 text-green-800"},
         {label: "New Reviews/Feedback", value: "Temp Value", color: "bg-purple-100 border-purple-400 text-purple-800"},
     ];
+    // grab the set of likedPostIds that user has liked
+    const likedPosts = useMemo(() => {
+        const samePosts: Post[] = [];
+        for (const post of posts) {
+            if (likedPostIds.has(post.id)) { // if an id from the posts in store matches from all posts
+                samePosts.push(post); // push that entire post to the likedPosts array
+            }
+        }
+        return samePosts;
+    }, [posts, likedPostIds])// created Post array set to empty to store the like Post objects entirely
 
+    // finds the post with the most liked within posts
+    const maxLikes = useMemo(() => {
+        let maxLikes = 0;
+
+        for (const post of posts) {
+            const postLikes = post.likes ?? 0;
+            if (postLikes > maxLikes) maxLikes = postLikes;
+        }
+        return maxLikes;
+    }, [posts]);
+
+    const userVector = useMemo(() => {
+        if (likedPosts.length === 0) {
+            const dim = CATEGORIES.length + SUBJECTS.length + 2;
+            return new Array(dim).fill(0);
+        }
+
+        const dim = CATEGORIES.length + SUBJECTS.length + 2;
+        const sum = new Array(dim).fill(0);
+
+        for (const post of likedPosts) {
+            const vector = getPostVector(post, maxLikes);
+            for (let i = 0; i < dim; i++) {
+                sum[i] += vector[i];
+            }
+        }
+
+        for (let i = 0; i < dim; i++) {
+            sum[i] /= likedPosts.length;
+        }
+
+        return sum;
+    }, [likedPosts, maxLikes]);
+
+
+    function getCategoryVector(post: Post): number[]  {
+        const vector = new Array(CATEGORIES.length).fill(0); // create vector that is size of CATEGORIES and set all values to 0
+
+        const index = CATEGORIES.indexOf(post.category); // grab the index of the category within categories
+
+        if (index !== -1) { // check if its a valid index
+            vector[index] = 1; // set only that index in the vector to 1
+        }
+        return vector; // return the vector looks something like this [0,0,1,0,0]
+    }
+
+    function getSubjectVector(post: Post): number[] {
+        const vector = new Array(SUBJECTS.length).fill(0); // create vector that is size of SUBJECTS and set all values to 0
+
+        const index = SUBJECTS.indexOf(post.subject); // grab the index of the category within subjects
+
+        if (index !== -1) { // check if its a valid index
+            vector[index] = 1; // set only that index in the vector to 1
+        }
+        return vector; // return the vector looks something like this [0,0,1,0,0]
+    }
+
+    // returns the popularity of a post either 0,1
+    function getPostPopularity(post: Post, maxLikes: number): number {
+        const likes = post.likes ?? 0;
+        if (maxLikes <= 0) return 0;
+        return likes / maxLikes;
+    }
+
+    function getRecentScore(post: Post): number {
+        if (!post.createdAt) return 0;
+
+        const created = new Date(post.createdAt).getTime();
+        const now = Date.now();
+        const msPerDay = 1000 * 60 * 60 * 24;
+        const postAge = (now - created) / msPerDay;
+
+        if (postAge <= 0) return 1;
+        if (postAge > 30) return 0;
+
+        return 1 - postAge / 30;
+    }
+
+    // function that will return the full vector of a liked posts
+    function getPostVector(post: Post, maxLikes: number): number[] {
+        const categoryVector = getCategoryVector(post);
+        const subjectVector = getSubjectVector(post);
+        const popularity = getPostPopularity(post, maxLikes);
+        const recent = getRecentScore(post);
+
+        return [
+            ...categoryVector,
+            ...subjectVector,
+            popularity,
+            recent,
+        ];
+    }
+
+    // function that will check how similar the liked posts are to posts
+    function cosineSimilarity (user: number[], post: number[]): number {
+        if (user.length != post.length) return 0;
+
+        let dot = 0;
+        let magnitudeA = 0;
+        let magnitudeB = 0;
+
+        for (let i = 0; i < user.length; i++) {
+            dot += user[i] * post[i];
+            magnitudeA += user[i] * user[i];
+            magnitudeB += post[i] * post[i];
+        }
+
+        if (magnitudeA === 0 || magnitudeB === 0) return 0;
+
+        return dot / (Math.sqrt(magnitudeA) * Math.sqrt(magnitudeB));
+    }
+
+    useEffect(() => {
+        // If user has no interest vector, clear recs
+        if (userVector.every((v) => v === 0)) {
+            setRecommendedPosts([]);
+            return;
+        }
+
+        setIsRefreshingRecs(true);
+
+        const timeoutId = setTimeout(() => {
+            const scored: { post: Post; score: number }[] = [];
+
+            for (const post of posts) {
+                // Skip posts the user already liked
+                if (likedPostIds.has(post.id)) continue;
+
+                const vector = getPostVector(post, maxLikes);
+                const score = cosineSimilarity(userVector, vector);
+
+                scored.push({ post, score });
+            }
+
+            scored.sort((a, b) => b.score - a.score);
+
+            const top = scored.slice(0, 5).map((item) => item.post);
+
+            setRecommendedPosts(top);
+            setIsRefreshingRecs(false);
+        }, 800); // 800ms "API wait" – tweak this value to taste
+
+        // Cleanup if dependencies change before timeout finishes
+        return () => clearTimeout(timeoutId);
+    }, [posts, likedPostIds, userVector, maxLikes]);
 
 
     return (
@@ -262,6 +417,34 @@ export default function Dashboard() {
                                 Recommended Posts For You
                             </CardTitle>
                         </CardHeader>
+
+                        <CardContent>
+
+                            {isRefreshingRecs && (
+                                <p className="text-xs text-gray-400 mb-2">
+                                    Updating your recommendations...
+                                </p>
+                            )}
+
+                            {recommendedPosts.length === 0 && (
+                                <p className="text-sm text-gray-500">
+                                    Like a few posts to get personalized recommendations.
+                                </p>
+                            )}
+
+                            {recommendedPosts.map((post) => (
+                                <div
+                                    key={post.id}
+                                    className="border rounded-md p-2 cursor-pointer hover:bg-gray-50"
+                                    onClick={() => navigate(`/posts/${post.id}/comments`)}
+                                >
+                                    <div className="text-sm font-semibold">{post.title}</div>
+                                    <div className="text-xs text-gray-500">
+                                        {subjectToUpper(post.subject)} • {post.category}
+                                    </div>
+                                </div>
+                            ))}
+                        </CardContent>
                     </Card>
 
                     <Card>

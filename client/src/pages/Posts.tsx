@@ -11,6 +11,7 @@ import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import {MessageSquare, ThumbsUp, User as UserIcon, ArrowRightToLine, ArrowLeftToLine, MoveRight, MoveLeft, Clock} from "lucide-react";
 import {useNavigate} from "react-router-dom";
 import {useCommentStore} from "@/store/commentStore";
+import {motion} from "framer-motion";
 
 type FilterKey = "title" | "description" | "subject" | "category";
 
@@ -29,7 +30,7 @@ export default function Posts() {
     const [selectedFilters, setSelectedFilters] = useState<FilterKey[]>([]);
     const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
     const [page, setPage] = useState(1);
-    const pageSize = 10;
+    const pageSize = 5;
 
     const filterOptions = [
         {label: "Title", value: "title"},
@@ -92,7 +93,7 @@ export default function Posts() {
 
     useEffect(() => {
         setPage(1);
-    }, [searchQuery, selectedFilters, posts]);
+    }, [searchQuery, selectedFilters]);
 
     const totalPages = Math.max(1, Math.ceil(filteredPosts.length / pageSize));
     useEffect(() => {
@@ -102,7 +103,7 @@ export default function Posts() {
     const startPage = (page - 1) * pageSize;
     const endPage = startPage + pageSize;
     const pagedPosts = useMemo(() =>
-        filteredPosts.slice(startPage, endPage),
+            filteredPosts.slice(startPage, endPage),
         [filteredPosts, startPage, endPage],
     )
 
@@ -127,15 +128,34 @@ export default function Posts() {
     const selectAll = () => setSelectedFilters(allKeys);
     const clearAll = () => setSelectedFilters([]);
 
-    const statusClasses: Record<string, string> = {
-        OPEN: "!bg-green-100 !text-green-800 !border !border-green-300",
-        CLOSED: "!bg-red-100 !text-red-800 !border !border-red-300",
-        RESOLVED: "!bg-blue-100 !text-blue-800 border !border-blue-300",
+    const categoryClasses: Record<string, string> = {
+        review: "!bg-blue-100 !text-blue-800 !border !border-blue-300",
+        feedback: "!bg-amber-100 !text-amber-800 !border !border-amber-300",
+        tutoring: "!bg-green-100 !text-green-800 border !border-green-300",
+        career: "!bg-red-100 !text-red-800 border !border-red-300",
+        meetup: "!bg-purple-100 !text-purple-800 border !border-purple-300",
     };
+
+    function categoryTypeBar(postCategory?: string) {
+        return {
+            review: 'border-l-4 border-l-blue-600 border-b-blue-600',
+            feedback: 'border-l-4 border-l-amber-500 border-b-amber-500',
+            tutoring: 'border-l-4 border-l-green-600 border-b-green-600',
+            career: 'border-l-4 border-l-red-400 border-b-red-400',
+            meetup: 'border-l-4 border-l-purple-500 border-b-purple-500',
+        }[postCategory ?? 'review'] ?? '';
+    }
+
 
     const subjectToUpper = (subject: string) => {
         if (!subject) return;
         return subject.split(" ").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
+    }
+
+    const categoryToUpper = (subject: string) => {
+        if (!subject) return;
+
+        return subject.charAt(0).toUpperCase() + subject.slice(1)
     }
 
     const formatDate = (iso: string | undefined) => {
@@ -152,15 +172,17 @@ export default function Posts() {
         <div className="px-5 space-y-6">
 
             <Card className="">
-                <CardHeader>
-                    <CardTitle className="flex items-center justify-between gap-4">
-                        {searchQuery.trim() ? "Search Results" : "All Posts"}
+                <CardHeader className="flex items-center justify-between w-full">
+                    <CardTitle className="flex items-center justify-between w-full">
+                        <div className="flex-1 text-left">
+                            {searchQuery.trim() ? "Search Results" : "All Posts"}
+                        </div>
 
-                        <div className="flex items-center gap-2">
+                        <div className="flex-1 flex justify-center space-x-3">
                             <input
-                                className="h-9 px-3 border rounded-md"
+                                className="h-9 w-3/4 max-w-md px-3 border rounded-l rounded-r"
                                 type="text"
-                                placeholder="Search for relavent posts"
+                                placeholder="Search for relevant posts"
                                 value={searchQuery}
                                 onChange={handleSearch}
                             />
@@ -230,63 +252,66 @@ export default function Posts() {
                                 </div>
                             </Popover>
                         </div>
+
+                        <div className="flex-1 flex justify-end items-center gap-2">
+                            <Button>
+                                Create Post
+                            </Button>
+                        </div>
                     </CardTitle>
                 </CardHeader>
 
 
-                <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
+                <CardContent className="grid grid-cols-1 gap-10 items-stretch mt-5">
                     {filteredPosts.length === 0 ? (
                         <p className="text-sm text-gray-500">No posts match your filters.</p>
                     ) : (
                         pagedPosts.map((post) => (
-                            <Card className="h-full flex flex-col shadow-sm border rounded-lg"
-                                  key={post.id ?? post.title}>
-                                <CardHeader className="pb-2">
-                                    <div className="relative flex items-center w-full">
+                            <motion.div
+                                key={post.id}
+                                whileHover={{y: -6, scale: 1.01}}
+                                whileTap={{y: -2}}
+                                transition={{type: "tween", ease: "easeOut", duration: 0.18 }}
+                                className="relative z-0"
+                            >
+                                <Card
+                                    className={`bg-white rounded-sm border shadow-sm hover:shadow transition-all ${categoryTypeBar(post.category)}`}
+                                    key={post.id ?? post.title}>
+                                    <CardHeader className="pb-2">
+                                        <div className="relative flex items-center w-full">
 
 
-                                        <div className="flex items-center gap-2">
-                                            <UserIcon className="h-5 w-5"/>
-                                            <span className="text-sm font-medium text-gray-700 truncate">
+                                            <div className="flex items-center gap-2">
+                                                <UserIcon className="h-5 w-5"/>
+                                                <span className="text-sm font-medium text-gray-700 truncate">
                                                 {post.userName}
                                             </span>
-                                        </div>
+                                            </div>
 
-                                        <h3 className="absolute left-1/2 -translate-x-1/2 text-base font-semibold text-center break-words">
-                                            {post.title}{" "}
-                                            <span className="text-gray-500">— {subjectToUpper(post.subject)}</span>
-                                        </h3>
+                                            <h3 className="absolute left-1/2 -translate-x-1/2 text-base font-semibold text-center break-words">
+                                                {post.title}{" "}
+                                                <span className="text-gray-500">— {subjectToUpper(post.subject)}</span>
+                                            </h3>
 
-                                        {post.postStatus && (
-                                            <span className={`ml-auto text-xs font-medium px-2 py-0.5 rounded-full border ${statusClasses[post.postStatus]}`}>
-                                                {post.postStatus}
+                                            {post.category && (
+                                                <span
+                                                    className={`ml-auto text-xs font-medium px-2 py-0.5 rounded-full border ${categoryClasses[post.category]}`}>
+                                                {categoryToUpper(post.category)}
                                             </span>
-                                        )}
-                                    </div>
-
-                                    <div
-                                        className="mt-2 flex flex-wrap items-center gap-2 justify-center sm:justify-start text-sm">
+                                            )}
+                                        </div>
+                                    </CardHeader>
 
 
-                                        {post.createdAt && (
-                                            <span className="inline-flex items-center gap-1 text-gray-600">
-                                                    <Clock className="h-4 w-4"/>
-                                                    <span
-                                                        title={formatDate(post.createdAt)}>{formatDate(post.createdAt)}</span>
-                                                </span>
-                                        )}
-                                    </div>
-                                </CardHeader>
+                                    <CardContent className="flex-1 flex justify-center">
+                                        {post.description}
+                                    </CardContent>
 
-
-                                <CardContent className="flex-1 flex justify-center">
-                                    {post.description}
-                                </CardContent>
-
-                                <CardFooter className="flex flex-1 items-center space-y-2">
-                                    <div className="mt-2 flex items-center gap-4 text-gray-700">
+                                    <CardFooter className="flex flex-1 items-center space-y-2">
+                                        <div className="mt-2 flex items-center gap-4 text-gray-700">
                                             <span className="inline-flex items-center gap-1">
                                                 <Button
+                                                    type="button"
                                                     onClick={() => toggleLike(post.id)}
                                                 >
                                                     <ThumbsUp
@@ -294,30 +319,28 @@ export default function Posts() {
                                                     {post.likes ?? 0}
                                                 </Button>
                                             </span>
-                                        <span className="inline-flex items-center gap-1">
+                                            <span className="inline-flex items-center gap-1">
                                                 <Button
+                                                    type="button"
                                                     onClick={() => goToComments(post.id)}
                                                 >
                                                     <MessageSquare className="h-5 w-5"/>
                                                     {commentsByPost[post.id]?.length ?? 0}
                                                 </Button>
                                             </span>
-                                    </div>
-                                </CardFooter>
-                            </Card>
+                                        </div>
+                                    </CardFooter>
+                                </Card>
+                            </motion.div>
                         ))
                     )}
                 </CardContent>
 
                 <CardFooter className="flex items-center justify-between pt-0">
-                    {/* Left: range info */}
                     <span className="text-sm text-gray-600">
-    {filteredPosts.length === 0
-        ? "0 results"
-        : `${startPage + 1}–${Math.min(endPage, filteredPosts.length)} of ${filteredPosts.length}`}
-  </span>
+                        {filteredPosts.length === 0 ? "0 results" : `${startPage + 1}–${Math.min(endPage, filteredPosts.length)} of ${filteredPosts.length}`}
+                    </span>
 
-                    {/* Right: arrows + page number */}
                     <div className="flex items-center gap-2">
                         <Button
                             type="button"
@@ -328,6 +351,7 @@ export default function Posts() {
                         >
                             <ArrowLeftToLine/>
                         </Button>
+
                         <Button
                             type="button"
                             onClick={() => setPage((p) => Math.max(1, p - 1))}
@@ -337,6 +361,7 @@ export default function Posts() {
                         >
                             <MoveLeft/>
                         </Button>
+
                         <span className="text-sm tabular-nums">
                             Page {page} of {totalPages}
                         </span>
@@ -350,6 +375,7 @@ export default function Posts() {
                         >
                             <MoveRight/>
                         </Button>
+
                         <Button
                             type="button"
                             onClick={() => setPage(totalPages)}

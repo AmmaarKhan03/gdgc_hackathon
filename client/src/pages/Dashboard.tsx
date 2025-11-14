@@ -5,10 +5,22 @@ import {Button} from "@/components/ui/button"
 import BarChartDemo from "@/components/BarChart";
 import {useUserStore} from "@/store/userStore";
 import CapacityPieChart from "@/components/CapacityPieChart";
-import {usePostStore, Post, Category, CATEGORIES, SUBJECTS} from "@/store/postStore";
-import {MessageSquare, ThumbsUp, Tag as TagIcon, Clock, User as UserIcon, FolderOpen} from "lucide-react";
+import {usePostStore} from "@/store/postStore";
+import {
+    MessageSquare,
+    ThumbsUp,
+    Tag as TagIcon,
+    Clock,
+    User as UserIcon,
+    FolderOpen,
+    ArrowRightToLine,
+    ArrowLeftToLine,
+    MoveRight,
+    MoveLeft
+} from "lucide-react";
 import {useNavigate} from "react-router-dom";
 import {useCommentStore} from "@/store/commentStore";
+import {motion} from "framer-motion";
 
 const subjectToUpper = (subject: string) => {
     if (!subject) return;
@@ -49,8 +61,22 @@ export default function Dashboard() {
     const likedPostIds = usePostStore((state) => state.likedPostIds);
     const toggleLike = usePostStore((state) => state.toggleLike);
     const commentsByPost = useCommentStore((state) => state.commentsByPostId);
-    const [recommendedPosts, setRecommendedPosts] = useState<Post[]>([]);
-    const [isRefreshingRecs, setIsRefreshingRecs] = useState(false);
+    const [page, setPage] = useState(1);
+    const pageSize = 4;
+    const totalPages = Math.max(Math.ceil(posts.length / pageSize));
+    useEffect(() => {
+        setPage(1);
+    }, [posts]);
+    useEffect(() => {
+        if (page > totalPages) setPage(totalPages);
+    }, [posts, totalPages]);
+    const startPage = (page - 1) * pageSize;
+    const endPage = startPage + pageSize;
+    const pagedPosts = useMemo(() =>
+            posts.slice(startPage, endPage),
+        [posts, startPage, endPage],
+    )
+
 
     const stats = [
         {label: "Total Students", value: totalUsers, color: "bg-blue-100 border-blue-400 text-blue-800"},
@@ -215,6 +241,7 @@ export default function Dashboard() {
         return () => clearTimeout(timeoutId);
     }, [posts, likedPostIds, userVector, maxLikes]);
 
+
     return (
         <div className="px-5 space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -243,67 +270,78 @@ export default function Dashboard() {
                         </CardHeader>
 
                         <CardContent className="space-y-4">
-
-                            {posts.map((post, index) => (
-                                <Card key={post.id} className="shadow-sm border rounded-lg">
-                                    <CardHeader className="pb-2">
-                                        <CardTitle className="relative flex items-center justify-between">
-                                            {/*Users name*/}
-                                            <span
-                                                className="text-sm font-medium text-gray-700 relative flex items-center justify-between space-x-2">
-                                                 <UserIcon className="h-5 w-5"/>
-                                                 <span>{post.userName}</span>
-                                             </span>
-
-                                            {/*Post Subject*/}
-                                            <div
-                                                className="absolute left-1/2 transform -translate-x-1/2 text-lg text-center w-full justify-between">
-                                                {post.title}{" "}
-                                                <span className="text-gray-500">
-                                                    — {subjectToUpper(post.subject)}
-                                                </span>
-                                            </div>
-
-                                            {/*Posts status */}
-                                            {post.postStatus && (
-                                                <span
-                                                    className={`text-xs font-medium px-2 py-0.5 rounded-full border ${statusClasses[post.postStatus] || "bg-gray-100 text-gray-800 border-gray-300"}`}>
-                                                    {post.postStatus}
-                                                </span>
-                                            )}
-                                        </CardTitle>
-
-                                        <div
-                                            className="mt-2 flex flex-wrap items-center gap-2 justify-center sm:justify-start text-sm">
+                            {pagedPosts.map((post, index) => (
+                                <motion.div
+                                    key={post.id}
+                                    whileHover={{y: -6, scale: 1.01}}
+                                    whileTap={{scale: 0.995}}
+                                    transition={{ type: "spring", stiffness: 350, damping: 24 }}
+                                    style={{transformStyle: "preserve-3d"}}
+                                    className="relative z-0 [perspective:1000px]"
+                                >
+                                    <Card
+                                        key={post.id}
+                                        className="shadow-sm border rounded-lg hover:z-10"
+                                    >
+                                        <CardHeader className="pb-2">
+                                            <CardHeader className="pb-2">
+                                                <div className="relative flex items-center w-full">
 
 
-                                            {post.createdAt && (
-                                                <span className="inline-flex items-center gap-1 text-gray-600">
+                                                    <div className="flex items-center gap-2">
+                                                        <UserIcon className="h-5 w-5"/>
+                                                        <span className="text-sm font-medium text-gray-700 truncate">
+                                                {post.userName}
+                                            </span>
+                                                    </div>
+
+                                                    <h3 className="absolute left-1/2 -translate-x-1/2 text-base font-semibold text-center break-words">
+                                                        {post.title}{" "}
+                                                        <span
+                                                            className="text-gray-500">— {subjectToUpper(post.subject)}</span>
+                                                    </h3>
+
+                                                    {post.postStatus && (
+                                                        <span
+                                                            className={`ml-auto text-xs font-medium px-2 py-0.5 rounded-full border ${statusClasses[post.postStatus]}`}>
+                                                {post.postStatus}
+                                            </span>
+                                                    )}
+                                                </div>
+
+                                                <div
+                                                    className="mt-2 flex flex-wrap items-center gap-2 justify-center sm:justify-start text-sm">
+
+
+                                                    {post.createdAt && (
+                                                        <span className="inline-flex items-center gap-1 text-gray-600">
                                                     <Clock className="h-4 w-4"/>
                                                     <span
                                                         title={formatDate(post.createdAt)}>{formatDate(post.createdAt)}</span>
                                                 </span>
-                                            )}
-                                        </div>
-                                    </CardHeader>
+                                                    )}
+                                                </div>
+                                            </CardHeader>
+                                        </CardHeader>
 
-                                    <CardContent>
-                                        <div className="flex-1 flex justify-center">
-                                            {post.description}
-                                        </div>
-                                    </CardContent>
+                                        <CardContent>
+                                            <div className="flex-1 flex justify-center">
+                                                {post.description}
+                                            </div>
+                                        </CardContent>
 
-                                    <CardFooter className="flex flex-1 items-center space-y-2">
-                                        <div className="mt-2 flex items-center gap-4 text-gray-700">
+                                        <CardFooter className="flex flex-1 items-center space-y-2">
+                                            <div className="mt-2 flex items-center gap-4 text-gray-700">
                                             <span className="inline-flex items-center gap-1">
                                                 <Button
                                                     onClick={() => toggleLike(post.id)}
                                                 >
-                                                    <ThumbsUp className={`h-5 w-5 ${likedPostIds.has(post.id) ? "fill-current" : ""}`}/>
+                                                    <ThumbsUp
+                                                        className={`h-5 w-5 ${likedPostIds.has(post.id) ? "fill-current" : ""}`}/>
                                                     {post.likes ?? 0}
                                                 </Button>
                                             </span>
-                                            <span className="inline-flex items-center gap-1">
+                                                <span className="inline-flex items-center gap-1">
                                                 <Button
                                                     onClick={() => goToComments(post.id)}
                                                 >
@@ -311,11 +349,62 @@ export default function Dashboard() {
                                                     {commentsByPost[post.id]?.length ?? 0}
                                                 </Button>
                                             </span>
-                                        </div>
-                                    </CardFooter>
-                                </Card>
+                                            </div>
+                                        </CardFooter>
+                                    </Card>
+                                </motion.div>
                             ))}
                         </CardContent>
+
+                        <CardFooter className="flex items-center justify-between pt-0">
+                            {/* Left: range info */}
+                            <span className="text-sm text-gray-600">
+                                {posts.length === 0 ? "0 results" : `${startPage + 1}–${Math.min(endPage, posts.length)} of ${posts.length}`} </span>
+
+                            {/* Right: arrows + page number */}
+                            <div className="flex items-center gap-2">
+                                <Button
+                                    type="button"
+                                    onClick={() => setPage(1)}
+                                    disabled={page === 1}
+                                    aria-label="First page"
+                                    className="h-9 px-3"
+                                >
+                                    <ArrowLeftToLine/>
+                                </Button>
+                                <Button
+                                    type="button"
+                                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                                    disabled={page === 1}
+                                    aria-label="Previous page"
+                                    className="h-9 px-3"
+                                >
+                                    <MoveLeft/>
+                                </Button>
+                                <span className="text-sm tabular-nums">
+                            Page {page} of {totalPages}
+                        </span>
+
+                                <Button
+                                    type="button"
+                                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                                    disabled={page === totalPages}
+                                    aria-label="Next page"
+                                    className="h-9 px-3"
+                                >
+                                    <MoveRight/>
+                                </Button>
+                                <Button
+                                    type="button"
+                                    onClick={() => setPage(totalPages)}
+                                    disabled={page === totalPages}
+                                    aria-label="Last page"
+                                    className="h-9 px-3"
+                                >
+                                    <ArrowRightToLine/>
+                                </Button>
+                            </div>
+                        </CardFooter>
                     </Card>
                 </section>
 

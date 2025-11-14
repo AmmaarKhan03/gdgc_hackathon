@@ -5,7 +5,7 @@ import {Button} from "@/components/ui/button"
 import BarChartDemo from "@/components/BarChart";
 import {useUserStore} from "@/store/userStore";
 import CapacityPieChart from "@/components/CapacityPieChart";
-import {usePostStore} from "@/store/postStore";
+import {usePostStore, Post, Category, SUBJECTS, CATEGORIES} from "@/store/postStore";
 import {
     MessageSquare,
     ThumbsUp,
@@ -61,6 +61,8 @@ export default function Dashboard() {
     const likedPostIds = usePostStore((state) => state.likedPostIds);
     const toggleLike = usePostStore((state) => state.toggleLike);
     const commentsByPost = useCommentStore((state) => state.commentsByPostId);
+    const [recommendedPosts, setRecommendedPosts] = useState<Post[]>([]);
+    const [isRefreshingRecs, setIsRefreshingRecs] = useState(false);
     const [page, setPage] = useState(1);
     const pageSize = 4;
     const totalPages = Math.max(Math.ceil(posts.length / pageSize));

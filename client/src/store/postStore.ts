@@ -2,7 +2,7 @@ import {create} from 'zustand'
 import {mockPosts} from "@/types/mockData";
 
 export type Category = "review" | "feedback" | "tutoring" | "career" | "meetup" ;
-type Subject = "science" | "math" | "physics" | "writing" | "computer science" | "engineering" | "art" | "astronomy" | "business" | "history" | "social studies" | "music" | "career development" | "other";
+export type Subject = "science" | "math" | "physics" | "writing" | "computer science" | "engineering" | "art" | "astronomy" | "business" | "history" | "social studies" | "music" | "career development" | "other";
 type PostStatus = "OPEN" | "IN_PROGRESS" | "CLOSED";
 
 export const CATEGORIES: Category[] = [

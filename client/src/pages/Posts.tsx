@@ -1,4 +1,4 @@
-import {usePostStore, Post} from "@/store/postStore";
+import {usePostStore, Post, CATEGORIES, SUBJECTS, Category, Subject} from "@/store/postStore";
 import {Card, CardHeader, CardTitle, CardContent, CardFooter} from "@/components/ui/card";
 import {useState, useEffect, useMemo} from "react";
 import {Button} from "@/components/ui/button";
@@ -8,12 +8,29 @@ import FormGroup from "@mui/material/FormGroup";
 import Popover from "@mui/material/Popover";
 import Divider from "@mui/material/Divider";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
-import {MessageSquare, ThumbsUp, User as UserIcon, ArrowRightToLine, ArrowLeftToLine, MoveRight, MoveLeft, Clock} from "lucide-react";
+import {
+    MessageSquare,
+    ThumbsUp,
+    User as UserIcon,
+    ArrowRightToLine,
+    ArrowLeftToLine,
+    MoveRight,
+    MoveLeft,
+    Clock
+} from "lucide-react";
 import {useNavigate} from "react-router-dom";
 import {useCommentStore} from "@/store/commentStore";
 import {motion} from "framer-motion";
+import Modal from '@mui/material/Modal';
 
 type FilterKey = "title" | "description" | "subject" | "category";
+
+interface postFields {
+    postTitle: string
+    postDescription: string
+    postCategory: Category
+    postSubject: Subject
+}
 
 export default function Posts() {
 
@@ -25,6 +42,36 @@ export default function Posts() {
     const goToComments = (id: string) => {
         navigate(`/posts/${id}/comments`);
     };
+
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const handleModalOpen = () => setIsModalOpen(true);
+    const handleModalClose = () => setIsModalOpen(false);
+
+    const createPost = usePostStore((state) => state.newPost); // call the create post function from zustand set it to createPost
+
+    // fields user will be inputting in order to create a post
+    const [formTitle, setFormTitle] = useState("");
+    const [formDescription, setFormDescription] = useState("");
+    const [formCategory, setFormCategory] = useState<Category>("feedback");
+    const [formSubject, setFormSubject] = useState<Subject>("other");
+
+    // function that will create a post and input into the new array of Posts
+    const handleCreatePost = (event: React.FormEvent) => {
+        event.preventDefault();
+
+        if (!formTitle.trim() || !formDescription.trim()) return;
+
+        const post = {
+            id: "",
+            postTitle: formTitle,
+            postDescription: formDescription,
+            postCategory: formCategory,
+            postSubject: formSubject,
+        }
+
+        createPost(post);
+
+    }
 
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedFilters, setSelectedFilters] = useState<FilterKey[]>([]);
@@ -254,9 +301,42 @@ export default function Posts() {
                         </div>
 
                         <div className="flex-1 flex justify-end items-center gap-2">
-                            <Button>
+                            <Button onClick={handleModalOpen}>
                                 Create Post
                             </Button>
+
+                            <Modal open={isModalOpen} onClose={handleModalClose}>
+
+                                <Card className="p-5 bg-white w-[1000px] mx-auto mt-[20vh] rounded-lg shadow-lg">
+                                    <CardHeader>
+                                        <CardTitle>
+                                            New Post
+                                        </CardTitle>
+                                        <Divider className="pt-2"/>
+                                    </CardHeader>
+
+                                    <CardContent className="pt-5">
+                                        This is the psot from
+                                    </CardContent>
+
+                                    <CardFooter>
+                                        <div className="flex-1 flex justify-center space-x-3">
+                                            <Button
+                                                className="flex items-center gap-2"
+                                                onClick={handleModalClose}
+                                            >
+                                                Create Post
+                                            </Button>
+                                            <Button
+                                                className="flex items-center gap-2"
+                                                onClick={handleModalClose}
+                                            >
+                                                Cancel
+                                            </Button>
+                                        </div>
+                                    </CardFooter>
+                                </Card>
+                            </Modal>
                         </div>
                     </CardTitle>
                 </CardHeader>
@@ -271,7 +351,7 @@ export default function Posts() {
                                 key={post.id}
                                 whileHover={{y: -6, scale: 1.01}}
                                 whileTap={{y: -2}}
-                                transition={{type: "tween", ease: "easeOut", duration: 0.18 }}
+                                transition={{type: "tween", ease: "easeOut", duration: 0.18}}
                                 className="relative z-0"
                             >
                                 <Card

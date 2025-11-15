@@ -5,12 +5,14 @@ import {Button} from "@/components/ui/button"
 import {NavLink, Outlet, useLocation, useNavigate} from "react-router-dom";
 import {User, Lock} from "lucide-react";
 import {useAuthStore} from "@/store/authStore";
-
+import {useUserStore} from "@/store/userStore";
 
 export default function Login() {
 
     const navigate = useNavigate();
     const login = useAuthStore((s) => s.login);
+    const users = useUserStore((state) => state.users);
+    const setCurrentUser = useUserStore((state) => state.setCurrentUser);
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -30,10 +32,25 @@ export default function Login() {
         setError(null);
         setLoading(true);
 
-        const ok = login(email.trim(), password);
+        const trimmedEmail = email.trim();
+        const ok = login(trimmedEmail, password);
         setLoading(false);
 
         if (ok) {
+
+            // looks for the fake user within users
+            const matchedUser = users.find(
+                (u) => u.userFields.email === trimmedEmail
+            );
+
+            // if we find it set the current user to this fake user for now
+            if (matchedUser) {
+                console.log(`Signed in as User with ID: ${matchedUser.id}`);
+                setCurrentUser(matchedUser);   // 👈 this is what Posts.tsx will read
+            } else {
+                console.warn("Logged in but no matching User in userStore");
+            }
+
             await navigate("/dashboard", {replace: true});
         } else {
             setError("Invalid credentials. Try user@gmail.com / password.");

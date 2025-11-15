@@ -1,4 +1,4 @@
-import {usePostStore, Post} from "@/store/postStore";
+import {usePostStore, Post, CATEGORIES, SUBJECTS, Category, Subject} from "@/store/postStore";
 import {Card, CardHeader, CardTitle, CardContent, CardFooter} from "@/components/ui/card";
 import {useState, useEffect, useMemo} from "react";
 import {Button} from "@/components/ui/button";
@@ -8,12 +8,32 @@ import FormGroup from "@mui/material/FormGroup";
 import Popover from "@mui/material/Popover";
 import Divider from "@mui/material/Divider";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
-import {MessageSquare, ThumbsUp, User as UserIcon, ArrowRightToLine, ArrowLeftToLine, MoveRight, MoveLeft, Clock} from "lucide-react";
+import {
+    MessageSquare,
+    ThumbsUp,
+    User as UserIcon,
+    ArrowRightToLine,
+    ArrowLeftToLine,
+    MoveRight,
+    MoveLeft,
+    Clock
+} from "lucide-react";
 import {useNavigate} from "react-router-dom";
 import {useCommentStore} from "@/store/commentStore";
+import {useUserStore} from "@/store/userStore";
 import {motion} from "framer-motion";
+import Modal from '@mui/material/Modal';
 
 type FilterKey = "title" | "description" | "subject" | "category";
+
+interface postFields {
+    postTitle: string
+    postDescription: string
+    postCategory: Category
+    postSubject: Subject
+    userId: string
+    userName: string
+}
 
 export default function Posts() {
 
@@ -25,6 +45,58 @@ export default function Posts() {
     const goToComments = (id: string) => {
         navigate(`/posts/${id}/comments`);
     };
+
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const handleModalOpen = () => setIsModalOpen(true);
+    const handleModalClose = () => setIsModalOpen(false);
+
+    const createPost = usePostStore((state) => state.newPost); // call the create post function from zustand set it to createPost
+    const currentUser = useUserStore((state) => state.currentUser);
+
+    // fields user will be inputting in order to create a post
+    const [formTitle, setFormTitle] = useState("");
+    const [formDescription, setFormDescription] = useState("");
+    const [formCategory, setFormCategory] = useState<Category | "">("");
+    const [formSubject, setFormSubject] = useState<Subject | "">("");
+
+    // function that will create a post and input into the new array of Posts
+    const handleCreatePost = (event: React.FormEvent) => {
+        event.preventDefault(); // let's react handle the submitting and not HTML, avoids loosing current state
+
+        console.log("Submitting post", { formTitle, formDescription, currentUser, formCategory, formSubject }); // log to show what has been submitted
+
+        // Early exit guards
+        // checks if title or description is empty if so no post is created keeps modal open
+        if (!formTitle.trim() || !formDescription.trim()) return; // removing spaces and checks if anything is left
+
+        // checks if there is a current user
+        // if no user we throw error and cant submit the post
+        if (!currentUser) {
+            console.warn("No currentUser, cannot create post");
+            return;
+        }
+
+        // use the createPost function from the zustand store
+        // only pass in a partial post let zustand handle the rest of the fields
+        createPost({
+            // pass in title, description, category, subject, the currentUserId and currentUser full name
+            title: formTitle,
+            description: formDescription,
+            category: formCategory as Category,
+            subject: formSubject as Subject,
+            userId: currentUser.id,
+            userName: `${currentUser.name.firstName} ${currentUser.name.lastName}`,
+        });
+
+        console.log("Created post successfully");
+
+        // clear the form and close modal when we submit successfully
+        setFormTitle("");
+        setFormDescription("");
+        setFormCategory("");
+        setFormSubject("");
+        setIsModalOpen(false);
+    }
 
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedFilters, setSelectedFilters] = useState<FilterKey[]>([]);
@@ -254,9 +326,117 @@ export default function Posts() {
                         </div>
 
                         <div className="flex-1 flex justify-end items-center gap-2">
-                            <Button>
+                            <Button onClick={handleModalOpen}> {/*Button to open modal, when pressed changes the isModalOpen to true*/}
                                 Create Post
                             </Button>
+
+                            {/*Checks if isModalOpen is true if it is open the modal*/}
+                            {/*Handles the close with handleModalClose which switches the isModalOpen state to false*/}
+                            <Modal open={isModalOpen} onClose={handleModalClose}>
+                                <Card className="p-5 bg-white w-[1000px] mx-auto mt-[20vh] rounded-lg shadow-lg">
+                                    <form onSubmit={handleCreatePost}> {/*Wrap form around everything within the Card when onSubmit will send  a partial post to zustand*/}
+                                        <CardHeader>
+                                            <CardTitle>
+                                                New Post
+                                            </CardTitle>
+                                            <Divider className="pt-2"/>
+                                        </CardHeader>
+
+                                        <CardContent className="pt-5">
+                                            <div className="space-y-7">
+                                                <div className="flex flex-col gap-1">
+
+                                                    <label className="text-lg font-semibold">Post Title</label>
+                                                    <input
+                                                        className="border border-gray-300 hover:border-gray-500 rounded-lg px-2 py-1 shadow-sm"
+                                                        value={formTitle} /* The input displays whatever is stored in the formTitle state */
+                                                        onChange={(e) => setFormTitle(e.target.value)} /*updates the formTitle state everytime the user types something */
+                                                        placeholder="Enter Post Title"
+                                                        required
+                                                    />
+                                                </div>
+
+                                                <div className="flex flex-col gap-1">
+
+                                                    <label className="text-lg font-semibold">Post Description</label>
+                                                    <textarea
+                                                        className="border border-gray-300 hover:border-gray-500 rounded-lg px-2 py-1 shadow-sm"
+                                                        value={formDescription} /* The description displays whatever is stored in the formDescription state */
+                                                        onChange={(e) => setFormDescription(e.target.value)} /*updates the formDescription state everytime the user types something */
+                                                        placeholder="Enter Post Description"
+                                                        maxLength={500}
+                                                        required
+                                                    />
+                                                </div>
+
+                                                <div className="flex flex-col gap-1">
+                                                    <label className="text-sm font-medium">Subject</label>
+                                                    <select
+                                                        className="border border-gray-300 hover:border-gray-500 rounded-lg px-2 py-1 shadow-sm"
+                                                        value={formSubject} /* The subject displays whatever is stored in the formSubject state */
+                                                        onChange={(e) => setFormSubject(e.target.value as Subject | "")}/*updates the formSubject state everytime the user selects a different subject */
+                                                    >
+
+                                                        <option value="" disabled>
+                                                            Select Subject
+                                                        </option>
+                                                        {/*Map out the SUBJECTS from post store and add it as an option to select */}
+                                                        {SUBJECTS.map((s) => (
+                                                            <option key={s} value={s}>
+                                                                {subjectToUpper(s)}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                </div>
+
+                                                <div className="flex flex-col gap-1">
+                                                    <label className="text-sm font-medium">Category</label>
+                                                    <select
+                                                        className="border border-gray-300 hover:border-gray-500 rounded-lg px-2 py-1 shadow-sm"
+                                                        value={formCategory} /* The category displays whatever is stored in the formCategory state */
+                                                        onChange={(e) => setFormCategory(e.target.value as Category | "")} /*updates the formCategory state everytime the user selects a different category */
+                                                    >
+                                                        <option value="" disabled>
+                                                            Select Category
+                                                        </option>
+                                                        {/*Map out the SUBJECTS from post store and add it as an option to select */}
+                                                        {CATEGORIES.map((c) => (
+                                                            <option
+                                                                className="rounded-lg"
+                                                                key={c} value={c}
+                                                            >
+                                                                {subjectToUpper(c)}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </CardContent>
+
+                                        <CardFooter>
+                                            <div className="flex w-full pt-5">
+                                                <div className="flex-1">
+                                                    <Button
+                                                        className="flex items-center gap-2"
+                                                        onClick={handleModalClose} // close modal without doing anything
+                                                        type="button"
+                                                    >
+                                                        Cancel
+                                                    </Button>
+                                                </div>
+                                                <div className="justify-end">
+                                                    <Button
+                                                        className="flex items-center gap-2"
+                                                        type="submit" // when clicked we submit the form, tells the form to do handleSubmit from above
+                                                    >
+                                                        Create Post
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        </CardFooter>
+                                    </form>
+                                </Card>
+                            </Modal>
                         </div>
                     </CardTitle>
                 </CardHeader>
@@ -271,7 +451,7 @@ export default function Posts() {
                                 key={post.id}
                                 whileHover={{y: -6, scale: 1.01}}
                                 whileTap={{y: -2}}
-                                transition={{type: "tween", ease: "easeOut", duration: 0.18 }}
+                                transition={{type: "tween", ease: "easeOut", duration: 0.18}}
                                 className="relative z-0"
                             >
                                 <Card

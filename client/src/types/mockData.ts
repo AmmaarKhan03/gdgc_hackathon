@@ -273,6 +273,23 @@ export const mockComments: Record<string, Comment[]> = {
 /////////////////////////////////////////////////////////////////////////////////////////
 export const mockUsers: User[] = [
     {
+        id: "0",
+        name: { firstName: "Test", lastName: "User" },
+        userFields: {
+            email: "user@gmail.com",
+            password: "password",
+            confirmPassword: "password",
+            address: {
+                street: "123 Test St",
+                city: "Test City",
+                state: "CA",
+                zip: "00000",
+            },
+        },
+        status: "ACTIVE",
+        profileImageUrl: "",
+    },
+    {
         id: '1',
         name: { firstName: "Ivan", lastName: "Argueta" },
         userFields: {
@@ -281,7 +298,6 @@ export const mockUsers: User[] = [
             confirmPassword: "password123",
             address: { street: "1156 High St", city: "Santa Cruz", state: "CA", zip: "95064" },
         },
-        gymStatus: "ACTIVE",
         status: "ACTIVE",
         profileImageUrl: "https://i.pravatar.cc/150?img=11",
     },
@@ -294,7 +310,7 @@ export const mockUsers: User[] = [
             confirmPassword: "hunter2!!",
             address: { street: "100 Bay St", city: "Santa Cruz", state: "CA", zip: "95060" },
         },
-        gymStatus: "INACTIVE",
+
         status: "PENDING",
         profileImageUrl: "https://i.pravatar.cc/150?img=12",
     },
@@ -307,7 +323,6 @@ export const mockUsers: User[] = [
             confirmPassword: "scslug2025",
             address: { street: "44 Seabright Ave", city: "Santa Cruz", state: "CA", zip: "95062" },
         },
-        gymStatus: "ACTIVE",
         status: "ACTIVE",
         profileImageUrl: "https://i.pravatar.cc/150?img=13",
     },
@@ -320,7 +335,6 @@ export const mockUsers: User[] = [
             confirmPassword: "liftStrong!",
             address: { street: "200 Laurel St", city: "Santa Cruz", state: "CA", zip: "95060" },
         },
-        gymStatus: "ACTIVE",
         status: "SUSPENDED",
         profileImageUrl: "https://i.pravatar.cc/150?img=14",
     },
@@ -333,7 +347,6 @@ export const mockUsers: User[] = [
             confirmPassword: "gym-time",
             address: { street: "5 Mission St", city: "Santa Cruz", state: "CA", zip: "95060" },
         },
-        gymStatus: "INACTIVE",
         status: "INACTIVE",
         profileImageUrl: "https://i.pravatar.cc/150?img=15",
     },
@@ -346,7 +359,6 @@ export const mockUsers: User[] = [
             confirmPassword: "bananaSlug!",
             address: { street: "500 River St", city: "Santa Cruz", state: "CA", zip: "95060" },
         },
-        gymStatus: "ACTIVE",
         status: "ACTIVE",
         profileImageUrl: "https://i.pravatar.cc/150?img=16",
     },
@@ -359,7 +371,6 @@ export const mockUsers: User[] = [
             confirmPassword: "pushpulllegs",
             address: { street: "888 Pacific Ave", city: "Santa Cruz", state: "CA", zip: "95060" },
         },
-        gymStatus: "INACTIVE",
         status: "PENDING",
         profileImageUrl: "https://i.pravatar.cc/150?img=17",
     },
@@ -372,7 +383,6 @@ export const mockUsers: User[] = [
             confirmPassword: "cardioDays",
             address: { street: "120 Ocean St", city: "Santa Cruz", state: "CA", zip: "95060" },
         },
-        gymStatus: "ACTIVE",
         status: "ACTIVE",
         profileImageUrl: "https://i.pravatar.cc/150?img=18",
     },

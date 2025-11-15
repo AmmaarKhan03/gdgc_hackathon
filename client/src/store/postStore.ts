@@ -30,6 +30,14 @@ export const SUBJECTS: Subject[] = [
     "other",
 ];
 
+export type NewPostInput = {
+    title: string;
+    description: string;
+    category: Category;
+    subject: Subject;
+    userId: string;
+    userName: string;
+}
 
 export interface Post {
     id: string
@@ -52,7 +60,7 @@ export interface Post {
 
 interface postStore {
     posts: Post[]
-    newPost: (newPost: Post) => void
+    newPost: (newPost: NewPostInput) => void
     updatePost: (id: string, updatedPost: Post) => void
     deletePost: (id: string) => void
     likedPostIds: Set<string>;
@@ -70,9 +78,34 @@ export const usePostStore = create<postStore>((set) => ({
     isRefreshingRecs: false,
 
 
-    newPost: (post) => set((state) => ({
-        posts: [...state.posts, post]
-    })),
+    // pass in the partial created post with on NewPostInput fields
+    // let zustand handle the rest
+    newPost: (input) =>
+        set((state) => {
+            const now = new Date().toISOString();
+            const newPost: Post = {
+                id: crypto.randomUUID(),
+                title: input.title,
+                description: input.description,
+                category: input.category,
+                subject: input.subject,
+                tags: [],
+
+                userId: input.userId,
+                userName: input.userName,
+
+                createdAt: now,
+                updatedAt: now,
+                postStatus: "OPEN",
+
+                replies: 0,
+                likes: 0,
+            };
+
+            return {
+                posts: [...state.posts, newPost],
+            };
+        }),
 
     updatePost: (id, updatedPost) => set((state) => ({
         posts: state.posts.map((post) =>

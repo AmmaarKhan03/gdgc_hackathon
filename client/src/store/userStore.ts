@@ -1,7 +1,6 @@
 import {create} from 'zustand'
 import {mockUsers} from "@/types/mockData";
 
-type GymStatus = "ACTIVE" | "INACTIVE"
 export type Status = "ACTIVE" | "INACTIVE" | "SUSPENDED" | "PENDING"
 
 interface address {
@@ -27,14 +26,15 @@ export interface User {
     id: string;
     name: name;
     userFields: userFields;
-    gymStatus: GymStatus;
     status: Status;
     profileImageUrl?: string;
 }
 
 interface userStore {
     users: User[];
+    currentUser: User | null;
     addUser: (newUser: User) => void;
+    setCurrentUser: (user: User | null) => void;
     deleteUser: (id: string) => void;
     editUser: (id: string, updatedUser: User) => void;
 }
@@ -45,6 +45,9 @@ export const useUserStore = create<userStore>((set) => ({
     addUser: (user) => set((state) => ({
         users: [...state.users, user]
     })),
+
+    currentUser: null,
+    setCurrentUser: (user) => set(() => ({ currentUser: user })),
 
     deleteUser: (id) => set((state) => ({
         users: state.users.filter((u) => u.id !== id)

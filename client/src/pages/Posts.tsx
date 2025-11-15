@@ -61,7 +61,7 @@ export default function Posts() {
 
     // function that will create a post and input into the new array of Posts
     const handleCreatePost = (event: React.FormEvent) => {
-        event.preventDefault(); // lets react handle the submitting and not HTML, avoids loosing current state
+        event.preventDefault(); // let's react handle the submitting and not HTML, avoids loosing current state
 
         console.log("Submitting post", { formTitle, formDescription, currentUser, formCategory, formSubject }); // log to show what has been submitted
 
@@ -82,8 +82,8 @@ export default function Posts() {
             // pass in title, description, category, subject, the currentUserId and currentUser full name
             title: formTitle,
             description: formDescription,
-            category: formCategory,
-            subject: formSubject,
+            category: formCategory as Category,
+            subject: formSubject as Subject,
             userId: currentUser.id,
             userName: `${currentUser.name.firstName} ${currentUser.name.lastName}`,
         });
@@ -374,7 +374,7 @@ export default function Posts() {
                                                     <select
                                                         className="border border-gray-300 hover:border-gray-500 rounded-lg px-2 py-1 shadow-sm"
                                                         value={formSubject} /* The subject displays whatever is stored in the formSubject state */
-                                                        onChange={(e) => setFormSubject(e.target.value as Subject)}/*updates the formSubject state everytime the user selects a different subject */
+                                                        onChange={(e) => setFormSubject(e.target.value as Subject | "")}/*updates the formSubject state everytime the user selects a different subject */
                                                     >
 
                                                         <option value="" disabled>
@@ -394,7 +394,7 @@ export default function Posts() {
                                                     <select
                                                         className="border border-gray-300 hover:border-gray-500 rounded-lg px-2 py-1 shadow-sm"
                                                         value={formCategory} /* The category displays whatever is stored in the formCategory state */
-                                                        onChange={(e) => setFormCategory(e.target.value as Category)} /*updates the formCategory state everytime the user selects a different category */
+                                                        onChange={(e) => setFormCategory(e.target.value as Category | "")} /*updates the formCategory state everytime the user selects a different category */
                                                     >
                                                         <option value="" disabled>
                                                             Select Category

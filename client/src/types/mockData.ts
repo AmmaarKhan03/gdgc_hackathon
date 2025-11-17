@@ -398,7 +398,7 @@ export const mockSessions: Session[] = [
         description:
             "Working through segmentation faults, valgrind output, and pointer tracing problems. Bring your laptop!",
         subject: "Computer Science",
-        location: "IN-PERSON",
+        location: "IN_PERSON",
         address: {
             street: "1156 High Street",
             city: "Santa Cruz",
@@ -445,7 +445,7 @@ export const mockSessions: Session[] = [
         description:
             "Going over implicit differentiation, chain rule drills, and practice problems before the quiz.",
         subject: "Math",
-        location: "IN-PERSON",
+        location: "IN_PERSON",
         address: {
             street: "Science Hill 265",
             city: "Santa Cruz",
@@ -513,7 +513,7 @@ export const mockSessions: Session[] = [
         description:
             "Practice drawing structures, resonance forms, and formal charge calculations.",
         subject: "Chemistry",
-        location: "IN-PERSON",
+        location: "IN_PERSON",
         address: {
             street: "Physical Sciences 110",
             city: "Santa Cruz",
@@ -537,7 +537,7 @@ export const mockSessions: Session[] = [
         description:
             "Open session for Procreate/Photoshop artists to practice composition and lighting.",
         subject: "Art",
-        location: "IN-PERSON",
+        location: "IN_PERSON",
         address: {
             street: "Communications 150",
             city: "Santa Cruz",
@@ -605,7 +605,7 @@ export const mockSessions: Session[] = [
         description:
             "Quick overview session on membranes, ribosomes, and essential cell mechanisms.",
         subject: "Biology",
-        location: "IN-PERSON",
+        location: "IN_PERSON",
         address: {
             street: "Natural Sciences 1 Room 120",
             city: "Santa Cruz",

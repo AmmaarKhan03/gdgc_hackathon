@@ -4,7 +4,7 @@ import {mockSessions} from "@/types/mockData";
 
 type SessionStatus = 'ACTIVE' | 'CLOSED'
 
-type SessionLocation = 'ONLINE' | 'IN-PERSON' | 'HYBRID'
+type SessionLocation = 'ONLINE' | 'IN_PERSON' | 'HYBRID'
 
 interface Address {
     street: string

@@ -1,6 +1,6 @@
-import {useSessionStore} from "@/store/sessionStore";
+import {Session, useSessionStore} from "@/store/sessionStore";
 import {Card, CardTitle, CardHeader, CardContent, CardFooter} from "@/components/ui/card";
-import {useState, useEffect, useRef} from "react";
+import {useState, useEffect, useMemo} from "react";
 import {Button} from "@/components/ui/button";
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -23,8 +23,9 @@ import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import LocationPinIcon from '@mui/icons-material/LocationPin';
 import Diversity2Icon from '@mui/icons-material/Diversity2';
 import {motion} from "framer-motion";
+import {Post} from "@/store/postStore";
 
-type FilterKey = "title" | "description" | "subject" | "category";
+type FilterKey = "title" | "description" | "location";
 
 export default function Sessions() {
 
@@ -39,11 +40,65 @@ export default function Sessions() {
     const filterOptions = [
         {label: "Title", value: "title"},
         {label: "Description", value: "description"},
-        {label: "Subject", value: "subject"},
-        {label: "Category", value: "category"},
+        {label: "Location", value: "location"},
     ];
 
-    const allKeys = ["title", "description", "subject", "category"] as FilterKey[];
+    const allKeys = ["title", "description", "location"] as FilterKey[];
+    const activeFilters = selectedFilters.length > 0 ? selectedFilters : (allKeys);
+
+    const {filteredTitle,filteredDescription, filteredLocation} = useMemo(() => {
+        const query = searchQuery.trim().toLowerCase();
+
+        if (!query) {
+            return {
+                filteredTitle: sessions,
+                filteredDescription: sessions,
+                filteredLocation: sessions,
+            };
+        }
+
+        return {
+            filteredTitle: sessions.filter((session) => session.title.toLowerCase().includes(query)),
+            filteredDescription: sessions.filter((session) => session.description.toLowerCase().includes(query)),
+            filteredLocation: sessions.filter((session) => session.location.toLowerCase().includes(query)),
+        }
+    }, [sessions, searchQuery]);
+
+    const buckets: Record<FilterKey, Session[]> = {
+        // assign each key title to the return of the filter names from useMemo
+        title: filteredTitle,
+        description: filteredDescription,
+        location: filteredLocation,
+    };
+
+    const filteredSessions = useMemo(() => {
+        if (!searchQuery.trim) return sessions;
+
+        const byId = new Map<string, Session>();
+
+        for (const key of activeFilters) {
+            for (const session of buckets[key]) byId.set(session.id, session);
+        }
+
+        return Array.from(byId.values());
+    }, [buckets, activeFilters, searchQuery, sessions])
+
+    useEffect(() => {
+        setPage(1);
+    }, [searchQuery, selectedFilters]);
+
+    const totalPages = Math.max(1, Math.ceil(filteredSessions.length / pageSize));
+    useEffect(() => {
+        if (page > totalPages) setPage(totalPages);
+    }, [page, totalPages]);
+
+    const startPage = (page - 1) * pageSize;
+    const endPage = startPage + pageSize;
+
+    const pagedSessions = useMemo(() =>
+        filteredSessions.slice(startPage, endPage),
+        [filteredSessions, startPage, endPage],
+    )
 
     const open = Boolean(anchorEl);
     const id = open ? "filter-popover" : undefined;
@@ -75,6 +130,16 @@ export default function Sessions() {
             month: "short",
             day: "numeric",
         });
+    }
+
+    function sessionLocationBar(sessionLocation?: string) {
+        const map: Record<string, string> = {
+            ONLINE: 'border-l-4 border-l-blue-600 border-b-blue-600',
+            IN_PERSON: 'border-l-4 border-l-green-500 border-b-green-500',
+            HYBRID: 'border-l-4 border-l-purple-600 border-b-purple-600',
+        };
+
+        return map[sessionLocation ?? "ONLINE"] ?? "";
     }
 
     return (
@@ -179,7 +244,7 @@ export default function Sessions() {
                         <section className="col-span-3 space-y-4">
 
                             {/* put your sessions.map() here */}
-                            {sessions.map((session) => (
+                            {pagedSessions.map((session) => (
                                 <motion.div
                                     key={session.id}
                                     whileHover={{y: -6, scale: 1.01}}
@@ -187,7 +252,9 @@ export default function Sessions() {
                                     transition={{type: "tween", ease: "easeOut", duration: 0.18}}
                                     className="relative z-0"
                                 >
-                                    <Card key={session.id}>
+                                    <Card
+                                        className={`bg-white rounded-sm border shadow-sm hover:shadow transition-all ${sessionLocationBar(session.location)}`}
+                                        key={session.id}>
                                         <CardHeader className="pb-2">
                                             <CardTitle className="pb-2">
                                                 {session.title}
@@ -218,26 +285,34 @@ export default function Sessions() {
                                             </div>
 
                                             <div className="col-span-2">
-                                                <div>
-                                                    {session.description}
+                                                <div className="h-full rounded-md border border-gray-200 bg-gray-50 px-4 py-3 flex flex-col gap-1">
+                                                    <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                                                        Meeting description
+                                                    </p>
+                                                    <p className="text-sm text-gray-700">
+                                                        {session.description}
+                                                    </p>
                                                 </div>
                                             </div>
                                         </CardContent>
-                                        <div className="flex items-center justify-between w-full mt-3">
-                                            <Button
-                                                className="!bg-transparent !border-transparent text-blue-600 mb-3"
-                                            >View session details</Button>
+                                        <CardFooter>
+                                            <div className="flex items-center justify-between w-full mt-3">
+                                                <Button
+                                                    variant="link"
+                                                    className="!bg-transparent !border-transparent text-blue-600 mb-3"
+                                                >View session details</Button>
 
-                                            <div className="flex items-center gap-2">
-                                            <Button>
-                                                <ThumbsUp className={`h-5 w-5`}/>
-                                            </Button>
+                                                <div className="flex items-center gap-2">
+                                                    <Button>
+                                                        <ThumbsUp className={`h-5 w-5`}/>
+                                                    </Button>
 
-                                                <Button>
-                                                    <MessageSquare className={`h-5 w-5`}/>
-                                                </Button>
+                                                    <Button>
+                                                        <MessageSquare className={`h-5 w-5`}/>
+                                                    </Button>
+                                                </div>
                                             </div>
-                                        </div>
+                                        </CardFooter>
                                     </Card>
                                 </motion.div>
                             ))}
@@ -265,6 +340,58 @@ export default function Sessions() {
                         </aside>
                     </div>
                 </CardContent>
+
+                <CardFooter className="flex items-center justify-between pt-0">
+                    <span className="text-sm text-gray-600">
+                        {filteredSessions.length === 0 ? "0 results" : `${startPage + 1}–${Math.min(endPage, filteredSessions.length)} of ${filteredSessions.length}`}
+                    </span>
+
+                    <div className="flex items-center gap-2">
+                        <Button
+                            type="button"
+                            onClick={() => setPage(1)}
+                            disabled={page === 1}
+                            aria-label="First page"
+                            className="h-9 px-3"
+                        >
+                            <ArrowLeftToLine/>
+                        </Button>
+
+                        <Button
+                            type="button"
+                            onClick={() => setPage((p) => Math.max(1, p - 1))}
+                            disabled={page === 1}
+                            aria-label="Previous page"
+                            className="h-9 px-3"
+                        >
+                            <MoveLeft/>
+                        </Button>
+
+                        <span className="text-sm tabular-nums">
+                            Page {page} of {totalPages}
+                        </span>
+
+                        <Button
+                            type="button"
+                            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                            disabled={page === totalPages}
+                            aria-label="Next page"
+                            className="h-9 px-3"
+                        >
+                            <MoveRight/>
+                        </Button>
+
+                        <Button
+                            type="button"
+                            onClick={() => setPage(totalPages)}
+                            disabled={page === totalPages}
+                            aria-label="Last page"
+                            className="h-9 px-3"
+                        >
+                            <ArrowRightToLine/>
+                        </Button>
+                    </div>
+                </CardFooter>
             </Card>
         </div>
     )

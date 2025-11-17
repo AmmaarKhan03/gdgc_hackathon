@@ -1,6 +1,7 @@
 import {Post} from "@/store/postStore";
 import {Comment} from "@/store/commentStore";
 import {User} from "@/store/userStore";
+import {Session} from "@/store/sessionStore";
 
 export const mockPosts: Post[] = [
     {
@@ -388,3 +389,235 @@ export const mockUsers: User[] = [
     },
 ];
 /////////////////////////////////////////////////////////////////////////////////////////
+export const mockSessions: Session[] = [
+    {
+        id: "s1",
+        hostIds: ["u1"],
+        hostNames: ["Ivan Argueta"],
+        title: "CSE 13S – Pointers & Memory Workshop",
+        description:
+            "Working through segmentation faults, valgrind output, and pointer tracing problems. Bring your laptop!",
+        subject: "Computer Science",
+        location: "IN-PERSON",
+        address: {
+            street: "1156 High Street",
+            city: "Santa Cruz",
+            state: "CA",
+            zipCode: "95064",
+        },
+        meetingLink: undefined,
+        status: "ACTIVE",
+        capacity: 10,
+        startTime: "2025-02-10T16:00:00-08:00",
+        endTime: "2025-02-10T18:00:00-08:00",
+        createdAt: "2025-02-05T14:30:00-08:00",
+        updatedAt: "2025-02-05T14:30:00-08:00",
+        replies: 3,
+        likes: 12,
+    },
+
+    {
+        id: "s2",
+        hostIds: ["u2"],
+        hostNames: ["Samantha Lee"],
+        title: "WRIT 2 – Essay Structure Peer Review",
+        description:
+            "Bring your draft and we will help with thesis clarity, paragraph flow, and transition strength.",
+        subject: "Writing",
+        location: "ONLINE",
+        meetingLink: "https://zoom.us/j/123456789",
+        address: undefined,
+        status: "ACTIVE",
+        capacity: 8,
+        startTime: "2025-02-11T18:00:00-08:00",
+        endTime: "2025-02-11T19:30:00-08:00",
+        createdAt: "2025-02-06T09:10:00-08:00",
+        updatedAt: "2025-02-06T09:10:00-08:00",
+        replies: 1,
+        likes: 5,
+    },
+
+    {
+        id: "s3",
+        hostIds: ["u3", "u4"],
+        hostNames: ["Carlos Ramirez", "Maya Chen"],
+        title: "Math 19A – Derivative Practice Session",
+        description:
+            "Going over implicit differentiation, chain rule drills, and practice problems before the quiz.",
+        subject: "Math",
+        location: "IN-PERSON",
+        address: {
+            street: "Science Hill 265",
+            city: "Santa Cruz",
+            state: "CA",
+            zipCode: "95064",
+        },
+        status: "ACTIVE",
+        capacity: 12,
+        startTime: "2025-02-09T13:00:00-08:00",
+        endTime: "2025-02-09T15:00:00-08:00",
+        createdAt: "2025-02-03T12:00:00-08:00",
+        replies: 0,
+        likes: 8,
+    },
+
+    {
+        id: "s4",
+        hostIds: ["u5"],
+        hostNames: ["Jordan Patel"],
+        title: "Physics 6B – Electric Fields Review",
+        description:
+            "Group review on Gauss’s Law, electric flux, and practice exam questions.",
+        subject: "Physics",
+        location: "HYBRID",
+        address: {
+            street: "Engineering 2 Room 180",
+            city: "Santa Cruz",
+            state: "CA",
+            zipCode: "95064",
+        },
+        meetingLink: "https://discord.gg/abc123",
+        status: "ACTIVE",
+        capacity: 15,
+        startTime: "2025-02-12T17:00:00-08:00",
+        endTime: "2025-02-12T19:00:00-08:00",
+        createdAt: "2025-02-04T11:45:00-08:00",
+        replies: 2,
+        likes: 7,
+    },
+
+    {
+        id: "s5",
+        hostIds: ["u6"],
+        hostNames: ["Emily Tran"],
+        title: "CSE 30 – Assembly Language Help",
+        description:
+            "Breaking down MIPS instructions, stack operations, and function call conventions.",
+        subject: "Computer Science",
+        location: "ONLINE",
+        meetingLink: "https://zoom.us/j/987654321",
+        status: "ACTIVE",
+        capacity: 20,
+        startTime: "2025-02-13T19:00:00-08:00",
+        endTime: "2025-02-13T21:00:00-08:00",
+        createdAt: "2025-02-07T08:55:00-08:00",
+        replies: 5,
+        likes: 11,
+    },
+
+    {
+        id: "s6",
+        hostIds: ["u7"],
+        hostNames: ["David Kim"],
+        title: "Chemistry 1B – Lewis Structures Night",
+        description:
+            "Practice drawing structures, resonance forms, and formal charge calculations.",
+        subject: "Chemistry",
+        location: "IN-PERSON",
+        address: {
+            street: "Physical Sciences 110",
+            city: "Santa Cruz",
+            state: "CA",
+            zipCode: "95064",
+        },
+        status: "ACTIVE",
+        capacity: 18,
+        startTime: "2025-02-10T18:30:00-08:00",
+        endTime: "2025-02-10T20:00:00-08:00",
+        createdAt: "2025-02-05T10:22:00-08:00",
+        replies: 2,
+        likes: 6,
+    },
+
+    {
+        id: "s7",
+        hostIds: ["u8"],
+        hostNames: ["Nina Thompson"],
+        title: "ART 20 – Digital Painting Meetup",
+        description:
+            "Open session for Procreate/Photoshop artists to practice composition and lighting.",
+        subject: "Art",
+        location: "IN-PERSON",
+        address: {
+            street: "Communications 150",
+            city: "Santa Cruz",
+            state: "CA",
+            zipCode: "95064",
+        },
+        status: "ACTIVE",
+        capacity: 10,
+        startTime: "2025-02-14T14:00:00-08:00",
+        endTime: "2025-02-14T16:00:00-08:00",
+        createdAt: "2025-02-05T18:40:00-08:00",
+        replies: 1,
+        likes: 4,
+    },
+
+    {
+        id: "s8",
+        hostIds: ["u9"],
+        hostNames: ["Alex Nguyen"],
+        title: "ECON 1 – Midterm Review Circle",
+        description:
+            "Covering elasticity, supply and demand curves, and key concepts that always show up on exams.",
+        subject: "Economics",
+        location: "HYBRID",
+        meetingLink: "https://discord.gg/econstudy",
+        address: {
+            street: "Kresge 201",
+            city: "Santa Cruz",
+            state: "CA",
+            zipCode: "95064",
+        },
+        status: "ACTIVE",
+        capacity: 30,
+        startTime: "2025-02-15T10:00:00-08:00",
+        endTime: "2025-02-15T12:00:00-08:00",
+        createdAt: "2025-02-06T16:00:00-08:00",
+        replies: 0,
+        likes: 3,
+    },
+
+    {
+        id: "s9",
+        hostIds: ["u1", "u8"],
+        hostNames: ["Ivan Argueta", "Nina Thompson"],
+        title: "CSE 101 – Algorithms Study Marathon",
+        description:
+            "Greedy algorithms, graph traversal, DP basics. Come ready to grind!",
+        subject: "Computer Science",
+        location: "ONLINE",
+        meetingLink: "https://zoom.us/j/222333444",
+        status: "ACTIVE",
+        capacity: 25,
+        startTime: "2025-02-16T12:00:00-08:00",
+        endTime: "2025-02-16T15:00:00-08:00",
+        createdAt: "2025-02-08T14:00:00-08:00",
+        replies: 4,
+        likes: 9,
+    },
+
+    {
+        id: "s10",
+        hostIds: ["u7"],
+        hostNames: ["David Kim"],
+        title: "BIO 20A – Cell Structures Review",
+        description:
+            "Quick overview session on membranes, ribosomes, and essential cell mechanisms.",
+        subject: "Biology",
+        location: "IN-PERSON",
+        address: {
+            street: "Natural Sciences 1 Room 120",
+            city: "Santa Cruz",
+            state: "CA",
+            zipCode: "95064",
+        },
+        status: "CLOSED",
+        capacity: 0,
+        startTime: "2025-02-05T09:00:00-08:00",
+        endTime: "2025-02-05T10:30:00-08:00",
+        createdAt: "2025-01-30T13:20:00-08:00",
+        replies: 0,
+        likes: 2,
+    },
+]

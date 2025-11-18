@@ -102,14 +102,16 @@ export default function Sessions() {
             subject: formSubject,
             startTime: formStartTime,
             endTime: formEndTime,
-            location: formLocation,
+            location: formLocation as SessionLocation,
             address,
             meetingLink: formMeetingLink || undefined,
             capacity: formCapacity || undefined,
 
             hostIds: [currentUser.id],
-            hostNames: [currentUser.name.firstName],
+            hostNames: [`${currentUser.name.firstName} ${currentUser.name.lastName}`],
         })
+
+        console.log("Created post successfully");
 
         setFormTitle("");
         setFormDescription("");
@@ -167,7 +169,7 @@ export default function Sessions() {
     };
 
     const filteredSessions = useMemo(() => {
-        if (!searchQuery.trim) return sessions;
+        if (!searchQuery.trim()) return sessions;
 
         const byId = new Map<string, Session>();
 
@@ -189,11 +191,30 @@ export default function Sessions() {
 
     const startPage = (page - 1) * pageSize;
     const endPage = startPage + pageSize;
-
     const pagedSessions = useMemo(() =>
             filteredSessions.slice(startPage, endPage),
         [filteredSessions, startPage, endPage],
     )
+
+    const toggleFilter = (key: FilterKey) => {
+        // check the current selected filters
+        // use prev as last checked state
+        setSelectedFilters((prev) =>
+            // if prev already has the filtered key remove it and create new array of filters
+            // else make add it and make new array with new filter key
+            prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
+        );
+    }
+
+    const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setSearchQuery(event.target.value);
+    }
+
+    const selectAll = () => setSelectedFilters(allKeys);
+    const clearAll = () => setSelectedFilters([]);
+
+    const open = Boolean(anchorEl);
+    const id = open ? "filter-popover" : undefined;
 
     const sessionsMadeToday = useMemo(() => {
         if (!sessions || sessions.length === 0) return [];
@@ -210,15 +231,6 @@ export default function Sessions() {
         })
     }, [sessions]);
 
-    const open = Boolean(anchorEl);
-    const id = open ? "filter-popover" : undefined;
-
-    const selectAll = () => setSelectedFilters(allKeys);
-    const clearAll = () => setSelectedFilters([]);
-
-    const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setSearchQuery(event.target.value);
-    }
 
     const formatTime = (iso: string | undefined) => {
         if (!iso) return;
@@ -268,6 +280,7 @@ export default function Sessions() {
                                 type="search"
                                 placeholder="Search for relevant sessions"
                                 value={searchQuery}
+                                onChange={handleSearch}
                             />
 
                             <Button
@@ -348,9 +361,9 @@ export default function Sessions() {
 
                 <CardContent>
 
-                    <div className="grid grid-cols-5 gap-6 pt-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 pt-6">
                         {/* LEFT: All Sessions (takes 2 columns) */}
-                        <section className="col-span-3">
+                        <section  className="lg:col-span-3">
                             <Card>
                                 <CardHeader className="pb-3">
                                     <CardTitle className="text-lg">
@@ -428,11 +441,19 @@ export default function Sessions() {
                                                         </Button>
 
                                                         <div className="flex items-center gap-2">
-                                                            <Button className="h-8 w-8 p-0">
-                                                                <ThumbsUp className="h-4 w-4"/>
+                                                            <Button
+                                                                    type="button"
+                                                                    onClick={() => toggleLike(session.id)}
+                                                            >
+                                                                <ThumbsUp className={`h-5 w-5 ${likedSessionIds.has(session.id) ? "fill-current" : ""}`}/>
+                                                                {session.likes ?? 0}
                                                             </Button>
-                                                            <Button className="h-8 w-8 p-0">
+                                                            <Button
+                                                                type="button"
+                                                                onClick={() => goToComments(session.id)}
+                                                            >
                                                                 <MessageSquare className="h-4 w-4"/>
+                                                                {commentsBySession[session.id]?.length ?? 0}
                                                             </Button>
                                                         </div>
                                                     </div>
@@ -498,7 +519,7 @@ export default function Sessions() {
                         </section>
 
                         {/* RIGHT: Today + Popular stacked */}
-                        <aside className="col-span-2 flex flex-col gap-4">
+                        <aside className="lg:col-span-2 flex flex-col gap-4 mt-6 lg:mt-0">
                             <Card>
                                 <CardHeader>
                                     <CardTitle>Sessions Made Today</CardTitle>
@@ -532,11 +553,19 @@ export default function Sessions() {
                                                         </Button>
 
                                                         <div className="flex items-center gap-2">
-                                                            <Button className="h-8 w-8 p-0">
-                                                                <ThumbsUp className="h-4 w-4"/>
+                                                            <Button
+                                                                type="button"
+                                                                onClick={() => toggleLike(session.id)}
+                                                            >
+                                                                <ThumbsUp className={`h-5 w-5 ${likedSessionIds.has(session.id) ? "fill-current" : ""}`}/>
+                                                                {session.likes ?? 0}
                                                             </Button>
-                                                            <Button className="h-8 w-8 p-0">
+                                                            <Button
+                                                                type="button"
+                                                                onClick={() => goToComments(session.id)}
+                                                            >
                                                                 <MessageSquare className="h-4 w-4"/>
+                                                                {commentsBySession[session.id]?.length ?? 0}
                                                             </Button>
                                                         </div>
                                                     </div>

@@ -21,6 +21,8 @@ import {
 import {useNavigate} from "react-router-dom";
 import {useCommentStore} from "@/store/commentStore";
 import {motion} from "framer-motion";
+import {useSessionStore} from "@/store/sessionStore";
+import Divider from "@mui/material/Divider";
 
 const subjectToUpper = (subject: string) => {
     if (!subject) return;
@@ -71,6 +73,7 @@ export default function Dashboard() {
     };
 
     const users = useUserStore(state => state.users);
+    const sessions = useSessionStore((state) => state.sessions);
     const currentUsers = users.length;
     const totalUsers = 153;
     const posts = usePostStore(state => state.posts);
@@ -259,6 +262,21 @@ export default function Dashboard() {
         return () => clearTimeout(timeoutId);
     }, [posts, likedPostIds, userVector, maxLikes]);
 
+    const sessionsMadeToday = useMemo(() => {
+        if (!sessions || sessions.length === 0) return [];
+
+        const now = Date.now();
+        const ONE_DAY = 24 * 60 * 60 * 1000;
+
+        return sessions.filter((session) => {
+            const timestamp = session.createdAt;
+            if (!timestamp) return false;
+
+            const createdTime = new Date(timestamp).getTime();
+            return now - createdTime <= ONE_DAY;
+        })
+    }, [sessions]);
+
 
     return (
         <div className="px-5 space-y-6">
@@ -430,6 +448,29 @@ export default function Dashboard() {
                                 Current Sessions
                             </CardTitle>
                         </CardHeader>
+
+                        <CardContent className="space-y-5">
+                            {sessionsMadeToday.map((session) => (
+                                <motion.div
+                                    key={session.id}
+                                    whileHover={{y: -6, scale: 1.01}}
+                                    whileTap={{y: -2}}
+                                    transition={{type: "tween", ease: "easeOut", duration: 0.18}}
+                                    className="relative z-0"
+                                >
+                                    <Card>
+                                        <CardHeader>
+                                            <CardTitle>{session.title}</CardTitle>
+                                            <Divider/>
+                                        </CardHeader>
+
+                                        <CardContent>
+                                            {session.description}
+                                        </CardContent>
+                                    </Card>
+                                </motion.div>
+                            ))}
+                        </CardContent>
                     </Card>
                 </aside>
             </div>

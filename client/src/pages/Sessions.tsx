@@ -27,6 +27,7 @@ import {Post} from "@/store/postStore";
 import {useCommentStore} from "@/store/commentStore";
 import {useNavigate} from "react-router-dom";
 import {useUserStore} from "@/store/userStore";
+import Modal from '@mui/material/Modal';
 
 type FilterKey = "title" | "description" | "location";
 
@@ -38,7 +39,7 @@ export default function Sessions() {
     const commentsBySession = useCommentStore((state) => state.commentsByPostId);
     const navigate = useNavigate();
     const goToComments = (id: string) => {
-        navigate(`/sessions/${id}/comments`);
+        navigate(`/session/${id}/comments`);
     };
 
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -351,10 +352,48 @@ export default function Sessions() {
 
                         <div className="flex-1 flex justify-end items-center gap-2">
                             <Button
-                                // onClick={handleModalOpen}
-                            > {/*Button to open modal, when pressed changes the isModalOpen to true*/}
+                                onClick={handleModalOpen} /*Button to open modal, when pressed changes the isModalOpen to true*/
+                            >
                                 Create Session
                             </Button>
+                            <Modal open={isModalOpen} onClose={handleModalClose}>
+                                <Card className="p-5 bg-white w-[1000px] mx-auto mt-[20vh] rounded-lg shadow-lg">
+                                    <form onSubmit={handleCreateSession}>
+                                        <CardHeader>
+                                            <CardTitle>New Session Post</CardTitle>
+                                            <Divider className="pt-2"/>
+                                        </CardHeader>
+
+                                        <CardContent className="pt-5">
+                                            <div className="flex flex-col gap-1">
+
+                                                <label className="text-lg font-semibold">Post Title</label>
+                                                <input
+                                                    className="border border-gray-300 hover:border-gray-500 rounded-lg px-2 py-1 shadow-sm"
+                                                    value={formTitle} /* The input displays whatever is stored in the formTitle state */
+                                                    onChange={(e) => setFormTitle(e.target.value)} /*updates the formTitle state everytime the user types something */
+                                                    placeholder="Enter Post Title"
+                                                    required
+                                                />
+                                            </div>
+
+                                            <div className="flex flex-col gap-1">
+
+                                                <label className="text-lg font-semibold">Post Description</label>
+                                                <textarea
+                                                    className="border border-gray-300 hover:border-gray-500 rounded-lg px-2 py-1 shadow-sm"
+                                                    value={formDescription} /* The description displays whatever is stored in the formDescription state */
+                                                    onChange={(e) => setFormDescription(e.target.value)} /*updates the formDescription state everytime the user types something */
+                                                    placeholder="Enter Post Description"
+                                                    maxLength={500}
+                                                    required
+                                                />
+                                            </div>
+
+                                        </CardContent>
+                                    </form>
+                                </Card>
+                            </Modal>
                         </div>
                     </CardTitle>
                 </CardHeader>
@@ -397,14 +436,14 @@ export default function Sessions() {
                                                     <Divider/>
                                                 </CardHeader>
 
-                                                <CardContent className="px-4 pb-3 pt-2 grid grid-cols-5 gap-4">
-                                                    <div className="col-span-3 space-y-1 text-sm">
+                                                <CardContent className="px-4 pb-3 pt-2 grid grid-cols-1 md:grid-cols-5 gap-4">
+                                                    <div className="md:col-span-3 space-y-1 text-sm">
                                                         <div className="gap-2 flex items-center">
                                                             <AccessTimeIcon className="h-4 w-4"/>
                                                             <span>{formatTimeRange(session.startTime, session.endTime)}</span>
                                                         </div>
 
-                                                        <div className="gap-2 flex items-center">
+                                                        <div className="md: gap-2 flex items-center">
                                                             <CalendarMonthIcon className="h-4 w-4"/>
                                                             <span className="text-gray-600">
                                         {formatDate(session.startTime)}
@@ -431,40 +470,48 @@ export default function Sessions() {
                                                 </CardContent>
 
                                                 <>
-                                                    <CardFooter className="px-4 pb-3 pt-0">
-                                                    <div className="flex items-center justify-between w-full mt-1">
-                                                        <Button
-                                                            variant="link"
-                                                            className="!bg-transparent !border-transparent text-blue-600 px-0 text-sm"
-                                                        >
-                                                            View session details
-                                                        </Button>
-
-                                                        <div className="flex items-center gap-2">
+                                                    <CardFooter>
+                                                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between w-full gap-2 mt-1">
                                                             <Button
+                                                                variant="link"
+                                                                className="!bg-transparent !border-transparent text-blue-600 px-0 text-sm"
+                                                            >
+                                                                View session details
+                                                            </Button>
+
+                                                            <div className="flex items-center gap-2">
+                                                                <Button
                                                                     type="button"
                                                                     onClick={() => toggleLike(session.id)}
-                                                            >
-                                                                <ThumbsUp className={`h-5 w-5 ${likedSessionIds.has(session.id) ? "fill-current" : ""}`}/>
-                                                                {session.likes ?? 0}
-                                                            </Button>
-                                                            <Button
-                                                                type="button"
-                                                                onClick={() => goToComments(session.id)}
-                                                            >
-                                                                <MessageSquare className="h-4 w-4"/>
-                                                                {commentsBySession[session.id]?.length ?? 0}
-                                                            </Button>
+                                                                    className="h-8 px-3 flex items-center gap-1"
+                                                                >
+                                                                    <ThumbsUp
+                                                                        className={`h-4 w-4 ${
+                                                                            likedSessionIds.has(session.id) ? "fill-current" : ""
+                                                                        }`}
+                                                                    />
+                                                                    {session.likes ?? 0}
+                                                                </Button>
+
+                                                                <Button
+                                                                    type="button"
+                                                                    onClick={() => goToComments(session.id)}
+                                                                    className="h-8 px-3 flex items-center gap-1"
+                                                                >
+                                                                    <MessageSquare className="h-4 w-4" />
+                                                                    {commentsBySession[session.id]?.length ?? 0}
+                                                                </Button>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                </CardFooter>
+                                                    </CardFooter>
+
                                                 </>
                                             </Card>
                                         </motion.div>
                                     ))}
                                 </CardContent>
 
-                                <CardFooter className="flex items-center justify-between pt-0">
+                                <CardFooter className="flex flex-col sm:flex-row sm:items-center sm:justify-between w-full gap-2 mt-1">
                     <span className="text-sm text-gray-600">
                         {filteredSessions.length === 0 ? "0 results" : `${startPage + 1}–${Math.min(endPage, filteredSessions.length)} of ${filteredSessions.length}`}
                     </span>
@@ -543,8 +590,8 @@ export default function Sessions() {
                                                     {session.description}
                                                 </CardContent>
 
-                                                <CardFooter>
-                                                    <div className="flex items-center justify-between w-full mt-1">
+                                                <CardFooter className="px-4 pb-3 pt-0">
+                                                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between w-full gap-2 mt-1">
                                                         <Button
                                                             variant="link"
                                                             className="!bg-transparent !border-transparent text-blue-600 px-0 text-sm"
@@ -556,6 +603,7 @@ export default function Sessions() {
                                                             <Button
                                                                 type="button"
                                                                 onClick={() => toggleLike(session.id)}
+                                                                className="h-8 px-3 flex items-center gap-1"
                                                             >
                                                                 <ThumbsUp className={`h-5 w-5 ${likedSessionIds.has(session.id) ? "fill-current" : ""}`}/>
                                                                 {session.likes ?? 0}
@@ -563,8 +611,9 @@ export default function Sessions() {
                                                             <Button
                                                                 type="button"
                                                                 onClick={() => goToComments(session.id)}
+                                                                className="h-8 px-3 flex items-center gap-1"
                                                             >
-                                                                <MessageSquare className="h-4 w-4"/>
+                                                                <MessageSquare className="h-5 w-5"/>
                                                                 {commentsBySession[session.id]?.length ?? 0}
                                                             </Button>
                                                         </div>

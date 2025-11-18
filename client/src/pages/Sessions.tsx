@@ -1,5 +1,5 @@
-import {Session, useSessionStore} from "@/store/sessionStore";
-import {Card, CardTitle, CardHeader, CardContent, CardFooter} from "@/components/ui/card";
+import {Session, useSessionStore, SessionLocation} from "@/store/sessionStore";
+import {Card, CardTitle, CardHeader, CardContent, CardFooter, CardDescription} from "@/components/ui/card";
 import {useState, useEffect, useMemo} from "react";
 import {Button} from "@/components/ui/button";
 import Checkbox from '@mui/material/Checkbox';
@@ -24,12 +24,107 @@ import LocationPinIcon from '@mui/icons-material/LocationPin';
 import Diversity2Icon from '@mui/icons-material/Diversity2';
 import {motion} from "framer-motion";
 import {Post} from "@/store/postStore";
+import {useCommentStore} from "@/store/commentStore";
+import {useNavigate} from "react-router-dom";
+import {useUserStore} from "@/store/userStore";
 
 type FilterKey = "title" | "description" | "location";
 
 export default function Sessions() {
 
-    const sessions = useSessionStore((state) => state.sessions)
+    const sessions = useSessionStore((state) => state.sessions);
+    const likedSessionIds = useSessionStore((state) => state.likedSessionIds);
+    const toggleLike = useSessionStore((state) => state.toggleLike);
+    const commentsBySession = useCommentStore((state) => state.commentsByPostId);
+    const navigate = useNavigate();
+    const goToComments = (id: string) => {
+        navigate(`/sessions/${id}/comments`);
+    };
+
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const handleModalOpen = () => setIsModalOpen(true);
+    const handleModalClose = () => setIsModalOpen(false);
+
+    const createSession = useSessionStore((state) => state.createSession);
+    const currentUser= useUserStore((state) => state.currentUser);
+
+    const [formTitle, setFormTitle] = useState("");
+    const [formDescription, setFormDescription] = useState("");
+    const [formSubject, setFormSubject] = useState("");
+    const [formLocation, setFormLocation] = useState<SessionLocation | "">("");
+    const [formStreet, setFormStreet] = useState("");
+    const [formCity, setFormCity] = useState("");
+    const [formZip, setFormZip] = useState("");
+    const [formState, setFormState] = useState("");
+    const [formMeetingLink, setFormMeetingLink] = useState("");
+    const [formCapacity, setFormCapacity] = useState("");
+    const [formStartTime, setFormStartTime] = useState("");
+    const [formEndTime, setFormEndTime] = useState("");
+
+    const handleCreateSession = (event: React.FormEvent) => {
+        event.preventDefault();
+
+        console.log("Submitting session", {
+            formTitle,
+            formDescription,
+            formSubject,
+            formLocation,
+            formStreet,
+            formCity,
+            formZip,
+            formState,
+            formMeetingLink,
+            formCapacity,
+            formStartTime,
+            formEndTime
+        })
+
+        if (!formTitle.trim() || !formDescription.trim()) return;
+
+        if (!currentUser) {
+            console.warn("No currentUser, cannot create post");
+            return;
+        }
+
+        const address =
+            formLocation === "IN_PERSON" || formLocation === "HYBRID"
+                ? {
+                    street: formStreet,
+                    city: formCity,
+                    state: formState,
+                    zipCode: formZip,
+                }
+                : undefined;
+
+        createSession({
+            title: formTitle,
+            description: formDescription,
+            subject: formSubject,
+            startTime: formStartTime,
+            endTime: formEndTime,
+            location: formLocation,
+            address,
+            meetingLink: formMeetingLink || undefined,
+            capacity: formCapacity || undefined,
+
+            hostIds: [currentUser.id],
+            hostNames: [currentUser.name.firstName],
+        })
+
+        setFormTitle("");
+        setFormDescription("");
+        setFormSubject("");
+        setFormLocation("");
+        setFormStreet("");
+        setFormCity("");
+        setFormZip("");
+        setFormState("");
+        setFormMeetingLink("");
+        setFormCapacity("");
+        setFormStartTime("");
+        setFormEndTime("");
+        setIsModalOpen(false);
+    }
 
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedFilters, setSelectedFilters] = useState<FilterKey[]>([]);
@@ -46,7 +141,7 @@ export default function Sessions() {
     const allKeys = ["title", "description", "location"] as FilterKey[];
     const activeFilters = selectedFilters.length > 0 ? selectedFilters : (allKeys);
 
-    const {filteredTitle,filteredDescription, filteredLocation} = useMemo(() => {
+    const {filteredTitle, filteredDescription, filteredLocation} = useMemo(() => {
         const query = searchQuery.trim().toLowerCase();
 
         if (!query) {
@@ -96,9 +191,24 @@ export default function Sessions() {
     const endPage = startPage + pageSize;
 
     const pagedSessions = useMemo(() =>
-        filteredSessions.slice(startPage, endPage),
+            filteredSessions.slice(startPage, endPage),
         [filteredSessions, startPage, endPage],
     )
+
+    const sessionsMadeToday = useMemo(() => {
+        if (!sessions || sessions.length === 0) return [];
+
+        const now = Date.now();
+        const ONE_DAY = 24 * 60 * 60 * 1000;
+
+        return sessions.filter((session) => {
+            const timestamp = session.createdAt;
+            if (!timestamp) return false;
+
+            const createdTime = new Date(timestamp).getTime();
+            return now - createdTime <= ONE_DAY;
+        })
+    }, [sessions]);
 
     const open = Boolean(anchorEl);
     const id = open ? "filter-popover" : undefined;
@@ -149,7 +259,6 @@ export default function Sessions() {
                     <CardTitle className="flex items-center justify-between w-full">
 
                         <div className="flex-1 text-left">
-                            {searchQuery.trim() ? "Search Results" : "All Sessions"}
                         </div>
 
 
@@ -241,91 +350,200 @@ export default function Sessions() {
 
                     <div className="grid grid-cols-5 gap-6 pt-6">
                         {/* LEFT: All Sessions (takes 2 columns) */}
-                        <section className="col-span-3 space-y-4">
+                        <section className="col-span-3">
+                            <Card>
+                                <CardHeader className="pb-3">
+                                    <CardTitle className="text-lg">
+                                        {searchQuery.trim()
+                                            ? "Search Results"
+                                            : "All Sessions"}
+                                    </CardTitle>
+                                    <CardDescription>
+                                        Showing {pagedSessions.length} of {filteredSessions.length} sessions
+                                    </CardDescription>
+                                </CardHeader>
 
-                            {/* put your sessions.map() here */}
-                            {pagedSessions.map((session) => (
-                                <motion.div
-                                    key={session.id}
-                                    whileHover={{y: -6, scale: 1.01}}
-                                    whileTap={{y: -2}}
-                                    transition={{type: "tween", ease: "easeOut", duration: 0.18}}
-                                    className="relative z-0"
-                                >
-                                    <Card
-                                        className={`bg-white rounded-sm border shadow-sm hover:shadow transition-all ${sessionLocationBar(session.location)}`}
-                                        key={session.id}>
-                                        <CardHeader className="pb-2">
-                                            <CardTitle className="pb-2">
-                                                {session.title}
-                                            </CardTitle>
-                                        </CardHeader>
-                                        <CardContent className="space-y-2 grid grid-cols-5 gap-6 pt-6">
-                                            <div className="col-span-3 space-y-2">
-                                                <div className="gap-2 flex items-center">
-                                                    <AccessTimeIcon/>
-                                                    <span>
-                                                {formatTimeRange(session.startTime, session.endTime)}
-                                                </span>
-                                                </div>
+                                <CardContent className="space-y-3 pt-0">
+                                    {pagedSessions.map((session) => (
+                                        <motion.div
+                                            key={session.id}
+                                            whileHover={{y: -4, scale: 1.005}}
+                                            whileTap={{y: -1}}
+                                            transition={{type: "tween", ease: "easeOut", duration: 0.18}}
+                                            className="relative z-0"
+                                        >
+                                            <Card
+                                                className={`bg-white rounded-md border shadow-sm hover:shadow ${sessionLocationBar(
+                                                    session.location,
+                                                )}`}
+                                            >
+                                                <CardHeader className="pb-1 px-4 pt-3">
+                                                    <CardTitle className="text-base font-semibold">
+                                                        {session.title}
+                                                    </CardTitle>
+                                                    <Divider/>
+                                                </CardHeader>
 
-                                                <div className="gap-2 flex items-center mt-1">
-                                                    <CalendarMonthIcon/>
-                                                    <span className="text-gray-600">
-                                                    {formatDate(session.startTime)}
-                                                </span>
-                                                </div>
+                                                <CardContent className="px-4 pb-3 pt-2 grid grid-cols-5 gap-4">
+                                                    <div className="col-span-3 space-y-1 text-sm">
+                                                        <div className="gap-2 flex items-center">
+                                                            <AccessTimeIcon className="h-4 w-4"/>
+                                                            <span>{formatTimeRange(session.startTime, session.endTime)}</span>
+                                                        </div>
 
-                                                <div className="gap-2 flex">
-                                                    <LocationPinIcon/>
-                                                    <span>
-                                                    {session.location}
-                                                </span>
-                                                </div>
-                                            </div>
+                                                        <div className="gap-2 flex items-center">
+                                                            <CalendarMonthIcon className="h-4 w-4"/>
+                                                            <span className="text-gray-600">
+                                        {formatDate(session.startTime)}
+                                    </span>
+                                                        </div>
 
-                                            <div className="col-span-2">
-                                                <div className="h-full rounded-md border border-gray-200 bg-gray-50 px-4 py-3 flex flex-col gap-1">
-                                                    <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-                                                        Meeting description
-                                                    </p>
-                                                    <p className="text-sm text-gray-700">
-                                                        {session.description}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </CardContent>
-                                        <CardFooter>
-                                            <div className="flex items-center justify-between w-full mt-3">
-                                                <Button
-                                                    variant="link"
-                                                    className="!bg-transparent !border-transparent text-blue-600 mb-3"
-                                                >View session details</Button>
+                                                        <div className="gap-2 flex items-center">
+                                                            <LocationPinIcon className="h-4 w-4"/>
+                                                            <span>{session.location}</span>
+                                                        </div>
+                                                    </div>
 
-                                                <div className="flex items-center gap-2">
-                                                    <Button>
-                                                        <ThumbsUp className={`h-5 w-5`}/>
-                                                    </Button>
+                                                    <div className="col-span-2">
+                                                        <div
+                                                            className="h-full rounded-md border border-gray-200 bg-gray-50 px-3 py-2 flex flex-col gap-1">
+                                                            <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                                                                Meeting description
+                                                            </p>
+                                                            <p className="text-sm text-gray-700 line-clamp-3">
+                                                                {session.description}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </CardContent>
 
-                                                    <Button>
-                                                        <MessageSquare className={`h-5 w-5`}/>
-                                                    </Button>
-                                                </div>
-                                            </div>
-                                        </CardFooter>
-                                    </Card>
-                                </motion.div>
-                            ))}
+                                                <>
+                                                    <CardFooter className="px-4 pb-3 pt-0">
+                                                    <div className="flex items-center justify-between w-full mt-1">
+                                                        <Button
+                                                            variant="link"
+                                                            className="!bg-transparent !border-transparent text-blue-600 px-0 text-sm"
+                                                        >
+                                                            View session details
+                                                        </Button>
+
+                                                        <div className="flex items-center gap-2">
+                                                            <Button className="h-8 w-8 p-0">
+                                                                <ThumbsUp className="h-4 w-4"/>
+                                                            </Button>
+                                                            <Button className="h-8 w-8 p-0">
+                                                                <MessageSquare className="h-4 w-4"/>
+                                                            </Button>
+                                                        </div>
+                                                    </div>
+                                                </CardFooter>
+                                                </>
+                                            </Card>
+                                        </motion.div>
+                                    ))}
+                                </CardContent>
+
+                                <CardFooter className="flex items-center justify-between pt-0">
+                    <span className="text-sm text-gray-600">
+                        {filteredSessions.length === 0 ? "0 results" : `${startPage + 1}–${Math.min(endPage, filteredSessions.length)} of ${filteredSessions.length}`}
+                    </span>
+
+                                    <div className="flex items-center gap-2">
+                                        <Button
+                                            type="button"
+                                            onClick={() => setPage(1)}
+                                            disabled={page === 1}
+                                            aria-label="First page"
+                                            className="h-9 px-3"
+                                        >
+                                            <ArrowLeftToLine/>
+                                        </Button>
+
+                                        <Button
+                                            type="button"
+                                            onClick={() => setPage((p) => Math.max(1, p - 1))}
+                                            disabled={page === 1}
+                                            aria-label="Previous page"
+                                            className="h-9 px-3"
+                                        >
+                                            <MoveLeft/>
+                                        </Button>
+
+                                        <span className="text-sm tabular-nums">
+                            Page {page} of {totalPages}
+                        </span>
+
+                                        <Button
+                                            type="button"
+                                            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                                            disabled={page === totalPages}
+                                            aria-label="Next page"
+                                            className="h-9 px-3"
+                                        >
+                                            <MoveRight/>
+                                        </Button>
+
+                                        <Button
+                                            type="button"
+                                            onClick={() => setPage(totalPages)}
+                                            disabled={page === totalPages}
+                                            aria-label="Last page"
+                                            className="h-9 px-3"
+                                        >
+                                            <ArrowRightToLine/>
+                                        </Button>
+                                    </div>
+                                </CardFooter>
+                            </Card>
                         </section>
 
                         {/* RIGHT: Today + Popular stacked */}
                         <aside className="col-span-2 flex flex-col gap-4">
                             <Card>
                                 <CardHeader>
-                                    <CardTitle>Today</CardTitle>
+                                    <CardTitle>Sessions Made Today</CardTitle>
                                 </CardHeader>
-                                <CardContent>
-                                    {/* sessions happening today go here */}
+                                <CardContent className="space-y-5">
+                                    {sessionsMadeToday.map((session) => (
+                                        <motion.div
+                                            key={session.id}
+                                            whileHover={{y: -6, scale: 1.01}}
+                                            whileTap={{y: -2}}
+                                            transition={{type: "tween", ease: "easeOut", duration: 0.18}}
+                                            className="relative z-0"
+                                        >
+                                            <Card>
+                                                <CardHeader>
+                                                    <CardTitle>{session.title}</CardTitle>
+                                                    <Divider/>
+                                                </CardHeader>
+
+                                                <CardContent>
+                                                    {session.description}
+                                                </CardContent>
+
+                                                <CardFooter>
+                                                    <div className="flex items-center justify-between w-full mt-1">
+                                                        <Button
+                                                            variant="link"
+                                                            className="!bg-transparent !border-transparent text-blue-600 px-0 text-sm"
+                                                        >
+                                                            View session details
+                                                        </Button>
+
+                                                        <div className="flex items-center gap-2">
+                                                            <Button className="h-8 w-8 p-0">
+                                                                <ThumbsUp className="h-4 w-4"/>
+                                                            </Button>
+                                                            <Button className="h-8 w-8 p-0">
+                                                                <MessageSquare className="h-4 w-4"/>
+                                                            </Button>
+                                                        </div>
+                                                    </div>
+                                                </CardFooter>
+                                            </Card>
+                                        </motion.div>
+                                    ))}
                                 </CardContent>
                             </Card>
 
@@ -340,58 +558,6 @@ export default function Sessions() {
                         </aside>
                     </div>
                 </CardContent>
-
-                <CardFooter className="flex items-center justify-between pt-0">
-                    <span className="text-sm text-gray-600">
-                        {filteredSessions.length === 0 ? "0 results" : `${startPage + 1}–${Math.min(endPage, filteredSessions.length)} of ${filteredSessions.length}`}
-                    </span>
-
-                    <div className="flex items-center gap-2">
-                        <Button
-                            type="button"
-                            onClick={() => setPage(1)}
-                            disabled={page === 1}
-                            aria-label="First page"
-                            className="h-9 px-3"
-                        >
-                            <ArrowLeftToLine/>
-                        </Button>
-
-                        <Button
-                            type="button"
-                            onClick={() => setPage((p) => Math.max(1, p - 1))}
-                            disabled={page === 1}
-                            aria-label="Previous page"
-                            className="h-9 px-3"
-                        >
-                            <MoveLeft/>
-                        </Button>
-
-                        <span className="text-sm tabular-nums">
-                            Page {page} of {totalPages}
-                        </span>
-
-                        <Button
-                            type="button"
-                            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                            disabled={page === totalPages}
-                            aria-label="Next page"
-                            className="h-9 px-3"
-                        >
-                            <MoveRight/>
-                        </Button>
-
-                        <Button
-                            type="button"
-                            onClick={() => setPage(totalPages)}
-                            disabled={page === totalPages}
-                            aria-label="Last page"
-                            className="h-9 px-3"
-                        >
-                            <ArrowRightToLine/>
-                        </Button>
-                    </div>
-                </CardFooter>
             </Card>
         </div>
     )

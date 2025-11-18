@@ -4,7 +4,7 @@ import {mockSessions} from "@/types/mockData";
 
 type SessionStatus = 'ACTIVE' | 'CLOSED'
 
-type SessionLocation = 'ONLINE' | 'IN_PERSON' | 'HYBRID'
+export type SessionLocation = 'ONLINE' | 'IN_PERSON' | 'HYBRID'
 
 interface Address {
     street: string
@@ -27,7 +27,7 @@ export interface Session {
     meetingLink?: string;
 
     status: SessionStatus
-    capacity?: number;
+    capacity?: string;
 
     startTime: string
     endTime: string
@@ -52,7 +52,7 @@ export type NewSessionInput = {
     location: SessionLocation;
     address?: Address;
     meetingLink?: string;
-    capacity?: number;
+    capacity?: string;
 };
 
 interface sessionStore {

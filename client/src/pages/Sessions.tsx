@@ -236,6 +236,30 @@ export default function Sessions() {
         })
     }, [sessions]);
 
+    const popularSessions = useMemo(() => {
+        if (!sessions || sessions.length === 0) return [];
+
+        const scored = sessions.map((session) => {
+            const likes = session.likes ?? 0;
+            const repliesFromStore = commentsBySession[session.id]?.length ?? 0;
+            const replies = session.replies ?? repliesFromStore;
+
+            const score = likes + replies;
+
+            return {session, score}
+        });
+
+        scored.sort((a, b) => b.score - a.score);
+
+        return scored
+            .filter((item) => item.score > 0)
+            .slice(0, 5)
+            .map((item) => item.session);
+    }, [sessions, commentsBySession]);
+
+    const [sidebarTab, setSidebarTab] = useState<"today" | "popular">("today");
+    const sidebarSessions = sidebarTab === "today" ? sessionsMadeToday : popularSessions;
+
 
     const formatTime = (iso: string | undefined) => {
         if (!iso) return;
@@ -268,27 +292,6 @@ export default function Sessions() {
 
         return map[sessionLocation ?? "ONLINE"] ?? "";
     }
-
-    const popularSessions = useMemo(() => {
-        if (!sessions || sessions.length === 0) return [];
-
-        const scored = sessions.map((session) => {
-            const likes = session.likes ?? 0;
-            const repliesFromStore = commentsBySession[session.id]?.length ?? 0;
-            const replies = session.replies ?? repliesFromStore;
-
-            const score = likes + replies;
-
-            return {session, score}
-        });
-
-        scored.sort((a, b) => b.score - a.score);
-
-        return scored
-            .filter((item) => item.score > 0)
-            .slice(0, 5)
-            .map((item) => item.session);
-    }, [sessions, commentsBySession]);
 
     return (
         <div className="px-5 space-y-6">
@@ -428,7 +431,7 @@ export default function Sessions() {
                     <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 pt-6">
                         {/* LEFT: All Sessions (takes 2 columns) */}
                         <section className="lg:col-span-3">
-                            <Card  className="border-2 border-slate-300 shadow-md rounded-xl">
+                            <Card className="border-2 border-slate-300 shadow-md rounded-xl">
                                 <CardHeader className="pb-3">
                                     <CardTitle className="text-lg">
                                         <span className="flex items-center gap-3">
@@ -596,134 +599,45 @@ export default function Sessions() {
 
                         {/* RIGHT: Today + Popular stacked */}
                         <aside className="lg:col-span-2 flex flex-col gap-4 mt-6 lg:mt-0 space-y-5">
-                            <Card  className="border-2 border-slate-300 shadow-md rounded-xl">
-                                <CardHeader>
-                                    <CardTitle>
-                                        <span className="flex items-center gap-3">
-                                            Sessions Made Today
-                                            <Sparkles className="text-yellow-500" />
-                                        </span>
-                                    </CardTitle>
+                            <Card className="border-2 border-slate-300 shadow-md rounded-xl h-full flex flex-col">
+                                <CardHeader className="pb-2">
+                                    <div className="flex items-center justify-between">
+                                        <CardTitle className="text-base flex items-center gap-2">
+                                            <span>Discover Sessions</span>
+                                            <Sparkles className="h-5 w-5 text-yellow-500"/>
+                                        </CardTitle>
+
+                                        <div className="inline-flex items-center rounded-full p-1 gap-2">
+                                            <Button
+                                                type="button"
+                                                onClick={() => setSidebarTab("today")}
+                                                className={`px-3 py-1 rounded-full transition ${
+                                                    sidebarTab === "today" ? "" : ""
+                                                }`}
+                                            >
+                                                Today
+                                            </Button>
+
+                                            <Button
+                                                type="button"
+                                                onClick={() => setSidebarTab("popular")}
+                                                className={`px-3 py-1 rounded-full transition ${
+                                                    sidebarTab === "popular"
+                                                        ? ""
+                                                        : ""
+                                                }`}
+                                            >
+                                                Popular
+                                            </Button>
+                                        </div>
+                                    </div>
+
+                                    <p className="text-xs text-slate-500 mt-2">
+                                        {sidebarTab === "today"
+                                            ? "Sessions created in the last 24 hours."
+                                            : "Sessions with the most likes and replies."}
+                                    </p>
                                 </CardHeader>
-                                <CardContent className="space-y-5">
-                                    {sessionsMadeToday.map((session) => (
-                                        <motion.div
-                                            key={session.id}
-                                            whileHover={{y: -6, scale: 1.01}}
-                                            whileTap={{y: -2}}
-                                            transition={{type: "tween", ease: "easeOut", duration: 0.18}}
-                                            className="relative z-0"
-                                        >
-                                            <Card>
-                                                <CardHeader>
-                                                    <CardTitle>{session.title}</CardTitle>
-                                                    <Divider/>
-                                                </CardHeader>
-
-                                                <CardContent>
-                                                    {session.description}
-                                                </CardContent>
-
-                                                <CardFooter className="px-4 pb-3 pt-0">
-                                                    <div
-                                                        className="flex flex-col sm:flex-row sm:items-center sm:justify-between w-full gap-2 mt-1">
-                                                        <Button
-                                                            variant="link"
-                                                            className="!bg-transparent !border-transparent text-blue-600 px-0 text-sm"
-                                                        >
-                                                            View session details
-                                                        </Button>
-
-                                                        <div className="flex items-center gap-2">
-                                                            <Button
-                                                                type="button"
-                                                                onClick={() => toggleLike(session.id)}
-                                                                className="h-8 px-3 flex items-center gap-1"
-                                                            >
-                                                                <ThumbsUp
-                                                                    className={`h-5 w-5 ${likedSessionIds.has(session.id) ? "fill-current" : ""}`}/>
-                                                                {session.likes ?? 0}
-                                                            </Button>
-                                                            <Button
-                                                                type="button"
-                                                                onClick={() => goToComments(session.id)}
-                                                                className="h-8 px-3 flex items-center gap-1"
-                                                            >
-                                                                <MessageSquare className="h-5 w-5"/>
-                                                                {commentsBySession[session.id]?.length ?? 0}
-                                                            </Button>
-                                                        </div>
-                                                    </div>
-                                                </CardFooter>
-                                            </Card>
-                                        </motion.div>
-                                    ))}
-                                </CardContent>
-                            </Card>
-
-                            <Card  className="border-2 border-slate-300 shadow-md rounded-xl">
-                                <CardHeader>
-                                    <CardTitle>
-                                        <span className="flex items-center gap-1">
-                                            Popular
-                                            <Flame className="text-orange-500"/>
-                                        </span>
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent className="space-y-5">
-                                    {popularSessions.map((session) => (
-                                        <motion.div
-                                            key={session.id}
-                                            whileHover={{y: -6, scale: 1.01}}
-                                            whileTap={{y: -2}}
-                                            transition={{type: "tween", ease: "easeOut", duration: 0.18}}
-                                            className="relative z-0"
-                                        >
-                                            <Card>
-                                                <CardHeader>
-                                                    <CardTitle>{session.title}</CardTitle>
-                                                    <Divider/>
-                                                </CardHeader>
-
-                                                <CardContent>
-                                                    {session.description}
-                                                </CardContent>
-
-                                                <CardFooter className="px-4 pb-3 pt-0">
-                                                    <div
-                                                        className="flex flex-col sm:flex-row sm:items-center sm:justify-between w-full gap-2 mt-1">
-                                                        <Button
-                                                            variant="link"
-                                                            className="!bg-transparent !border-transparent text-blue-600 px-0 text-sm"
-                                                        >
-                                                            View session details
-                                                        </Button>
-
-                                                        <div className="flex items-center gap-2">
-                                                            <Button
-                                                                type="button"
-                                                                onClick={() => toggleLike(session.id)}
-                                                                className="h-8 px-3 flex items-center gap-1"
-                                                            >
-                                                                <ThumbsUp
-                                                                    className={`h-5 w-5 ${likedSessionIds.has(session.id) ? "fill-current" : ""}`}/>
-                                                                {session.likes ?? 0}
-                                                            </Button>
-                                                            <Button
-                                                                type="button"
-                                                                onClick={() => goToComments(session.id)}
-                                                                className="h-8 px-3 flex items-center gap-1"
-                                                            >
-                                                                <MessageSquare className="h-5 w-5"/>
-                                                                {commentsBySession[session.id]?.length ?? 0}
-                                                            </Button>
-                                                        </div>
-                                                    </div>
-                                                </CardFooter>
-                                            </Card>
-                                        </motion.div>
-                                    ))}
-                                </CardContent>
                             </Card>
                         </aside>
                     </div>

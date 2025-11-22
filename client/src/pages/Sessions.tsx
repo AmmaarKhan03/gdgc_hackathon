@@ -857,7 +857,7 @@ export default function Sessions() {
                                     </p>
                                 </CardHeader>
 
-                                <CardContent className="flex-1 overflow-y-auto space-y-3">
+                                <CardContent className="space-y-3 pt-0">
 
                                     {sidebarSessions.length === 0 && (
                                         <p className="text-xs text-slate-500 italic mt-2">

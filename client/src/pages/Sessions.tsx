@@ -253,12 +253,12 @@ export default function Sessions() {
 
         return scored
             .filter((item) => item.score > 0)
-            .slice(0, 5)
+            .slice(0, 7)
             .map((item) => item.session);
     }, [sessions, commentsBySession]);
 
     const [sidebarTab, setSidebarTab] = useState<"today" | "popular">("today");
-    const sidebarSessions = sidebarTab === "today" ? sessionsMadeToday : popularSessions;
+    const sidebarSessions = sidebarTab === "today" ? sessionsMadeToday : popularSessions; // holds both popular and sessions made today
 
 
     const formatTime = (iso: string | undefined) => {
@@ -292,6 +292,12 @@ export default function Sessions() {
 
         return map[sessionLocation ?? "ONLINE"] ?? "";
     }
+
+    const locationFrontend = (subject: string) => {
+        if (!subject) return;
+
+        return subject.toLowerCase().split("_").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
+    };
 
     return (
         <div className="px-5 space-y-6">
@@ -482,7 +488,9 @@ export default function Sessions() {
 
                                                         <div className="gap-2 flex items-center">
                                                             <LocationPinIcon className="h-4 w-4"/>
-                                                            <span>{session.location}</span>
+                                                            <span className="font-semibold text-gray-700">
+                                                                {locationFrontend(session.location)}
+                                                            </span>
                                                         </div>
                                                     </div>
 
@@ -638,6 +646,75 @@ export default function Sessions() {
                                             : "Sessions with the most likes and replies."}
                                     </p>
                                 </CardHeader>
+
+                                <CardContent className="flex-1 overflow-y-auto space-y-3">
+
+                                    {sidebarSessions.length === 0 && (
+                                        <p className="text-xs text-slate-500 italic mt-2">
+                                            Nothing here yet. Create a session to get things started!
+                                        </p>
+                                    )}
+                                    {sidebarSessions.map((session) => (
+                                        <motion.div
+                                            key={session.id}
+                                            whileHover={{y: -4, scale: 1.005}}
+                                            whileTap={{y: -1}}
+                                            transition={{type: "tween", ease: "easeOut", duration: 0.18}}
+                                            className="relative z-0"
+                                        >
+                                            <Card
+                                                className="border-2 border-slate-300 shadow-md"
+                                                onClick={() => goToComments(session.id)}
+                                            >
+                                                <CardHeader className="py-2 px-3">
+                                                    <div className="space-y-1 text-sm font-normal text-slate-800">
+                                                        <div
+                                                            className="flex items-center gap-1.5 text-xs text-slate-700 font-medium leading-tight">
+                                                            <span className="truncate">
+                                                                {session.title}
+                                                            </span>
+
+                                                            <span className="text-slate-400">•</span>
+
+                                                            <div className="sapce-x-1 flex items-center">
+                                                                <LocationPinIcon className="h-4 w-4"/>
+                                                                <span className="font-semibold text-gray-700">
+                                                                {locationFrontend(session.location)}
+                                                            </span>
+                                                            </div>
+                                                        </div>
+                                                        <span
+                                                            className="flex items-center gap-1 text-[11px] text-slate-500 leading-tight">
+                                                            <Clock className="h-3 w-3"/>
+                                                            {formatTime(session.startTime)} – {formatTime(session.endTime)}
+                                                        </span>
+                                                    </div>
+                                                </CardHeader>
+
+                                                <CardContent>
+                                                    <p className="text-xs text-slate-600 line-clamp-2">
+                                                        {session.description}
+                                                    </p>
+
+                                                    <div className="flex items-center justify-between gap-2 mt-1">
+
+                                                        <div
+                                                            className="flex items-center gap-3 text-[11px] text-slate-500">
+                                                        <span className="inline-flex items-center gap-1">
+                                                            <ThumbsUp className="h-3 w-3"/>
+                                                            {session.likes ?? 0}
+                                                        </span>
+                                                            <span className="inline-flex items-center gap-1">
+                                                            <MessageSquare className="h-3 w-3"/>
+                                                                {commentsBySession[session.id]?.length ?? 0}
+                                                        </span>
+                                                        </div>
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+                                        </motion.div>
+                                    ))}
+                                </CardContent>
                             </Card>
                         </aside>
                     </div>

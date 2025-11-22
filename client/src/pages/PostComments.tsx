@@ -131,8 +131,7 @@ export default function PostComments() {
     const navigate = useNavigate();
 
     const [liked, setLiked] = useState<Set<string>>(new Set());
-    {/* will make a set of multiple posts that have been liked*/
-    }
+    {/* will make a set of multiple posts that have been liked*/}
     const toggleLiked = (id: string) => {
         setLiked(prev => {
             const next = new Set(prev);

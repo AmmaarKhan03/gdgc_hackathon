@@ -683,11 +683,12 @@ export default function Sessions() {
                                                             </span>
                                                             </div>
                                                         </div>
-                                                        <span
-                                                            className="flex items-center gap-1 text-[11px] text-slate-500 leading-tight">
-                                                            <Clock className="h-3 w-3"/>
-                                                            {formatTime(session.startTime)} – {formatTime(session.endTime)}
-                                                        </span>
+                                                        <div className="flex items-center gap-1 text-[11px] text-slate-500 leading-none">
+                                                            <Clock className="h-3 w-3 relative top-[0.5px]" />
+                                                            <span className="leading-none">
+                                                                {formatTime(session.startTime)} – {formatTime(session.endTime)}
+                                                            </span>
+                                                        </div>
                                                     </div>
                                                 </CardHeader>
 

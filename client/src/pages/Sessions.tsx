@@ -11,7 +11,6 @@ import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import {
     MessageSquare,
     ThumbsUp,
-    User as UserIcon,
     ArrowRightToLine,
     ArrowLeftToLine,
     MoveRight,
@@ -21,15 +20,11 @@ import {
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import LocationPinIcon from '@mui/icons-material/LocationPin';
-import Diversity2Icon from '@mui/icons-material/Diversity2';
 import {motion} from "framer-motion";
-import {Post} from "@/store/postStore";
 import {useCommentStore} from "@/store/commentStore";
 import {useNavigate} from "react-router-dom";
 import {useUserStore} from "@/store/userStore";
 import Modal from '@mui/material/Modal';
-import {Flame} from 'lucide-react';
-import ArticleIcon from '@mui/icons-material/Article';
 import GroupsIcon from '@mui/icons-material/Groups';
 import {Sparkles} from "lucide-react";
 
@@ -391,40 +386,234 @@ export default function Sessions() {
                                 Create Session
                             </Button>
                             <Modal open={isModalOpen} onClose={handleModalClose}>
-                                <Card className="p-5 bg-white w-[1000px] mx-auto mt-[20vh] rounded-lg shadow-lg">
+                                <Card className="p-5 bg-white w-[1000px] mx-auto mt-[7vh] rounded-lg shadow-lg">
                                     <form onSubmit={handleCreateSession}>
-                                        <CardHeader>
-                                            <CardTitle>New Session Post</CardTitle>
-                                            <Divider className="pt-2"/>
+                                        {/* HEADER */}
+                                        <CardHeader className="pb-4 border-b">
+                                            <div className="flex items-center justify-between">
+                                                <div>
+                                                    <CardTitle className="text-xl font-semibold">
+                                                        New Session Post
+                                                    </CardTitle>
+                                                    <p className="text-sm text-slate-500 mt-1">
+                                                        Share what you’re hosting, when it is, and how people can join.
+                                                    </p>
+                                                </div>
+                                                <span className="rounded-full bg-sky-50 px-3 py-1 text-xs font-medium text-sky-700">
+                                                    Session
+                                                </span>
+                                            </div>
                                         </CardHeader>
 
-                                        <CardContent className="pt-5">
-                                            <div className="flex flex-col gap-1">
+                                        <CardContent className="pt-6 space-y-6">
 
-                                                <label className="text-lg font-semibold">Post Title</label>
-                                                <input
-                                                    className="border border-gray-300 hover:border-gray-500 rounded-lg px-2 py-1 shadow-sm"
-                                                    value={formTitle} /* The input displays whatever is stored in the formTitle state */
-                                                    onChange={(e) => setFormTitle(e.target.value)} /*updates the formTitle state everytime the user types something */
-                                                    placeholder="Enter Post Title"
-                                                    required
-                                                />
-                                            </div>
+                                            <section className="space-y-3">
+                                                <h3 className="text-sm font-semibold text-slate-700">
+                                                    Session details
+                                                </h3>
 
-                                            <div className="flex flex-col gap-1">
+                                                <div className="space-y-1">
+                                                    <label className="text-xs font-medium text-slate-700">
+                                                        Post Title
+                                                    </label>
+                                                    <input
+                                                        className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+                                                        value={formTitle}
+                                                        onChange={(e) => setFormTitle(e.target.value)}
+                                                        placeholder="e.g. CSE 101 – Algorithms Study Marathon"
+                                                        required
+                                                    />
+                                                </div>
 
-                                                <label className="text-lg font-semibold">Post Description</label>
-                                                <textarea
-                                                    className="border border-gray-300 hover:border-gray-500 rounded-lg px-2 py-1 shadow-sm"
-                                                    value={formDescription} /* The description displays whatever is stored in the formDescription state */
-                                                    onChange={(e) => setFormDescription(e.target.value)} /*updates the formDescription state everytime the user types something */
-                                                    placeholder="Enter Post Description"
-                                                    maxLength={500}
-                                                    required
-                                                />
-                                            </div>
+                                                <div className="space-y-1">
+                                                    <div className="flex items-center justify-between">
+                                                        <label className="text-xs font-medium text-slate-700">
+                                                            Post Description
+                                                        </label>
+                                                        <span className="text-[11px] text-slate-400">
+                                                            {formDescription.length}/500
+                                                        </span>
+                                                    </div>
 
+                                                    <textarea
+                                                        className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 min-h-[96px]"
+                                                        value={formDescription}
+                                                        onChange={(e) => setFormDescription(e.target.value)}
+                                                        placeholder="What will you cover? Who is this session for?"
+                                                        maxLength={500}
+                                                        required
+                                                    />
+                                                </div>
+                                            </section>
+
+
+                                            <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                                                <div className="space-y-1">
+                                                    <label className="text-xs font-medium text-slate-700">
+                                                        Subject
+                                                    </label>
+                                                    <input
+                                                        className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+                                                        value={formSubject}
+                                                        onChange={(e) => setFormSubject(e.target.value)}
+                                                        placeholder="e.g Math"
+                                                    >
+                                                    </input>
+                                                </div>
+
+                                                <div className="space-y-1">
+                                                    <label className="text-xs font-medium text-slate-700">
+                                                        Capacity (optional)
+                                                    </label>
+                                                    <input
+                                                        type="number"
+                                                        min={1}
+                                                        className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+                                                        value={formCapacity}
+                                                        onChange={(e) => setFormCapacity(e.target.value)}
+                                                        placeholder="e.g. 15"
+                                                    />
+                                                </div>
+
+                                                {/* Start time */}
+                                                <div className="space-y-1">
+                                                    <label className="text-xs font-medium text-slate-700">
+                                                        Start time
+                                                    </label>
+                                                    <input
+                                                        type="datetime-local"
+                                                        className="mt-1 w-full rounded-lg border border-slate-200 bg-white text-slate-900 px-3 py-2 text-sm
+           focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500
+           appearance-none [color-scheme:light]"
+                                                        value={formStartTime}
+                                                        onChange={(e) => setFormStartTime(e.target.value)}
+                                                    />
+                                                </div>
+
+                                                {/* End time */}
+                                                <div className="space-y-1">
+                                                    <label className="text-xs font-medium text-slate-700">
+                                                        End time
+                                                    </label>
+                                                    <input
+                                                        type="datetime-local"
+                                                        className="mt-1 w-full rounded-lg border border-slate-200 bg-white text-slate-900 px-3 py-2 text-sm
+           focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500
+           appearance-none [color-scheme:light]"
+                                                        value={formEndTime}
+                                                        onChange={(e) => setFormEndTime(e.target.value)}
+                                                    />
+                                                </div>
+                                            </section>
+
+                                            <section className="space-y-3">
+                                                <h3 className="text-sm font-semibold text-slate-700">
+                                                    Location & access
+                                                </h3>
+
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                    <div className="space-y-1">
+                                                        <label className="text-xs font-medium text-slate-700">
+                                                            Location type
+                                                        </label>
+                                                        <select
+                                                            className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+                                                            value={formLocation}
+                                                            onChange={(e) =>
+                                                                setFormLocation(e.target.value as SessionLocation | "")
+                                                            }
+                                                        >
+                                                            <option value="">Select location</option>
+                                                            <option value="ONLINE">Online</option>
+                                                            <option value="IN_PERSON">In person</option>
+                                                            <option value="HYBRID">Hybrid</option>
+                                                        </select>
+                                                    </div>
+
+                                                    {(formLocation === "ONLINE" || formLocation === "HYBRID") && (
+                                                        <div className="space-y-1">
+                                                            <label className="text-xs font-medium text-slate-700">
+                                                                Meeting link
+                                                            </label>
+                                                            <input
+                                                                className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+                                                                value={formMeetingLink}
+                                                                onChange={(e) => setFormMeetingLink(e.target.value)}
+                                                                placeholder="Zoom / Discord / Google Meet link"
+                                                            />
+                                                        </div>
+                                                    )}
+                                                </div>
+
+                                                {(formLocation === "IN_PERSON" || formLocation === "HYBRID") && (
+                                                    <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                                                        <div className="md:col-span-2 space-y-1">
+                                                            <label className="text-xs font-medium text-slate-700">
+                                                                Street address
+                                                            </label>
+                                                            <input
+                                                                className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+                                                                value={formStreet}
+                                                                onChange={(e) => setFormStreet(e.target.value)}
+                                                                placeholder="e.g. 1156 High St"
+                                                            />
+                                                        </div>
+                                                        <div className="space-y-1">
+                                                            <label className="text-xs font-medium text-slate-700">
+                                                                City
+                                                            </label>
+                                                            <input
+                                                                className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+                                                                value={formCity}
+                                                                onChange={(e) => setFormCity(e.target.value)}
+                                                                placeholder="Santa Cruz"
+                                                            />
+                                                        </div>
+                                                        <div className="flex gap-2">
+                                                            <div className="flex-1 space-y-1">
+                                                                <label className="text-xs font-medium text-slate-700">
+                                                                    State
+                                                                </label>
+                                                                <input
+                                                                    className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+                                                                    value={formState}
+                                                                    onChange={(e) => setFormState(e.target.value)}
+                                                                    placeholder="CA"
+                                                                />
+                                                            </div>
+                                                            <div className="flex-1 space-y-1">
+                                                                <label className="text-xs font-medium text-slate-700">
+                                                                    ZIP
+                                                                </label>
+                                                                <input
+                                                                    className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+                                                                    value={formZip}
+                                                                    onChange={(e) => setFormZip(e.target.value)}
+                                                                    placeholder="95064"
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </section>
                                         </CardContent>
+
+                                        <CardFooter className="flex items-center justify-end border-t pt-4">
+
+                                            <div className="flex gap-2">
+                                                <Button
+                                                    type="button"
+                                                    onClick={handleModalClose}
+                                                    className="px-4"
+                                                >
+                                                    Cancel
+                                                </Button>
+                                                <Button type="submit" className="px-5">
+                                                    Create Session
+                                                </Button>
+                                            </div>
+                                        </CardFooter>
                                     </form>
                                 </Card>
                             </Modal>

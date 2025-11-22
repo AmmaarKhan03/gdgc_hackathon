@@ -143,6 +143,27 @@ export default function Sessions() {
     const allKeys = ["title", "description", "location"] as FilterKey[];
     const activeFilters = selectedFilters.length > 0 ? selectedFilters : (allKeys);
 
+    const locationSearch = (session: Session) => {
+        const parts: string[] = [];
+
+        // creates enum of locations within session object
+        if (session.location) {
+            const rawLocation = session.location;
+            const pretty = rawLocation.replace(/_/g, " ");
+            parts.push(pretty);
+        }
+
+        if (session.address) {
+            const {street, city, state, zipCode} = session.address;
+            if (street) {parts.push(street);}
+            if (city) {parts.push(city);}
+            if (state) {parts.push(state);}
+            if (zipCode) {parts.push(zipCode);}
+        }
+
+        return parts.join(" ").toLowerCase();
+    }
+
     const {filteredTitle, filteredDescription, filteredLocation} = useMemo(() => {
         const query = searchQuery.trim().toLowerCase();
 
@@ -157,7 +178,7 @@ export default function Sessions() {
         return {
             filteredTitle: sessions.filter((session) => session.title.toLowerCase().includes(query)),
             filteredDescription: sessions.filter((session) => session.description.toLowerCase().includes(query)),
-            filteredLocation: sessions.filter((session) => session.location.toLowerCase().includes(query)),
+            filteredLocation: sessions.filter((session) => locationSearch(session).includes(query)),
         }
     }, [sessions, searchQuery]);
 

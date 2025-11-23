@@ -1,22 +1,19 @@
-import {useSessionStore} from "@/store/sessionStore";
-import {Card, CardTitle, CardHeader, CardContent, CardFooter} from "@/components/ui/card";
-
-const sessions = useSessionStore((state) => state.sessions);
+import { useSessionStore } from "@/store/sessionStore";
+import { Card, CardTitle, CardHeader, CardContent } from "@/components/ui/card";
 
 export default function Sessions() {
+    const sessions = useSessionStore((state) => state.sessions); // ✅ hook inside component
+
     return (
         <div>
             {sessions.map((session) => (
-                <Card>
+                <Card key={session.id}>   {/* add key if you have an id */}
                     <CardHeader>
                         <CardTitle>{session.title}</CardTitle>
                     </CardHeader>
-
-                    <CardContent>
-                        {session.description}
-                    </CardContent>
+                    <CardContent>{session.description}</CardContent>
                 </Card>
             ))}
         </div>
-    )
+    );
 }

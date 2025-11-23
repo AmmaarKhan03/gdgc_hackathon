@@ -1,7 +1,11 @@
-import {Suspense} from 'react'
-import {createBrowserRouter, RouterProvider} from "react-router-dom";
+import { Suspense } from "react";
+import {
+    createBrowserRouter,
+    RouterProvider,
+    Navigate,
+} from "react-router-dom";
+
 import AppShell from "@/layouts/AppShell";
-import {Navigate} from "react-router-dom"
 
 import Dashboard from "@/pages/Dashboard";
 import Users from "@/pages/Users";
@@ -17,53 +21,51 @@ import Reviews from "@/pages/Reviews";
 import Login from "@/pages/auth/Login";
 import Register from "@/pages/auth/Register";
 import ForgotPassword from "@/pages/auth/ForgotPassword";
-import {useAuthStore} from "@/store/authStore";
 
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
-    const isAuthenticated =
-        useAuthStore.getState().isAuthenticated ||
-        localStorage.getItem("isAuthenticated") === "true";
-
-    return isAuthenticated ? children : <Navigate to="/auth/login" replace />;
+// Simple logged-out homepage
+function Home() {
+    return (
+        <div className="space-y-4">
+            <h1 className="text-3xl font-bold">Welcome!</h1>
+            <p className="text-gray-600">
+                This is the logged-out homepage. Use the navigation or the Login link
+                to sign in and access your dashboard.
+            </p>
+        </div>
+    );
 }
 
-// app routes page, we will input new app pages here and link them below within router
-// syntax path: "/path" or "/path1/path2", followed by element: <Page/>, element will hold the actual page we created
-
 const router = createBrowserRouter([
+    // Main app layout – always accessible (no auth guard for now)
     {
         path: "/",
-        element: <Navigate to="/auth/login" replace />,
+        element: <AppShell />,
+        children: [
+            { index: true, element: <Home /> }, // default route = homepage
+            { path: "dashboard", element: <Dashboard /> },
+            { path: "users", element: <Users /> },
+            { path: "posts", element: <Posts /> },
+            { path: "posts/:postId/comments", element: <PostComments /> },
+            { path: "sessions", element: <Sessions /> },
+            { path: "sessions/:sessionId", element: <IndividualSession /> },
+            { path: "reviews", element: <Reviews /> },
+            { path: "profile", element: <Profile /> },
+        ],
     },
+
+    // Auth pages – still reachable, but not forced
     {
         path: "/auth",
         children: [
+            { index: true, element: <Navigate to="login" replace /> },
             { path: "login", element: <Login /> },
             { path: "register", element: <Register /> },
             { path: "forgot-password", element: <ForgotPassword /> },
         ],
     },
-    {
-        path: "/",
-        element: (
-            <ProtectedRoute>
-                <AppShell/>
-            </ProtectedRoute>
-        ),
-        children: [
-            { index: true, element: <Navigate to="dashboard" replace /> },
-            {path: "dashboard", element: <Dashboard/>},
-            {path: "users", element: <Users/>},
-            {path: "posts", element: <Posts/>},
-            {path: "posts/:id/comments", element: <PostComments/>},
-            {path: "sessions", element: <Sessions/>},
-            {path: "sessions/:id/details", element: <IndividualSession/>},
-            {path: "profile", element: <Profile/>},
-            {path: "reviews", element: <Reviews/>},
-            // EX when user clicks on another users profile
-            //{ path: "users/id", element: <UsersProfile/>}
-        ],
-    },
+
+    // Fallback: anything unknown goes to homepage
+    { path: "*", element: <Navigate to="/" replace /> },
 ]);
 
 export default function AppRoutes() {
@@ -72,4 +74,4 @@ export default function AppRoutes() {
             <RouterProvider router={router} />
         </Suspense>
     );
-};
+}

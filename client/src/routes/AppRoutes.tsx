@@ -43,7 +43,7 @@ const router = createBrowserRouter([
             { path: "posts", element: <Posts /> },
             { path: "posts/:postId/comments", element: <PostComments /> },
             { path: "sessions", element: <Sessions /> },
-            { path: "sessions/:sessionId", element: <IndividualSession /> },
+            // { path: "sessions/:sessionId", element: <IndividualSession /> },
             { path: "reviews", element: <Reviews /> },
             { path: "profile", element: <Profile /> },
         ],

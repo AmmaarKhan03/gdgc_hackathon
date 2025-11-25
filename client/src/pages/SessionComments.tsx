@@ -8,6 +8,11 @@ import {useCommentStore, buildTree, Comment} from "@/store/commentStore";
 import {CommentTree} from "@/store/commentStore";
 import { useMemo } from "react";
 
+const subjectToUpper = (subject: string) => {
+    if (!subject) return;
+    return subject.split(" ").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
+}
+
 const EMPTY_COMMENTS: Comment[] = [];
 
 function CommentNode({
@@ -26,9 +31,6 @@ function CommentNode({
     const likedCommentIds = useCommentStore((state) => state.likedCommentIds);
     const toggleLike = useCommentStore((state) => state.toggleLike);
 
-    const rawList = useCommentStore(
-        (s) => s.commentsByPostId[id!] ?? EMPTY_COMMENTS
-    );
 
 
     return (
@@ -122,9 +124,10 @@ export default function SessionComments() {
     const addComment = useCommentStore((state) => state.addComment);
     const toggleLike = useCommentStore((state) => state.toggleLike);
     const getThread = useCommentStore((state) => state.getThread);
-    const commentKey = `session-${id}`;
 
-    const rawList = useCommentStore((state) => state.commentsByPostId[id!] ?? EMPTY_COMMENTS);
+    const rawList = useCommentStore(
+        (s) => s.commentsByPostId[id!] ?? EMPTY_COMMENTS
+    );
 
     const thread = useMemo(() => buildTree(rawList), [rawList]);
 
@@ -148,7 +151,7 @@ export default function SessionComments() {
 
     const onReplyRoot = (text: string) => {
         addComment({
-            sessionId: commentKey,
+            postId: id,
             parentId: null,
             userId: "U001",
             userName: "Iva Hackathon",
@@ -156,9 +159,71 @@ export default function SessionComments() {
         });
     }
 
+    const onReplyChild = (parentId: string, text: string) => {
+        addComment({
+            postId: id,
+            parentId,
+            userId: "U001",
+            userName: "Iva Hackathon",
+            text,
+        });
+    }
+
+    const [rootText, setRootText] = useState("");
+
     return (
-        <div>
-            This is the sessions comments page
+        <div className="px-5 space-y-4">
+
+            <Card>
+                <CardHeader>
+                    <CardTitle className="text-lg">
+                        {session.title} <span className="text-gray-500">— {subjectToUpper(session.subject)}</span>
+                    </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <p className="text-gray-800">{session.description}</p>
+
+                    {/* root reply box */}
+                    <div className="mt-4 flex gap-2">
+                        <textarea
+                            className="border rounded px-2 py-1 w-full max-w-xl"
+                            placeholder="Write a comment…"
+                            value={rootText}
+                            onChange={(e) => setRootText(e.target.value)}
+                            maxLength={500}
+                            rows={3}
+                        />
+                    </div>
+
+                    <span>
+                        <Button
+                            onClick={() => {
+                                if (!rootText.trim()) return;
+                                onReplyRoot(rootText.trim());
+                                setRootText("");
+                            }}
+                        >
+                            Comment
+                        </Button>
+                    </span>
+
+                    {/* thread */}
+                    <div className="mt-4">
+                        {thread.length === 0 ? (
+                            <p className="text-gray-500">No comments yet.</p>
+                        ) : (
+                            thread.map((node) => (
+                                <CommentNode
+                                    key={node.id}
+                                    node={node}
+                                    onReply={(parentId, text) => onReplyChild(parentId, text)}
+                                    onLike={(commentId) => id && toggleLike(id, commentId)}
+                                />
+                            ))
+                        )}
+                    </div>
+                </CardContent>
+            </Card>
         </div>
     );
 }

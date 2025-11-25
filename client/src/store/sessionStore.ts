@@ -13,6 +13,22 @@ interface Address {
     state: string
 }
 
+export type NewSessionInput = {
+    title: string;
+    description: string;
+    hostIds: string[];
+    hostNames: string[];
+
+    subject?: string;
+
+    startTime: string;
+    endTime: string;
+    location: SessionLocation;
+    address?: Address;
+    meetingLink?: string;
+    capacity?: string;
+};
+
 export interface Session {
     id: string
     hostIds: string[]
@@ -38,22 +54,6 @@ export interface Session {
     replies?: number
     likes?: number;
 }
-
-export type NewSessionInput = {
-    title: string;
-    description: string;
-    hostIds: string[];
-    hostNames: string[];
-
-    subject?: string;
-
-    startTime: string;
-    endTime: string;
-    location: SessionLocation;
-    address?: Address;
-    meetingLink?: string;
-    capacity?: string;
-};
 
 interface sessionStore {
     sessions: Session[]

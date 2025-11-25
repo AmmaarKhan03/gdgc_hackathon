@@ -60,9 +60,11 @@ export default function Sessions() {
     const [formCapacity, setFormCapacity] = useState("");
     const [formStartTime, setFormStartTime] = useState("");
     const [formEndTime, setFormEndTime] = useState("");
+    const [formError, setFormError] = useState<string | null>(null);
 
     const handleCreateSession = (event: React.FormEvent) => {
         event.preventDefault();
+        setFormError(null);
 
         console.log("Submitting session", {
             formTitle,
@@ -83,6 +85,43 @@ export default function Sessions() {
 
         if (!currentUser) {
             console.warn("No currentUser, cannot create post");
+            setFormError("You must be logged in to create a session.");
+            return;
+        }
+
+        const missing: string[] = [];
+
+        if (!formTitle.trim()) missing.push("title");
+        if (!formDescription.trim()) missing.push("description");
+        if (!formSubject.trim()) missing.push("subject");
+        if (!formLocation.trim()) missing.push("location");
+        if (!formStartTime.trim()) missing.push("start time");
+        if (!formEndTime.trim()) missing.push("end time");
+
+        if (formLocation === "IN_PERSON" || formLocation === "HYBRID") {
+            if (!formStreet.trim()) missing.push("street");
+            if (!formCity.trim()) missing.push("city");
+            if (!formState.trim()) missing.push("state");
+            if (!formZip.trim()) missing.push("ZIP code");
+        }
+
+        if (missing.length > 0) {
+            setFormError(
+                "Please fill out: " + missing.join(", ") + "."
+            );
+            return;
+        }
+
+        const start = new Date(formStartTime);
+        const end = new Date(formEndTime);
+
+        if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+            setFormError("Please enter valid start and end times.");
+            return;
+        }
+
+        if (end <= start) {
+            setFormError("End time must be after the start time.");
             return;
         }
 
@@ -127,6 +166,14 @@ export default function Sessions() {
         setFormEndTime("");
         setIsModalOpen(false);
     }
+
+    const isFormValid =
+        formTitle.trim() &&
+        formDescription.trim() &&
+        formSubject.trim() &&
+        formLocation &&
+        formStartTime &&
+        formEndTime;
 
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedFilters, setSelectedFilters] = useState<FilterKey[]>([]);
@@ -315,6 +362,10 @@ export default function Sessions() {
         return subject.toLowerCase().split("_").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
     };
 
+    const truncate = (text: string, max = 100) => {
+       return text.length > max ? text.slice(0, max) + "..." : text;
+    }
+
     return (
         <div className="px-5 space-y-6">
             <Card>
@@ -425,6 +476,12 @@ export default function Sessions() {
                                                 </span>
                                             </div>
                                         </CardHeader>
+
+                                        {formError && (
+                                            <div className="mt-3 mb-1 rounded-md bg-red-50 border border-red-200 px-3 py-2 text-sm text-red-700">
+                                                {formError}
+                                            </div>
+                                        )}
 
                                         <CardContent className="pt-6 space-y-6">
 
@@ -630,7 +687,7 @@ export default function Sessions() {
                                                 >
                                                     Cancel
                                                 </Button>
-                                                <Button type="submit" className="px-5">
+                                                <Button type="submit" className="px-5" disabled={!isFormValid}>
                                                     Create Session
                                                 </Button>
                                             </div>
@@ -710,8 +767,8 @@ export default function Sessions() {
                                                             <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
                                                                 Meeting description
                                                             </p>
-                                                            <p className="text-sm text-gray-700 line-clamp-3">
-                                                                {session.description}
+                                                            <p className="text-sm text-gray-700">
+                                                                {truncate(session.description, 150)}
                                                             </p>
                                                         </div>
                                                     </div>
@@ -903,8 +960,8 @@ export default function Sessions() {
                                                 </CardHeader>
 
                                                 <CardContent>
-                                                    <p className="text-xs text-slate-600 line-clamp-2">
-                                                        {session.description}
+                                                    <p className="text-xs text-slate-600">
+                                                        {truncate(session.description, 150)}
                                                     </p>
 
                                                     <div className="flex items-center justify-between gap-2 mt-1">

@@ -6,7 +6,7 @@ import {MessageSquare, ThumbsUp, Tag as TagIcon, Clock, User as UserIcon, Folder
 import {useState, useEffect, useRef} from "react";
 import {useCommentStore, buildTree, Comment} from "@/store/commentStore";
 import {CommentTree} from "@/store/commentStore";
-import { useMemo } from "react";
+import {useMemo} from "react";
 
 const subjectToUpper = (subject: string) => {
     if (!subject) return;
@@ -16,11 +16,11 @@ const subjectToUpper = (subject: string) => {
 const EMPTY_COMMENTS: Comment[] = [];
 
 function CommentNode({
-                        node,
-                        onReply,
-                        onLike,
-                        depth = 0,
-                    }: {
+                         node,
+                         onReply,
+                         onLike,
+                         depth = 0,
+                     }: {
     node: CommentTree;
     onReply: (parentId: string, text: string) => void;
     onLike: (id: string) => void;
@@ -30,7 +30,6 @@ function CommentNode({
     const [text, setText] = useState("");
     const likedCommentIds = useCommentStore((state) => state.likedCommentIds);
     const toggleLike = useCommentStore((state) => state.toggleLike);
-
 
 
     return (
@@ -181,10 +180,11 @@ export default function SessionComments() {
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                    <p className="text-gray-800">{session.description}</p>
+                    <div className="w-full lg:w-1/2 space-y-3">
+                        <p className="text-gray-800">{session.description}</p>
 
-                    {/* root reply box */}
-                    <div className="mt-4 flex gap-2">
+                        {/* root reply box */}
+                        <div className="mt-4 flex gap-2">
                         <textarea
                             className="border rounded px-2 py-1 w-full max-w-xl"
                             placeholder="Write a comment…"
@@ -193,19 +193,20 @@ export default function SessionComments() {
                             maxLength={500}
                             rows={3}
                         />
-                    </div>
+                        </div>
 
-                    <span>
-                        <Button
-                            onClick={() => {
-                                if (!rootText.trim()) return;
-                                onReplyRoot(rootText.trim());
-                                setRootText("");
-                            }}
-                        >
-                            Comment
-                        </Button>
-                    </span>
+                        <span>
+                            <Button
+                                onClick={() => {
+                                    if (!rootText.trim()) return;
+                                    onReplyRoot(rootText.trim());
+                                    setRootText("");
+                                }}
+                            >
+                                Comment
+                            </Button>
+                        </span>
+                    </div>
 
                     {/* thread */}
                     <div className="mt-4">

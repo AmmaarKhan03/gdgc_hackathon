@@ -6,7 +6,7 @@ import {MessageSquare, ThumbsUp, Tag as TagIcon, Clock, User as UserIcon, Folder
 import {useState, useEffect, useRef} from "react";
 import {useCommentStore, buildTree} from "@/store/commentStore";
 import {CommentTree} from "@/store/commentStore";
-import { useMemo } from "react";
+import {useMemo} from "react";
 
 const subjectToUpper = (subject: string) => {
     if (!subject) return;
@@ -131,7 +131,8 @@ export default function PostComments() {
     const navigate = useNavigate();
 
     const [liked, setLiked] = useState<Set<string>>(new Set());
-    {/* will make a set of multiple posts that have been liked*/}
+    {/* will make a set of multiple posts that have been liked*/
+    }
     const toggleLiked = (id: string) => {
         setLiked(prev => {
             const next = new Set(prev);
@@ -201,10 +202,11 @@ export default function PostComments() {
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                    <p className="text-gray-800">{post.description}</p>
+                    <div className="w-full lg:w-1/2 space-y-3">
+                        <p className="text-gray-800">{post.description}</p>
 
-                    {/* root reply box */}
-                    <div className="mt-4 flex gap-2">
+                        {/* root reply box */}
+                        <div className="mt-4 flex gap-2">
                         <textarea
                             className="border rounded px-2 py-1 w-full max-w-xl"
                             placeholder="Write a comment…"
@@ -213,9 +215,9 @@ export default function PostComments() {
                             maxLength={500}
                             rows={3}
                         />
-                    </div>
+                        </div>
 
-                    <span>
+                        <span>
                         <Button
                             onClick={() => {
                                 if (!rootText.trim()) return;
@@ -226,6 +228,7 @@ export default function PostComments() {
                             Comment
                         </Button>
                     </span>
+                    </div>
 
                     {/* thread */}
                     <div className="mt-4">

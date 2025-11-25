@@ -9,9 +9,13 @@ import AppShell from "@/layouts/AppShell";
 
 import Dashboard from "@/pages/Dashboard";
 import Users from "@/pages/Users";
+
 import Posts from "@/pages/Posts";
 import PostComments from "@/pages/PostComments";
+
 import Sessions from "@/pages/Sessions";
+import SessionComments from "@/pages/SessionComments";
+
 import Reviews from "@/pages/Reviews";
 import Profile from "@/pages/Profile";
 
@@ -44,6 +48,7 @@ const router = createBrowserRouter([
             { path: "users", element: <Users /> },
             { path: "posts", element: <Posts /> },
             { path: "posts/:postId/comments", element: <PostComments /> },
+            { path: "session/:sessionId/comments", element: <SessionComments /> },
             { path: "sessions", element: <Sessions /> },
             { path: "reviews", element: <Reviews /> },
             { path: "profile", element: <Profile /> },

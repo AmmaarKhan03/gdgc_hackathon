@@ -1,0 +1,72 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Institution {
+  id       Int       @id @default(autoincrement())
+  name     String
+  domain   String[]
+  courses  Course[]
+}
+
+model Course {
+  id            Int          @id @default(autoincrement())
+  institutionId Int
+  subject       String
+  code          String
+  title         String
+  aliases       String[]
+  searchText    String
+
+  institution   Institution  @relation(fields: [institutionId], references: [id])
+  sections      Section[]
+
+  @@unique([institutionId, subject, code])
+}
+
+model Term {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  startDate DateTime
+  endDate   DateTime
+  sections  Section[]
+}
+
+model Section {
+  id        Int     @id @default(autoincrement())
+  courseId  Int
+  termId    Int
+  crn       String?
+  meetDays  String?
+  startTime String?
+  endTime   String?
+  location  String?
+
+  course    Course  @relation(fields: [courseId], references: [id])
+  term      Term    @relation(fields: [termId], references: [id])
+
+  @@unique([courseId, termId, crn])
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  fullName  String
+  email     String    @unique
+  createdAt DateTime  @default(now())
+  messages  Message[]
+}
+
+model Message {
+  id        Int      @id @default(autoincrement())
+  room      String
+  body      String
+  createdAt DateTime @default(now())
+
+  senderId  Int
+  sender    User     @relation(fields: [senderId], references: [id])
+}

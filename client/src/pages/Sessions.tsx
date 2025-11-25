@@ -989,5 +989,5 @@ export default function Sessions() {
                 </CardContent>
             </Card>
         </div>
-    )
+    );
 }

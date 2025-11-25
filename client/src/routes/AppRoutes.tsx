@@ -1,14 +1,18 @@
-import {Suspense} from 'react'
-import {createBrowserRouter, RouterProvider} from "react-router-dom";
+import { Suspense } from "react";
+import {
+    createBrowserRouter,
+    RouterProvider,
+    Navigate,
+} from "react-router-dom";
+
 import AppShell from "@/layouts/AppShell";
-import {Navigate} from "react-router-dom"
 
 import Dashboard from "@/pages/Dashboard";
 import Users from "@/pages/Users";
 import Profile from "@/pages/Profile";
 
-import PostComments from "@/pages/PostComments";
 import Posts from "@/pages/Posts";
+import PostComments from "@/pages/PostComments";
 
 import Sessions from "@/pages/Sessions";
 import SessionComments from "@/pages/SessionComments";
@@ -18,39 +22,36 @@ import Reviews from "@/pages/Reviews";
 import Login from "@/pages/auth/Login";
 import Register from "@/pages/auth/Register";
 import ForgotPassword from "@/pages/auth/ForgotPassword";
-import {useAuthStore} from "@/store/authStore";
 
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
-    const isAuthenticated =
-        useAuthStore.getState().isAuthenticated ||
-        localStorage.getItem("isAuthenticated") === "true";
-
-    return isAuthenticated ? children : <Navigate to="/auth/login" replace />;
-}
-
-// app routes page, we will input new app pages here and link them below within router
-// syntax path: "/path" or "/path1/path2", followed by element: <Page/>, element will hold the actual page we created
+import Landing from "@/pages/Landing";
 
 const router = createBrowserRouter([
+    // Public landing page
     {
         path: "/",
-        element: <Navigate to="/auth/login" replace />,
+        element: <Landing />,
     },
+
+    // Main app area (later: “logged-in” zone)
     {
-        path: "/auth",
+        path: "/app",
+        element: <AppShell />,
         children: [
-            { path: "login", element: <Login /> },
-            { path: "register", element: <Register /> },
-            { path: "forgot-password", element: <ForgotPassword /> },
+            { index: true, element: <Dashboard /> },
+            { path: "dashboard", element: <Dashboard /> },
+            { path: "users", element: <Users /> },
+            { path: "posts", element: <Posts /> },
+            { path: "posts/:postId/comments", element: <PostComments /> },
+            { path: "sessions", element: <Sessions /> },
+            { path: "sessions/:sessionId", element: <IndividualSession /> },
+            { path: "reviews", element: <Reviews /> },
+            { path: "profile", element: <Profile /> },
         ],
     },
+
+    // Auth routes
     {
-        path: "/",
-        element: (
-            <ProtectedRoute>
-                <AppShell/>
-            </ProtectedRoute>
-        ),
+        path: "/auth",
         children: [
             { index: true, element: <Navigate to="dashboard" replace /> },
             {path: "dashboard", element: <Dashboard/>},
@@ -66,6 +67,9 @@ const router = createBrowserRouter([
             //{ path: "users/id", element: <UsersProfile/>}
         ],
     },
+
+    // Fallback
+    { path: "*", element: <Navigate to="/" replace /> },
 ]);
 
 export default function AppRoutes() {
@@ -74,4 +78,4 @@ export default function AppRoutes() {
             <RouterProvider router={router} />
         </Suspense>
     );
-};
+}

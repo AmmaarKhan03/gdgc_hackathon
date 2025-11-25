@@ -9,72 +9,65 @@ import AppShell from "@/layouts/AppShell";
 
 import Dashboard from "@/pages/Dashboard";
 import Users from "@/pages/Users";
-import Profile from "@/pages/Profile";
-
 import Posts from "@/pages/Posts";
 import PostComments from "@/pages/PostComments";
-
 import Sessions from "@/pages/Sessions";
-import SessionComments from "@/pages/SessionComments";
-import SessionDetails from "@/pages/SessionDetails";
 import Reviews from "@/pages/Reviews";
+import Profile from "@/pages/Profile";
 
 import Login from "@/pages/auth/Login";
 import Register from "@/pages/auth/Register";
 import ForgotPassword from "@/pages/auth/ForgotPassword";
 
-import Landing from "@/pages/Landing";
+// ✅ Simple logged out Homepage
+function Home() {
+    return (
+        <div className="space-y-4">
+            <h1 className="text-3xl font-bold">Welcome!</h1>
+            <p className="text-gray-600">
+                This is the logged-out homepage. Use the navigation or the Login link
+                to sign in and access your dashboard.
+            </p>
+        </div>
+    );
+}
 
+// ✅ Router Setup
 const router = createBrowserRouter([
-    // Public landing page
+    // Main app layout - always accessible (no auth guard for now)
     {
         path: "/",
-        element: <Landing />,
-    },
-
-    // Main app area (later: “logged-in” zone)
-    {
-        path: "/app",
         element: <AppShell />,
         children: [
-            { index: true, element: <Dashboard /> },
+            { index: true, element: <Home /> }, // default route = homepage
             { path: "dashboard", element: <Dashboard /> },
             { path: "users", element: <Users /> },
             { path: "posts", element: <Posts /> },
             { path: "posts/:postId/comments", element: <PostComments /> },
             { path: "sessions", element: <Sessions /> },
-            // { path: "sessions/:sessionId", element: <IndividualSession /> },
             { path: "reviews", element: <Reviews /> },
             { path: "profile", element: <Profile /> },
         ],
     },
 
-    // Auth routes
+    // Auth pages - still reachable, but not forced
     {
         path: "/auth",
         children: [
-            { index: true, element: <Navigate to="dashboard" replace /> },
-            {path: "dashboard", element: <Dashboard/>},
-            {path: "users", element: <Users/>},
-            {path: "posts", element: <Posts/>},
-            {path: "posts/:id/comments", element: <PostComments/>},
-            {path: "sessions", element: <Sessions/>},
-            {path: "session/:id/details", element: <SessionDetails/>},
-            {path: "session/:id/comments", element: <SessionComments/>},
-            {path: "profile", element: <Profile/>},
-            {path: "reviews", element: <Reviews/>},
-            // EX when user clicks on another users profile
-            //{ path: "users/id", element: <UsersProfile/>}
+            { index: true, element: <Navigate to="login" replace /> },
+            { path: "login", element: <Login /> },
+            { path: "register", element: <Register /> },
+            { path: "forgot-password", element: <ForgotPassword /> },
         ],
     },
 
-    // Fallback
+    // Fallback: anything unknown goes to homepage
     { path: "*", element: <Navigate to="/" replace /> },
 ]);
 
 export default function AppRoutes() {
     return (
-        <Suspense fallback={<div className="p-4">Loading…</div>}>
+        <Suspense fallback={<div>Loading...</div>}>
             <RouterProvider router={router} />
         </Suspense>
     );

@@ -202,10 +202,18 @@ export default function Sessions() {
 
         if (session.address) {
             const {street, city, state, zipCode} = session.address;
-            if (street) {parts.push(street);}
-            if (city) {parts.push(city);}
-            if (state) {parts.push(state);}
-            if (zipCode) {parts.push(zipCode);}
+            if (street) {
+                parts.push(street);
+            }
+            if (city) {
+                parts.push(city);
+            }
+            if (state) {
+                parts.push(state);
+            }
+            if (zipCode) {
+                parts.push(zipCode);
+            }
         }
 
         return parts.join(" ").toLowerCase();
@@ -363,7 +371,7 @@ export default function Sessions() {
     };
 
     const truncate = (text: string, max = 100) => {
-       return text.length > max ? text.slice(0, max) + "..." : text;
+        return text.length > max ? text.slice(0, max) + "..." : text;
     }
 
     return (
@@ -471,14 +479,16 @@ export default function Sessions() {
                                                         Share what you’re hosting, when it is, and how people can join.
                                                     </p>
                                                 </div>
-                                                <span className="rounded-full bg-sky-50 px-3 py-1 text-xs font-medium text-sky-700">
+                                                <span
+                                                    className="rounded-full bg-sky-50 px-3 py-1 text-xs font-medium text-sky-700">
                                                     Session
                                                 </span>
                                             </div>
                                         </CardHeader>
 
                                         {formError && (
-                                            <div className="mt-3 mb-1 rounded-md bg-red-50 border border-red-200 px-3 py-2 text-sm text-red-700">
+                                            <div
+                                                className="mt-3 mb-1 rounded-md bg-red-50 border border-red-200 px-3 py-2 text-sm text-red-700">
                                                 {formError}
                                             </div>
                                         )}
@@ -950,8 +960,9 @@ export default function Sessions() {
                                                             </span>
                                                             </div>
                                                         </div>
-                                                        <div className="flex items-center gap-1 text-[11px] text-slate-500 leading-none">
-                                                            <Clock className="h-3 w-3 relative top-[0.5px]" />
+                                                        <div
+                                                            className="flex items-center gap-1 text-[11px] text-slate-500 leading-none">
+                                                            <Clock className="h-3 w-3 relative top-[0.5px]"/>
                                                             <span className="leading-none">
                                                                 {formatTime(session.startTime)} – {formatTime(session.endTime)}
                                                             </span>

@@ -3,7 +3,7 @@ import {mockComments} from "@/types/mockData";
 
 export interface Comment {
     id: string
-    postId: string
+    postId: string // not and actual Post object id but used as a general name for anything that's 'posted'
     parentId: string | null
     userId: string
     userName: string

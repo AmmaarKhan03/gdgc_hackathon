@@ -15,7 +15,8 @@ import Posts from "@/pages/Posts";
 import PostComments from "@/pages/PostComments";
 
 import Sessions from "@/pages/Sessions";
-import IndividualSession from "@/pages/IndividualSession";
+import SessionComments from "@/pages/SessionComments";
+import SessionDetails from "@/pages/SessionDetails";
 import Reviews from "@/pages/Reviews";
 
 import Login from "@/pages/auth/Login";
@@ -52,10 +53,18 @@ const router = createBrowserRouter([
     {
         path: "/auth",
         children: [
-            { index: true, element: <Navigate to="login" replace /> },
-            { path: "login", element: <Login /> },
-            { path: "register", element: <Register /> },
-            { path: "forgot-password", element: <ForgotPassword /> },
+            { index: true, element: <Navigate to="dashboard" replace /> },
+            {path: "dashboard", element: <Dashboard/>},
+            {path: "users", element: <Users/>},
+            {path: "posts", element: <Posts/>},
+            {path: "posts/:id/comments", element: <PostComments/>},
+            {path: "sessions", element: <Sessions/>},
+            {path: "session/:id/details", element: <SessionDetails/>},
+            {path: "session/:id/comments", element: <SessionComments/>},
+            {path: "profile", element: <Profile/>},
+            {path: "reviews", element: <Reviews/>},
+            // EX when user clicks on another users profile
+            //{ path: "users/id", element: <UsersProfile/>}
         ],
     },
 

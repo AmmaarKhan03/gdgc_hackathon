@@ -1,61 +1,49 @@
-import {useState, useEffect} from 'react';
-import {api} from '../../lib/api';
-import {Card, CardTitle, CardHeader, CardContent} from "@/components/ui/card";
-import {Button} from "@/components/ui/button"
-import {NavLink, Outlet, useLocation, useNavigate} from "react-router-dom";
-import {User, Lock} from "lucide-react";
-import {useAuthStore} from "@/store/authStore";
-import {useUserStore} from "@/store/userStore";
+import { useState, useEffect } from "react";
+import { Card, CardTitle, CardHeader, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { NavLink, useNavigate } from "react-router-dom";
+import { User, Lock } from "lucide-react";
+import { useAuthStore } from "@/store/authStore";
 
 export default function Login() {
-
     const navigate = useNavigate();
+
     const login = useAuthStore((s) => s.login);
-    const users = useUserStore((state) => state.users);
-    const setCurrentUser = useUserStore((state) => state.setCurrentUser);
+    const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+    const globalLoading = useAuthStore((s) => s.loading);
+    const globalError = useAuthStore((s) => s.error);
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [showPassword, setShowPassword] = useState(false);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+    const [localError, setLocalError] = useState<string | null>(null);
 
+
+    // If already logged in, redirect to dashboard
     useEffect(() => {
-        const isAuthenticated =
-            useAuthStore.getState().isAuthenticated ||
-            localStorage.getItem("isAuthenticated") === "true";
-        if (isAuthenticated) navigate("/dashboard", {replace: true});
-    }, [navigate]);
+        if (isAuthenticated) {
+            navigate("/app/dashboard", { replace: true });
+        }
+    }, [isAuthenticated, navigate]);
+
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setError(null);
-        setLoading(true);
+        setLocalError(null);
 
         const trimmedEmail = email.trim();
-        const ok = login(trimmedEmail, password);
-        setLoading(false);
+
+        const ok = await login(trimmedEmail, password);
 
         if (ok) {
-
-            // looks for the fake user within users
-            const matchedUser = users.find(
-                (u) => u.userFields.email === trimmedEmail
-            );
-
-            // if we find it set the current user to this fake user for now
-            if (matchedUser) {
-                console.log(`Signed in as User with ID: ${matchedUser.id}`);
-                setCurrentUser(matchedUser);   // 👈 this is what Posts.tsx will read
-            } else {
-                console.warn("Logged in but no matching User in userStore");
-            }
-
-            await navigate("/dashboard", {replace: true});
+            // logged in successfully -> go to dashboard area
+            await navigate("/app/dashboard", { replace: true });
         } else {
-            setError("Invalid credentials. Try user@gmail.com / password.");
+            // show backend error if present, else fallback
+            setLocalError(globalError || "Invalid email or password.");
         }
-    }
+    };
+
+    const loading = globalLoading; // alias for button
 
     return (
         <div className="flex h-screen bg-gradient-to-br from-[#FFD700] via-[#FFC300] to-[#003C6C]">
@@ -76,9 +64,16 @@ export default function Login() {
                         </CardHeader>
 
                         <CardContent className="flex flex-col gap-3">
+                            {/* Error message */}
+                            {(localError || globalError) && (
+                                <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-2">
+                                    {localError || globalError}
+                                </div>
+                            )}
+
                             <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
                                 <div className="flex items-center border rounded p-2 gap-2 bg-white">
-                                    <User className="text-gray-500 w-5 h-5"/>
+                                    <User className="text-gray-500 w-5 h-5" />
                                     <input
                                         type="email"
                                         placeholder="Email"
@@ -89,7 +84,7 @@ export default function Login() {
                                     />
                                 </div>
                                 <div className="flex items-center border rounded p-2 gap-2 bg-white">
-                                    <Lock className="text-gray-500 w-5 h-5"/>
+                                    <Lock className="text-gray-500 w-5 h-5" />
                                     <input
                                         type="password"
                                         placeholder="Password"
@@ -123,4 +118,3 @@ export default function Login() {
         </div>
     );
 }
-

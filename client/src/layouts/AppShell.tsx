@@ -20,8 +20,9 @@ export default function AppShell() {
     const handleSignOut = () => {
         logout();
         setOpenProfileOptions(false);
-        navigate("/auth/login", { replace: true });
+        navigate("/", { replace: true });  // 👈 send user to landing page
     }
+
 
     // use useEffect so on every click it knows to change openProfileOptions
     useEffect(() => {
@@ -49,21 +50,21 @@ export default function AppShell() {
     }, [openProfileOption]); // only run the useEffect when opProfile Changes
 
     const items = [
-        {label: "Dashboard", to: "/dashboard", icon: <LayoutDashboard />},
-        {label: "Posts", to: "/posts", icon: <MessageSquare />},
-        {label: "Sessions", to: "/sessions", icon: <Groups2OutlinedIcon/>},
-        {label: "Users", to: "/users", icon: <User />},
-        {label: "Reviews", to: "/reviews", icon: <BarChart3 />},
-        {label: "Profile", to: "/profile", icon: <Snail />},
+        {label: "Dashboard", to: "/app/dashboard", icon: <LayoutDashboard />},
+        {label: "Posts", to: "/app/posts", icon: <MessageSquare />},
+        {label: "Sessions", to: "/app/sessions", icon: <Groups2OutlinedIcon/>},
+        {label: "Users", to: "/app/users", icon: <User />},
+        {label: "Reviews", to: "/app/reviews", icon: <BarChart3 />},
+        {label: "Profile", to: "/app/profile", icon: <Snail />},
     ];
 
     const pageTitles: Record<string, string> = {
-        "/dashboard": "Dashboard",
-        "/users": "Users",
-        "/profile": "Profile",
-        "/posts": "Posts",
-        "/sessions": "Sessions",
-        "/reviews": "Reviews",
+        "/app/dashboard": "Dashboard",
+        "/app/users": "Users",
+        "/app/profile": "Profile",
+        "/app/posts": "Posts",
+        "/app/sessions": "Sessions",
+        "/app/reviews": "Reviews",
     };
 
     const title = pageTitles[location.pathname] || "Slug Hub";
@@ -116,7 +117,7 @@ export default function AppShell() {
                         {openProfileOption && (
                             <div className="absolute right-0 top-12 w-44 bg-white border rounded shadow-md z-50">
                                 <NavLink
-                                    to="/dashboard"
+                                    to="/app/dashboard"
                                     className="block px-4 py-2 text-sm hover:bg-gray-100"
                                     onClick={() => setOpenProfileOptions(false)}
                                 >
@@ -124,7 +125,7 @@ export default function AppShell() {
                                 </NavLink>
 
                                 <NavLink
-                                    to="/profile"
+                                    to="/app/profile"
                                     className="block px-4 py-2 text-sm hover:bg-gray-100"
                                     onClick={() => setOpenProfileOptions(false)}
                                 >

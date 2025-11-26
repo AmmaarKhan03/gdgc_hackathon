@@ -30,10 +30,11 @@ export default function Landing() {
                         </Link>
                         <Link
                             to="/auth/register"
-                            className="text-sm font-semibold px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 shadow-sm"
+                            className="text-sm font-semibold px-4 py-2 rounded-lg bg-blue-600 text-white !text-white hover:bg-blue-700 shadow-sm"
                         >
                             Sign up
                         </Link>
+
                     </div>
                 </div>
             </header>
@@ -57,7 +58,7 @@ export default function Landing() {
                         <div className="flex flex-wrap items-center gap-3">
                             <Link
                                 to="/auth/register"
-                                className="inline-flex items-center justify-center px-5 py-2.5 rounded-lg text-sm font-semibold bg-blue-600 text-white hover:bg-blue-700 shadow-md"
+                                className="inline-flex items-center justify-center px-5 py-2.5 rounded-lg text-sm font-semibold bg-blue-600 text-white !text-white hover:bg-blue-700 shadow-md"
                             >
                                 Get started – it’s free
                             </Link>

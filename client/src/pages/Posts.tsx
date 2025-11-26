@@ -1,5 +1,5 @@
 import {usePostStore, Post, CATEGORIES, SUBJECTS, Category, Subject} from "@/store/postStore";
-import {Card, CardHeader, CardTitle, CardContent, CardFooter} from "@/components/ui/card";
+import {Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription} from "@/components/ui/card";
 import {useState, useEffect, useMemo} from "react";
 import {Button} from "@/components/ui/button";
 import Checkbox from '@mui/material/Checkbox';
@@ -23,6 +23,8 @@ import {useCommentStore} from "@/store/commentStore";
 import {useUserStore} from "@/store/userStore";
 import {motion} from "framer-motion";
 import Modal from '@mui/material/Modal';
+import GroupsIcon from '@mui/icons-material/Groups';
+import {Sparkles} from "lucide-react";
 
 type FilterKey = "title" | "description" | "subject" | "category";
 
@@ -43,7 +45,7 @@ export default function Posts() {
     const commentsByPost = useCommentStore((state) => state.commentsByPostId);
     const navigate = useNavigate();
     const goToComments = (id: string) => {
-        navigate(`/posts/${id}/comments`);
+        navigate(`/post/${id}/comments`);
     };
 
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -63,7 +65,7 @@ export default function Posts() {
     const handleCreatePost = (event: React.FormEvent) => {
         event.preventDefault(); // let's react handle the submitting and not HTML, avoids loosing current state
 
-        console.log("Submitting post", { formTitle, formDescription, currentUser, formCategory, formSubject }); // log to show what has been submitted
+        console.log("Submitting post", {formTitle, formDescription, currentUser, formCategory, formSubject}); // log to show what has been submitted
 
         // Early exit guards
         // checks if title or description is empty if so no post is created keeps modal open
@@ -240,14 +242,115 @@ export default function Posts() {
     };
 
 
+    const subjectCount = useMemo(() => {
+        const counts: Record<string, number> = {};
+
+        for (const post of posts) {
+            if (!post.subject) continue;
+            counts[post.subject] = (counts[post.subject] ?? 0) + 1;
+        }
+
+        return counts;
+    }, [posts]);
+
+    const popularSubjects = useMemo(
+        () =>
+            Object.entries(subjectCount)
+                .sort((a, b) => b[1] - a[1])
+                .filter(([, count]) => count > 0)
+                .slice(0, 4),
+        [subjectCount],
+    );
+
+    const postsMadeToday = useMemo(() => {
+        if (!posts || posts.length === 0) return [];
+
+        const now = Date.now();
+        const ONE_DAY = 24 * 60 * 60 * 1000;
+
+        return posts.filter((post) => {
+            const timestamp = post.createdAt;
+            if (!timestamp) return false;
+
+            const createdTime = new Date(timestamp).getTime();
+            return now - createdTime <= ONE_DAY;
+        })
+    }, [posts]);
+
+    const popularPosts = useMemo(() => {
+        if (!posts || posts.length === 0) return [];
+
+        const scored = posts.map((post) => {
+            const likes = post.likes ?? 0;
+            const repliesFromStore = commentsByPost[post.id]?.length ?? 0;
+            const replies = post.replies ?? repliesFromStore;
+
+            const score = likes + replies;
+
+            return {post, score}
+        });
+
+        scored.sort((a, b) => b.score - a.score);
+
+        return scored
+            .filter((item) => item.score > 0)
+            .slice(0, 7)
+            .map((item) => item.post);
+    }, [posts, commentsByPost]);
+
+    const [sidebarTab, setSidebarTab] = useState<"today" | "popular">("today");
+    const sidebarPosts = sidebarTab === "today" ? postsMadeToday : popularPosts;
+
+    const truncate = (text: string, max = 100) => {
+        return text.length > max ? text.slice(0, max) + "..." : text;
+    }
+
     return (
         <div className="px-5 space-y-6">
+
+            <Card className="">
+                <CardHeader>
+                    <CardTitle>Popular Subjects</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    {popularSubjects.length === 0 ? (
+                        <p className="text-sm text-gray-500">
+                            No posts yet. Popular subjects will appear here.
+                        </p>
+                    ) : (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                            {popularSubjects.map(([subject, count]) => (
+                                <motion.div
+                                    key={subject}
+                                    whileHover={{y: -6, scale: 1.01}}
+                                    whileTap={{y: -2}}
+                                    transition={{type: "tween", ease: "easeOut", duration: 0.18}}
+                                    className="relative z-0"
+                                >
+                                    <div
+                                        key={subject}
+                                        className="border rounded-md px-4 py-3 flex flex-col items-center"
+                                    >
+                                    <span className="text-base font-semibold">
+                                        {subjectToUpper(subject)}
+                                    </span>
+                                        <span className="text-xs text-gray-500 mt-1">
+                                        {count} post{count !== 1 ? "s" : ""}
+                                    </span>
+                                    </div>
+                                </motion.div>
+                            ))}
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
 
             <Card className="">
                 <CardHeader className="flex items-center justify-between w-full">
                     <CardTitle className="flex items-center justify-between w-full">
                         <div className="flex-1 text-left">
                             {searchQuery.trim() ? "Search Results" : "All Posts"}
+                            <GroupsIcon/>
                         </div>
 
                         <div className="flex-1 flex justify-center space-x-3">
@@ -326,7 +429,8 @@ export default function Posts() {
                         </div>
 
                         <div className="flex-1 flex justify-end items-center gap-2">
-                            <Button onClick={handleModalOpen}> {/*Button to open modal, when pressed changes the isModalOpen to true*/}
+                            <Button
+                                onClick={handleModalOpen}> {/*Button to open modal, when pressed changes the isModalOpen to true*/}
                                 Create Post
                             </Button>
 
@@ -334,7 +438,8 @@ export default function Posts() {
                             {/*Handles the close with handleModalClose which switches the isModalOpen state to false*/}
                             <Modal open={isModalOpen} onClose={handleModalClose}>
                                 <Card className="p-5 bg-white w-[1000px] mx-auto mt-[20vh] rounded-lg shadow-lg">
-                                    <form onSubmit={handleCreatePost}> {/*Wrap form around everything within the Card when onSubmit will send  a partial post to zustand*/}
+                                    <form
+                                        onSubmit={handleCreatePost}> {/*Wrap form around everything within the Card when onSubmit will send  a partial post to zustand*/}
                                         <CardHeader>
                                             <CardTitle>
                                                 New Post
@@ -443,52 +548,71 @@ export default function Posts() {
 
 
                 <CardContent className="grid grid-cols-1 gap-10 items-stretch mt-5">
-                    {filteredPosts.length === 0 ? (
-                        <p className="text-sm text-gray-500">No posts match your filters.</p>
-                    ) : (
-                        pagedPosts.map((post) => (
-                            <motion.div
-                                key={post.id}
-                                whileHover={{y: -6, scale: 1.01}}
-                                whileTap={{y: -2}}
-                                transition={{type: "tween", ease: "easeOut", duration: 0.18}}
-                                className="relative z-0"
-                            >
-                                <Card
-                                    className={`bg-white rounded-sm border shadow-sm hover:shadow transition-all ${categoryTypeBar(post.category)}`}
-                                    key={post.id ?? post.title}>
-                                    <CardHeader className="pb-2">
-                                        <div className="relative flex items-center w-full">
+                    <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 pt-6">
+                        <section className="lg:col-span-3">
+
+                            <Card className="border-2 border-slate-300 shadow-md rounded-xl">
+                                <CardHeader className="pb-3">
+                                    <CardTitle className="text-lg">
+                                        <span className="flex items-center gap-3">
+                                            {searchQuery.trim() ? "Search Results" : "All Sessions"}
+
+                                        </span>
+                                    </CardTitle>
+                                    <CardDescription>
+                                        Showing {pagedPosts.length} of {filteredPosts.length} sessions
+                                    </CardDescription>
+                                </CardHeader>
+
+                                <CardContent className="space-y-3 pt-0">
+                                    {filteredPosts.length === 0 ? (
+                                        <p className="text-sm text-gray-500">No posts match your filters.</p>
+                                    ) : (
+                                        pagedPosts.map((post) => (
+                                            <motion.div
+                                                key={post.id}
+                                                whileHover={{y: -6, scale: 1.01}}
+                                                whileTap={{y: -2}}
+                                                transition={{type: "tween", ease: "easeOut", duration: 0.18}}
+                                                className="relative z-0"
+                                            >
+                                                <Card
+                                                    className={`bg-white rounded-sm border shadow-sm hover:shadow transition-all ${categoryTypeBar(post.category)}`}
+                                                    key={post.id ?? post.title}>
+                                                    <CardHeader className="pb-2">
+                                                        <div className="relative flex items-center w-full">
 
 
-                                            <div className="flex items-center gap-2">
-                                                <UserIcon className="h-5 w-5"/>
-                                                <span className="text-sm font-medium text-gray-700 truncate">
+                                                            <div className="flex items-center gap-2">
+                                                                <UserIcon className="h-5 w-5"/>
+                                                                <span
+                                                                    className="text-sm font-medium text-gray-700 truncate">
                                                 {post.userName}
                                             </span>
-                                            </div>
+                                                            </div>
 
-                                            <h3 className="absolute left-1/2 -translate-x-1/2 text-base font-semibold text-center break-words">
-                                                {post.title}{" "}
-                                                <span className="text-gray-500">— {subjectToUpper(post.subject)}</span>
-                                            </h3>
+                                                            <h3 className="absolute left-1/2 -translate-x-1/2 text-base font-semibold text-center break-words">
+                                                                {post.title}{" "}
+                                                                <span
+                                                                    className="text-gray-500">— {subjectToUpper(post.subject)}</span>
+                                                            </h3>
 
-                                            {post.category && (
-                                                <span
-                                                    className={`ml-auto text-xs font-medium px-2 py-0.5 rounded-full border ${categoryClasses[post.category]}`}>
+                                                            {post.category && (
+                                                                <span
+                                                                    className={`ml-auto text-xs font-medium px-2 py-0.5 rounded-full border ${categoryClasses[post.category]}`}>
                                                 {categoryToUpper(post.category)}
                                             </span>
-                                            )}
-                                        </div>
-                                    </CardHeader>
+                                                            )}
+                                                        </div>
+                                                    </CardHeader>
 
 
-                                    <CardContent className="flex-1 flex justify-center">
-                                        {post.description}
-                                    </CardContent>
+                                                    <CardContent className="flex-1 flex justify-center">
+                                                        {post.description}
+                                                    </CardContent>
 
-                                    <CardFooter className="flex flex-1 items-center space-y-2">
-                                        <div className="mt-2 flex items-center gap-4 text-gray-700">
+                                                    <CardFooter className="flex flex-1 items-center space-y-2">
+                                                        <div className="mt-2 flex items-center gap-4 text-gray-700">
                                             <span className="inline-flex items-center gap-1">
                                                 <Button
                                                     type="button"
@@ -499,7 +623,7 @@ export default function Posts() {
                                                     {post.likes ?? 0}
                                                 </Button>
                                             </span>
-                                            <span className="inline-flex items-center gap-1">
+                                                            <span className="inline-flex items-center gap-1">
                                                 <Button
                                                     type="button"
                                                     onClick={() => goToComments(post.id)}
@@ -508,65 +632,164 @@ export default function Posts() {
                                                     {commentsByPost[post.id]?.length ?? 0}
                                                 </Button>
                                             </span>
-                                        </div>
-                                    </CardFooter>
-                                </Card>
-                            </motion.div>
-                        ))
-                    )}
-                </CardContent>
+                                                        </div>
+                                                    </CardFooter>
+                                                </Card>
+                                            </motion.div>
+                                        ))
+                                    )}
+                                </CardContent>
 
-                <CardFooter className="flex items-center justify-between pt-0">
+                                <CardFooter className="flex items-center justify-between pt-0">
                     <span className="text-sm text-gray-600">
                         {filteredPosts.length === 0 ? "0 results" : `${startPage + 1}–${Math.min(endPage, filteredPosts.length)} of ${filteredPosts.length}`}
                     </span>
 
-                    <div className="flex items-center gap-2">
-                        <Button
-                            type="button"
-                            onClick={() => setPage(1)}
-                            disabled={page === 1}
-                            aria-label="First page"
-                            className="h-9 px-3"
-                        >
-                            <ArrowLeftToLine/>
-                        </Button>
+                                    <div className="flex items-center gap-2">
+                                        <Button
+                                            type="button"
+                                            onClick={() => setPage(1)}
+                                            disabled={page === 1}
+                                            aria-label="First page"
+                                            className="h-9 px-3"
+                                        >
+                                            <ArrowLeftToLine/>
+                                        </Button>
 
-                        <Button
-                            type="button"
-                            onClick={() => setPage((p) => Math.max(1, p - 1))}
-                            disabled={page === 1}
-                            aria-label="Previous page"
-                            className="h-9 px-3"
-                        >
-                            <MoveLeft/>
-                        </Button>
+                                        <Button
+                                            type="button"
+                                            onClick={() => setPage((p) => Math.max(1, p - 1))}
+                                            disabled={page === 1}
+                                            aria-label="Previous page"
+                                            className="h-9 px-3"
+                                        >
+                                            <MoveLeft/>
+                                        </Button>
 
-                        <span className="text-sm tabular-nums">
+                                        <span className="text-sm tabular-nums">
                             Page {page} of {totalPages}
                         </span>
 
-                        <Button
-                            type="button"
-                            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                            disabled={page === totalPages}
-                            aria-label="Next page"
-                            className="h-9 px-3"
-                        >
-                            <MoveRight/>
-                        </Button>
+                                        <Button
+                                            type="button"
+                                            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                                            disabled={page === totalPages}
+                                            aria-label="Next page"
+                                            className="h-9 px-3"
+                                        >
+                                            <MoveRight/>
+                                        </Button>
 
-                        <Button
-                            type="button"
-                            onClick={() => setPage(totalPages)}
-                            disabled={page === totalPages}
-                            aria-label="Last page"
-                            className="h-9 px-3"
-                        >
-                            <ArrowRightToLine/>
-                        </Button>
+                                        <Button
+                                            type="button"
+                                            onClick={() => setPage(totalPages)}
+                                            disabled={page === totalPages}
+                                            aria-label="Last page"
+                                            className="h-9 px-3"
+                                        >
+                                            <ArrowRightToLine/>
+                                        </Button>
+                                    </div>
+                                </CardFooter>
+                            </Card>
+                        </section>
+
+                        <aside className="lg:col-span-2 flex flex-col gap-4 mt-6 lg:mt-0 space-y-5">
+                            <Card className="border-2 border-slate-300 shadow-md rounded-xl h-full flex flex-col">
+                                <CardHeader className="pb-2">
+                                    <div className="flex items-center justify-between">
+                                        <CardTitle className="text-base flex items-center gap-2">
+                                            <span>Discover Posts</span>
+                                            <Sparkles className="h-5 w-5 text-yellow-500"/>
+                                        </CardTitle>
+
+                                        <div className="inline-flex items-center rounded-full p-1 gap-2">
+                                            <Button
+                                                type="button"
+                                                onClick={() => setSidebarTab("today")}
+                                                className={`px-3 py-1 rounded-full transition ${
+                                                    sidebarTab === "today" ? "" : ""
+                                                }`}
+                                            >
+                                                Today
+                                            </Button>
+
+                                            <Button
+                                                type="button"
+                                                onClick={() => setSidebarTab("popular")}
+                                                className={`px-3 py-1 rounded-full transition ${
+                                                    sidebarTab === "popular"
+                                                        ? ""
+                                                        : ""
+                                                }`}
+                                            >
+                                                Popular
+                                            </Button>
+                                        </div>
+                                    </div>
+
+                                    <p className="text-xs text-slate-500 mt-2">
+                                        {sidebarTab === "today"
+                                            ? "Posts created in the last 24 hours."
+                                            : "Posts with the most likes and replies."}
+                                    </p>
+                                </CardHeader>
+
+                                <CardContent className="space-y-3 pt-0">
+                                    {sidebarPosts.map((post) => (
+                                        <motion.div
+                                            key={post.id}
+                                            whileHover={{y: -4, scale: 1.005}}
+                                            whileTap={{y: -1}}
+                                            transition={{type: "tween", ease: "easeOut", duration: 0.18}}
+                                            className="relative z-0"
+                                        >
+                                            <Card
+                                                className="border-2 border-slate-300 shadow-md"
+                                                onClick={() => goToComments(post.id)}
+                                            >
+                                                <CardHeader className="py-2 px-3">
+                                                    <div className="space-y-1 text-sm font-normal text-slate-800">
+                                                        <div
+                                                            className="flex items-center gap-1.5 text-xs text-slate-700 font-medium leading-tight">
+                                                            <span className="truncate">
+                                                                {post.title}
+                                                            </span>
+
+                                                            <span className="text-slate-400">•</span>
+
+                                                        </div>
+                                                    </div>
+                                                </CardHeader>
+
+                                                <CardContent>
+                                                    <p className="text-xs text-slate-600">
+                                                        {truncate(post.description, 150)}
+                                                    </p>
+
+                                                    <div className="flex items-center justify-between gap-2 mt-1">
+
+                                                        <div
+                                                            className="flex items-center gap-3 text-[11px] text-slate-500">
+                                                        <span className="inline-flex items-center gap-1">
+                                                            <ThumbsUp className="h-3 w-3"/>
+                                                            {post.likes ?? 0}
+                                                        </span>
+                                                            <span className="inline-flex items-center gap-1">
+                                                            <MessageSquare className="h-3 w-3"/>
+                                                                {commentsByPost[post.id]?.length ?? 0}
+                                                        </span>
+                                                        </div>
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+                                        </motion.div>
+                                    ))}
+                                </CardContent>
+                            </Card>
+                        </aside>
                     </div>
-                </CardFooter>
+                </CardContent>
             </Card>
         </div>
     )

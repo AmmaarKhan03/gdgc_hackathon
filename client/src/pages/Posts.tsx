@@ -25,6 +25,7 @@ import {motion} from "framer-motion";
 import Modal from '@mui/material/Modal';
 import GroupsIcon from '@mui/icons-material/Groups';
 import {Sparkles} from "lucide-react";
+import {SessionLocation} from "@/store/sessionStore";
 
 type FilterKey = "title" | "description" | "subject" | "category";
 
@@ -60,10 +61,12 @@ export default function Posts() {
     const [formDescription, setFormDescription] = useState("");
     const [formCategory, setFormCategory] = useState<Category | "">("");
     const [formSubject, setFormSubject] = useState<Subject | "">("");
+    const [formError, setFormError] = useState<string | null>(null);
 
     // function that will create a post and input into the new array of Posts
     const handleCreatePost = (event: React.FormEvent) => {
         event.preventDefault(); // let's react handle the submitting and not HTML, avoids loosing current state
+        setFormError(null);
 
         console.log("Submitting post", {formTitle, formDescription, currentUser, formCategory, formSubject}); // log to show what has been submitted
 
@@ -75,6 +78,20 @@ export default function Posts() {
         // if no user we throw error and cant submit the post
         if (!currentUser) {
             console.warn("No currentUser, cannot create post");
+            setFormError("You must be logged in to create a session.");
+            return;
+        }
+
+        const missing: string[] = [];
+        if (!formTitle.trim()) missing.push("Title");
+        if (!formDescription.trim()) missing.push("Description");
+        if (!formCategory.trim()) missing.push("Category");
+        if (!formSubject.trim()) missing.push("Subject");
+
+        if (missing.length > 0) {
+            setFormError(
+                "Please fill out: " + missing.join(", ") + "."
+            );
             return;
         }
 
@@ -99,6 +116,12 @@ export default function Posts() {
         setFormSubject("");
         setIsModalOpen(false);
     }
+
+    const isFormValid =
+        !!formTitle.trim() &&
+        !!formDescription.trim() &&
+        !!formCategory &&
+        !!formSubject;
 
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedFilters, setSelectedFilters] = useState<FilterKey[]>([]);
@@ -437,55 +460,91 @@ export default function Posts() {
                             {/*Checks if isModalOpen is true if it is open the modal*/}
                             {/*Handles the close with handleModalClose which switches the isModalOpen state to false*/}
                             <Modal open={isModalOpen} onClose={handleModalClose}>
-                                <Card className="p-5 bg-white w-[1000px] mx-auto mt-[20vh] rounded-lg shadow-lg">
-                                    <form
-                                        onSubmit={handleCreatePost}> {/*Wrap form around everything within the Card when onSubmit will send  a partial post to zustand*/}
-                                        <CardHeader>
-                                            <CardTitle>
-                                                New Post
-                                            </CardTitle>
-                                            <Divider className="pt-2"/>
+                                <Card className="p-5 bg-white w-[1000px] mx-auto mt-[7vh] rounded-lg shadow-lg">
+                                    <form onSubmit={handleCreatePost}>
+                                        {/* HEADER */}
+                                        <CardHeader className="pb-4 border-b">
+                                            <div className="flex items-center justify-between">
+                                                <div>
+                                                    <CardTitle className="text-xl font-semibold">
+                                                        New Post
+                                                    </CardTitle>
+                                                    <p className="text-sm text-slate-500 mt-1">
+                                                        Share what you’re hosting, when it is, and how people can join.
+                                                    </p>
+                                                </div>
+                                                <span
+                                                    className="rounded-full bg-sky-50 px-3 py-1 text-xs font-medium text-sky-700">
+                                                    Session
+                                                </span>
+                                            </div>
                                         </CardHeader>
 
-                                        <CardContent className="pt-5">
-                                            <div className="space-y-7">
-                                                <div className="flex flex-col gap-1">
+                                        {formError && (
+                                            <div
+                                                className="mt-3 mb-1 rounded-md bg-red-50 border border-red-200 px-3 py-2 text-sm text-red-700">
+                                                {formError}
+                                            </div>
+                                        )}
 
-                                                    <label className="text-lg font-semibold">Post Title</label>
+                                        <CardContent className="pt-6 space-y-6">
+
+                                            <section className="space-y-3">
+                                                <h3 className="text-sm font-semibold text-slate-700">
+                                                    Session details
+                                                </h3>
+
+                                                <div className="space-y-1">
+                                                    <label className="text-xs font-medium text-slate-700">
+                                                        Post Title
+                                                    </label>
                                                     <input
-                                                        className="border border-gray-300 hover:border-gray-500 rounded-lg px-2 py-1 shadow-sm"
-                                                        value={formTitle} /* The input displays whatever is stored in the formTitle state */
-                                                        onChange={(e) => setFormTitle(e.target.value)} /*updates the formTitle state everytime the user types something */
-                                                        placeholder="Enter Post Title"
+                                                        className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+                                                        value={formTitle}
+                                                        onChange={(e) => setFormTitle(e.target.value)}
+                                                        placeholder="e.g. CSE 101 – Algorithms Study Marathon"
                                                         required
                                                     />
                                                 </div>
 
-                                                <div className="flex flex-col gap-1">
+                                                <div className="space-y-1">
+                                                    <div className="flex items-center justify-between">
+                                                        <label className="text-xs font-medium text-slate-700">
+                                                            Post Description
+                                                        </label>
+                                                        <span className="text-[11px] text-slate-400">
+                                                            {formDescription.length}/500
+                                                        </span>
+                                                    </div>
 
-                                                    <label className="text-lg font-semibold">Post Description</label>
                                                     <textarea
-                                                        className="border border-gray-300 hover:border-gray-500 rounded-lg px-2 py-1 shadow-sm"
-                                                        value={formDescription} /* The description displays whatever is stored in the formDescription state */
-                                                        onChange={(e) => setFormDescription(e.target.value)} /*updates the formDescription state everytime the user types something */
-                                                        placeholder="Enter Post Description"
+                                                        className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 min-h-[96px]"
+                                                        value={formDescription}
+                                                        onChange={(e) => setFormDescription(e.target.value)}
+                                                        placeholder="What will you cover? Who is this session for?"
                                                         maxLength={500}
                                                         required
                                                     />
                                                 </div>
+                                            </section>
 
-                                                <div className="flex flex-col gap-1">
-                                                    <label className="text-sm font-medium">Subject</label>
+
+                                            <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                {/* SUBJECT */}
+                                                <div className="space-y-1">
+                                                    <label className="text-xs font-medium text-slate-700">
+                                                        Subject
+                                                    </label>
                                                     <select
-                                                        className="border border-gray-300 hover:border-gray-500 rounded-lg px-2 py-1 shadow-sm"
-                                                        value={formSubject} /* The subject displays whatever is stored in the formSubject state */
-                                                        onChange={(e) => setFormSubject(e.target.value as Subject | "")}/*updates the formSubject state everytime the user selects a different subject */
+                                                        className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+                                                        value={formSubject}
+                                                        onChange={(e) =>
+                                                            setFormSubject(e.target.value as Subject | "")
+                                                        }
                                                     >
-
                                                         <option value="" disabled>
-                                                            Select Subject
+                                                            Select a subject
                                                         </option>
-                                                        {/*Map out the SUBJECTS from post store and add it as an option to select */}
                                                         {SUBJECTS.map((s) => (
                                                             <option key={s} value={s}>
                                                                 {subjectToUpper(s)}
@@ -494,49 +553,44 @@ export default function Posts() {
                                                     </select>
                                                 </div>
 
-                                                <div className="flex flex-col gap-1">
-                                                    <label className="text-sm font-medium">Category</label>
+                                                {/* CATEGORY */}
+                                                <div className="space-y-1">
+                                                    <label className="text-xs font-medium text-slate-700">
+                                                        Category
+                                                    </label>
                                                     <select
-                                                        className="border border-gray-300 hover:border-gray-500 rounded-lg px-2 py-1 shadow-sm"
-                                                        value={formCategory} /* The category displays whatever is stored in the formCategory state */
-                                                        onChange={(e) => setFormCategory(e.target.value as Category | "")} /*updates the formCategory state everytime the user selects a different category */
+                                                        className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+                                                        value={formCategory}
+                                                        onChange={(e) =>
+                                                            setFormCategory(e.target.value as Category | "")
+                                                        }
                                                     >
                                                         <option value="" disabled>
-                                                            Select Category
+                                                            Select a category
                                                         </option>
-                                                        {/*Map out the SUBJECTS from post store and add it as an option to select */}
                                                         {CATEGORIES.map((c) => (
-                                                            <option
-                                                                className="rounded-lg"
-                                                                key={c} value={c}
-                                                            >
-                                                                {subjectToUpper(c)}
+                                                            <option key={c} value={c}>
+                                                                {categoryToUpper(c)}
                                                             </option>
                                                         ))}
                                                     </select>
                                                 </div>
-                                            </div>
+                                            </section>
                                         </CardContent>
 
-                                        <CardFooter>
-                                            <div className="flex w-full pt-5">
-                                                <div className="flex-1">
-                                                    <Button
-                                                        className="flex items-center gap-2"
-                                                        onClick={handleModalClose} // close modal without doing anything
-                                                        type="button"
-                                                    >
-                                                        Cancel
-                                                    </Button>
-                                                </div>
-                                                <div className="justify-end">
-                                                    <Button
-                                                        className="flex items-center gap-2"
-                                                        type="submit" // when clicked we submit the form, tells the form to do handleSubmit from above
-                                                    >
-                                                        Create Post
-                                                    </Button>
-                                                </div>
+                                        <CardFooter className="flex items-center justify-end border-t pt-4">
+
+                                            <div className="flex gap-2">
+                                                <Button
+                                                    type="button"
+                                                    onClick={handleModalClose}
+                                                    className="px-4"
+                                                >
+                                                    Cancel
+                                                </Button>
+                                                <Button type="submit" className="px-5" disabled={!isFormValid}>
+                                                    Create Session
+                                                </Button>
                                             </div>
                                         </CardFooter>
                                     </form>

@@ -253,7 +253,7 @@ export default function Posts() {
                         <div className="flex-1 flex justify-center space-x-3">
                             <input
                                 className="h-9 w-3/4 max-w-md px-3 border rounded-l rounded-r"
-                                type="text"
+                                type="search"
                                 placeholder="Search for relevant posts"
                                 value={searchQuery}
                                 onChange={handleSearch}

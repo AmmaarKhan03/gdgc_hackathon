@@ -100,12 +100,6 @@ export default function AppShell() {
                         <div className="flex items-center">
                             Slug Study  <Snail className="!text-yellow-400"/>
                         </div>
-                        {/* Other possible Name
-                                Slug Fit
-                                Slug Strong
-                                Campus Core
-                                Fit UCSC
-                             */}
                     </div>
 
                     <div className="ml-auto" ref={menuRef}>

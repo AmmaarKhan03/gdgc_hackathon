@@ -60,11 +60,14 @@ export interface Post {
 
 interface postStore {
     posts: Post[]
+
     newPost: (newPost: NewPostInput) => void
     updatePost: (id: string, updatedPost: Post) => void
     deletePost: (id: string) => void
+
     likedPostIds: Set<string>;
     toggleLike: (postId: string) => void;
+
     recommendedPosts: Post[];
     isRefreshingRecs: boolean;
 }

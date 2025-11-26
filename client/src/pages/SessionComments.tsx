@@ -1,10 +1,10 @@
 import {useParams, useNavigate} from 'react-router-dom'
 import {Card, CardHeader, CardTitle, CardContent, CardFooter} from "@/components/ui/card";
 import {Button} from "@/components/ui/button";
-import {usePostStore} from "@/store/postStore";
+import {useSessionStore} from "@/store/sessionStore";
 import {MessageSquare, ThumbsUp, Tag as TagIcon, Clock, User as UserIcon, FolderOpen} from "lucide-react";
 import {useState, useEffect, useRef} from "react";
-import {useCommentStore, buildTree} from "@/store/commentStore";
+import {useCommentStore, buildTree, Comment} from "@/store/commentStore";
 import {CommentTree} from "@/store/commentStore";
 import {useMemo} from "react";
 
@@ -12,27 +12,6 @@ const subjectToUpper = (subject: string) => {
     if (!subject) return;
     return subject.split(" ").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
 }
-
-const formatDate = (iso: string | undefined) => {
-    if (!iso) return;
-
-    return new Date(iso).toLocaleString(undefined, {
-        dateStyle: "medium",
-        timeStyle: "short",
-    });
-};
-
-const statusClasses: Record<string, string> = {
-    OPEN: "!bg-green-100 !text-green-800 !border !border-green-300",
-    CLOSED: "!bg-red-100 !text-red-800 !border !border-red-300",
-    RESOLVED: "!bg-blue-100 !text-blue-800 border !border-blue-300",
-};
-
-const categoryClasses: Record<string, string> = {
-    tutoring: "bg-amber-100 text-amber-800 border border-amber-300",
-    discussion: "bg-indigo-100 text-indigo-800 border border-indigo-300",
-    resource: "bg-sky-100 text-sky-800 border border-sky-300",
-};
 
 const EMPTY_COMMENTS: Comment[] = [];
 
@@ -51,6 +30,7 @@ function CommentNode({
     const [text, setText] = useState("");
     const likedCommentIds = useCommentStore((state) => state.likedCommentIds);
     const toggleLike = useCommentStore((state) => state.toggleLike);
+
 
     return (
         <div className="mt-3">
@@ -126,13 +106,11 @@ function CommentNode({
     );
 }
 
-export default function PostComments() {
+export default function SessionComments() {
     const {id} = useParams<{ id: string }>();
     const navigate = useNavigate();
 
-    const [liked, setLiked] = useState<Set<string>>(new Set());
-    {/* will make a set of multiple posts that have been liked*/
-    }
+    const [like, setLiked] = useState<Set<string>>(new Set());
     const toggleLiked = (id: string) => {
         setLiked(prev => {
             const next = new Set(prev);
@@ -141,7 +119,7 @@ export default function PostComments() {
         })
     }
 
-    const post = usePostStore((state) => state.posts.find((post) => post.id === id));
+    const session = useSessionStore((state) => state.sessions.find((session) => session.id === id));
     const addComment = useCommentStore((state) => state.addComment);
     const toggleLike = useCommentStore((state) => state.toggleLike);
     const getThread = useCommentStore((state) => state.getThread);
@@ -155,17 +133,17 @@ export default function PostComments() {
     if (!id) {
         return (
             <div className="p-4">
-                <p className="text-red-700">No post id in URL.</p>
+                <p className="text-red-700">No session id in URL.</p>
                 <Button className="mt-3" onClick={() => navigate(-1)}>Go back</Button>
             </div>
-        );
+        )
     }
 
-    if (!post) {
+    if (!session) {
         return (
             <div className="p-4">
-                <p className="text-red-700">Post not found for id: {id}</p>
-                <Button className="mt-3" onClick={() => navigate("/posts")}>All Posts</Button>
+                <p className="text-red-700">Session not found for id: {id}</p>
+                <Button className="mt-3" onClick={() => navigate("/sessions")}>All Sessions</Button>
             </div>
         );
     }
@@ -198,12 +176,12 @@ export default function PostComments() {
             <Card>
                 <CardHeader>
                     <CardTitle className="text-lg">
-                        {post.title} <span className="text-gray-500">— {subjectToUpper(post.subject)}</span>
+                        {session.title} <span className="text-gray-500">— {subjectToUpper(session.subject)}</span>
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <div className="w-full lg:w-1/2 space-y-3">
-                        <p className="text-gray-800">{post.description}</p>
+                        <p className="text-gray-800">{session.description}</p>
 
                         {/* root reply box */}
                         <div className="mt-4 flex gap-2">
@@ -218,16 +196,16 @@ export default function PostComments() {
                         </div>
 
                         <span>
-                        <Button
-                            onClick={() => {
-                                if (!rootText.trim()) return;
-                                onReplyRoot(rootText.trim());
-                                setRootText("");
-                            }}
-                        >
-                            Comment
-                        </Button>
-                    </span>
+                            <Button
+                                onClick={() => {
+                                    if (!rootText.trim()) return;
+                                    onReplyRoot(rootText.trim());
+                                    setRootText("");
+                                }}
+                            >
+                                Comment
+                            </Button>
+                        </span>
                     </div>
 
                     {/* thread */}

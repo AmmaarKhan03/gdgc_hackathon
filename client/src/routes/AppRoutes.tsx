@@ -6,6 +6,7 @@ import {
 } from "react-router-dom";
 
 import AppShell from "@/layouts/AppShell";
+import Landing from "@/pages/Landing";
 
 import Dashboard from "@/pages/Dashboard";
 import Users from "@/pages/Users";
@@ -23,39 +24,15 @@ import Login from "@/pages/auth/Login";
 import Register from "@/pages/auth/Register";
 import ForgotPassword from "@/pages/auth/ForgotPassword";
 
-// ✅ Simple logged out Homepage
-function Home() {
-    return (
-        <div className="space-y-4">
-            <h1 className="text-3xl font-bold">Welcome!</h1>
-            <p className="text-gray-600">
-                This is the logged-out homepage. Use the navigation or the Login link
-                to sign in and access your dashboard.
-            </p>
-        </div>
-    );
-}
-
-// ✅ Router Setup
+// Router Setup with proper nesting
 const router = createBrowserRouter([
-    // Main app layout - always accessible (no auth guard for now)
+    // Landing page (logged out homepage)
     {
         path: "/",
-        element: <AppShell />,
-        children: [
-            { index: true, element: <Home /> }, // default route = homepage
-            { path: "dashboard", element: <Dashboard /> },
-            { path: "users", element: <Users /> },
-            { path: "posts", element: <Posts /> },
-            { path: "post/:id/comments", element: <PostComments /> },
-            { path: "session/:id/comments", element: <SessionComments /> },
-            { path: "sessions", element: <Sessions /> },
-            { path: "reviews", element: <Reviews /> },
-            { path: "profile", element: <Profile /> },
-        ],
+        element: <Landing />,
     },
 
-    // Auth pages - still reachable, but not forced
+    // Auth routes (outside main app shell)
     {
         path: "/auth",
         children: [
@@ -66,7 +43,38 @@ const router = createBrowserRouter([
         ],
     },
 
-    // Fallback: anything unknown goes to homepage
+    // Main app routes (protected, inside AppShell)
+    {
+        path: "/app",
+        element: <AppShell />,
+        children: [
+            { index: true, element: <Navigate to="dashboard" replace /> },
+            { path: "dashboard", element: <Dashboard /> },
+            { path: "users", element: <Users /> },
+            { path: "posts", element: <Posts /> },
+            { path: "sessions", element: <Sessions /> },
+            { path: "reviews", element: <Reviews /> },
+            { path: "profile", element: <Profile /> },
+        ],
+    },
+
+    // Comment routes (also inside AppShell but with dynamic params)
+    {
+        path: "/post/:id/comments",
+        element: <AppShell />,
+        children: [
+            { index: true, element: <PostComments /> },
+        ],
+    },
+    {
+        path: "/session/:id/comments",
+        element: <AppShell />,
+        children: [
+            { index: true, element: <SessionComments /> },
+        ],
+    },
+
+    // Fallback: anything unknown goes to landing
     { path: "*", element: <Navigate to="/" replace /> },
 ]);
 

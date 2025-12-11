@@ -3,7 +3,7 @@ import {useRef, useState, useEffect} from "react";
 import {NavLink, Outlet, useLocation, useNavigate} from "react-router-dom";
 import {Button} from "@/components/ui/button";
 import {Drawer, List, ListItemButton, ListItemIcon, ListItemText} from "@mui/material";
-import {Menu, MailIcon, X, Snail, BarChart3, Dumbbell, LayoutDashboard, User, MessageSquare} from "lucide-react";
+import {Menu, X, Snail, BarChart3, LayoutDashboard, User, MessageSquare} from "lucide-react";
 import Groups2OutlinedIcon from '@mui/icons-material/Groups2Outlined';
 import AccountCircleRoundedIcon from '@mui/icons-material/AccountCircleRounded';
 import {useAuthStore} from "@/store/authStore";
@@ -65,9 +65,17 @@ export default function AppShell() {
         "/app/posts": "Posts",
         "/app/sessions": "Sessions",
         "/app/reviews": "Reviews",
+        "/post": "Post Comments",
+        "/session": "Session Comments",
     };
 
-    const title = pageTitles[location.pathname] || "Slug Hub";
+    // Handle dynamic routes for comments
+    let title = pageTitles[location.pathname] || "Slug Hub";
+    if (location.pathname.startsWith("/post/")) {
+        title = "Post Comments";
+    } else if (location.pathname.startsWith("/session/")) {
+        title = "Session Comments";
+    }
 
     return (
         <div className="min-h-screen flex">
@@ -134,7 +142,7 @@ export default function AppShell() {
                                 </NavLink>
 
                                 <NavLink
-                                    to="/auth/login"
+                                    to="/"
                                     className="block px-4 py-2 text-sm hover:bg-gray-100 !text-red-500 hover:!text-red-600"
                                     onClick={handleSignOut}
                                 >

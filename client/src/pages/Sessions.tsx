@@ -42,7 +42,7 @@ export default function Sessions() {
     };
 
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [isDetalModalOpen, setIsDetailModalOpen] = useState(false);
+    const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
     const handleDetailModalOpen = () => setIsDetailModalOpen(true);
     const handleDetailModalClose = () => setIsDetailModalOpen(false);
@@ -799,11 +799,17 @@ export default function Sessions() {
                                                             >
                                                                 View session details
                                                             </Button>
-                                                            <Modal open={isDetalModalOpen} onClose={handleDetailModalOpen}>
+                                                            <Modal open={isDetailModalOpen} onClose={handleDetailModalClose}  slotProps={{
+                                                                backdrop: {
+                                                                    sx: {
+                                                                        backgroundColor: "rgba(0,0,0,0.1)"
+                                                                    },
+                                                                },
+                                                            }}>
                                                                 <div className="px-5 py-6">
-                                                                    <div className="mx-auto max-w-3xl space-y-6">
-                                                                        <Card>
-                                                                            <CardHeader className="space-y-2">
+                                                                    <div className="px-5 py-6 flex justify-center">
+                                                                        <Card className="bg-white w-[1000px] max-w-[40vw] mt-[15vh] rounded-lg shadow-lg">
+                                                                            <CardHeader className="pb-4 border-b">
                                                                                 <div className="flex items-start justify-between gap-4">
                                                                                     <div className="space-y-1">
                                                                                         <CardTitle className="text-lg font-semibold">
@@ -818,7 +824,7 @@ export default function Sessions() {
                                                                                 </div>
                                                                             </CardHeader>
 
-                                                                            <CardContent className="space-y-6">
+                                                                            <CardContent className="pt-6 space-y-6">
                                                                                 {/* Meta */}
                                                                                 <div className="grid gap-4 md:grid-cols-2">
                                                                                     <div className="space-y-1">
@@ -870,9 +876,17 @@ export default function Sessions() {
                                                                                 </div>
                                                                             </CardContent>
 
-                                                                            <CardFooter className="flex flex-col items-start gap-1 text-xs text-muted-foreground">
+                                                                            <CardFooter className="flex items-center justify-end border-t pt-4">
                                                                                 {/*<p>Created: {new Date(session.createdAt).toLocaleString()}</p>*/}
                                                                                 {/*<p>Updated: {new Date(session.updatedAt).toLocaleString()}</p>*/}
+
+                                                                                <Button
+                                                                                    type="button"
+                                                                                    onClick={handleDetailModalClose}
+                                                                                    className="px-4"
+                                                                                >
+                                                                                    Close
+                                                                                </Button>
                                                                             </CardFooter>
                                                                         </Card>
                                                                     </div>

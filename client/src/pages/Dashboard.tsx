@@ -332,8 +332,7 @@ export default function Dashboard() {
 
                                                     <h3 className="absolute left-1/2 -translate-x-1/2 text-base font-semibold text-center break-words">
                                                         {post.title}{" "}
-                                                        <span
-                                                            className="text-gray-500">— {subjectToUpper(post.subject)}</span>
+                                                        <span className="text-gray-500">— {subjectToUpper(post.subject)}</span>
                                                     </h3>
 
                                                     {post.category && (

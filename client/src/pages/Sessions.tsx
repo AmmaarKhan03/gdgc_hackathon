@@ -42,6 +42,10 @@ export default function Sessions() {
     };
 
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isDetalModalOpen, setIsDetailModalOpen] = useState(false);
+
+    const handleDetailModalOpen = () => setIsDetailModalOpen(true);
+    const handleDetailModalClose = () => setIsDetailModalOpen(false);
     const handleModalOpen = () => setIsModalOpen(true);
     const handleModalClose = () => setIsModalOpen(false);
 
@@ -791,9 +795,89 @@ export default function Sessions() {
                                                             <Button
                                                                 variant="link"
                                                                 className="!bg-transparent !border-transparent text-blue-600 px-0 text-sm"
+                                                                onClick={handleDetailModalOpen}
                                                             >
                                                                 View session details
                                                             </Button>
+                                                            <Modal open={isDetalModalOpen} onClose={handleDetailModalOpen}>
+                                                                <div className="px-5 py-6">
+                                                                    <div className="mx-auto max-w-3xl space-y-6">
+                                                                        <Card>
+                                                                            <CardHeader className="space-y-2">
+                                                                                <div className="flex items-start justify-between gap-4">
+                                                                                    <div className="space-y-1">
+                                                                                        <CardTitle className="text-lg font-semibold">
+                                                                                            {session.title}
+                                                                                        </CardTitle>
+                                                                                        <CardDescription>{session.subject}</CardDescription>
+                                                                                    </div>
+
+                                                                                    {/*<Badge variant={session.status === "ACTIVE" ? "default" : "secondary"}>*/}
+                                                                                    {/*    {session.status}*/}
+                                                                                    {/*</Badge>*/}
+                                                                                </div>
+                                                                            </CardHeader>
+
+                                                                            <CardContent className="space-y-6">
+                                                                                {/* Meta */}
+                                                                                <div className="grid gap-4 md:grid-cols-2">
+                                                                                    <div className="space-y-1">
+                                                                                        <p className="text-sm font-medium">Hosted by</p>
+                                                                                        {/*<p className="text-sm text-muted-foreground">{hosts}</p>*/}
+                                                                                    </div>
+
+                                                                                    <div className="space-y-1">
+                                                                                        <p className="text-sm font-medium">Time</p>
+                                                                                        <p className="text-sm text-muted-foreground">
+                                                                                            {new Date(session.startTime).toLocaleString()} –{" "}
+                                                                                            {new Date(session.endTime).toLocaleTimeString()}
+                                                                                        </p>
+                                                                                    </div>
+
+                                                                                    <div className="space-y-1">
+                                                                                        <p className="text-sm font-medium">Location</p>
+                                                                                        {/*{isInPerson ? (*/}
+                                                                                        {/*    <p className="text-sm text-muted-foreground">*/}
+                                                                                        {/*        {session.address.street}, {session.address.city},{" "}*/}
+                                                                                        {/*        {session.address.state} {session.address.zipCode}*/}
+                                                                                        {/*    </p>*/}
+                                                                                        {/*) : (*/}
+                                                                                        {/*    <a*/}
+                                                                                        {/*        className="text-sm underline"*/}
+                                                                                        {/*        href={session.meetingLink}*/}
+                                                                                        {/*        target="_blank"*/}
+                                                                                        {/*        rel="noreferrer"*/}
+                                                                                        {/*    >*/}
+                                                                                        {/*        Join meeting*/}
+                                                                                        {/*    </a>*/}
+                                                                                        {/*)}*/}
+                                                                                    </div>
+
+                                                                                    <div className="space-y-1">
+                                                                                        <p className="text-sm font-medium">Capacity</p>
+                                                                                        <p className="text-sm text-muted-foreground">
+                                                                                            {session.capacity} seats • {session.replies} replies • {session.likes} likes
+                                                                                        </p>
+                                                                                    </div>
+                                                                                </div>
+
+                                                                                {/* Description */}
+                                                                                <div className="space-y-2">
+                                                                                    <p className="text-sm font-medium">Description</p>
+                                                                                    <p className="text-sm text-muted-foreground">
+                                                                                        {session.description}
+                                                                                    </p>
+                                                                                </div>
+                                                                            </CardContent>
+
+                                                                            <CardFooter className="flex flex-col items-start gap-1 text-xs text-muted-foreground">
+                                                                                {/*<p>Created: {new Date(session.createdAt).toLocaleString()}</p>*/}
+                                                                                {/*<p>Updated: {new Date(session.updatedAt).toLocaleString()}</p>*/}
+                                                                            </CardFooter>
+                                                                        </Card>
+                                                                    </div>
+                                                                </div>
+                                                            </Modal>
 
                                                             <div className="flex items-center gap-2">
                                                                 <Button

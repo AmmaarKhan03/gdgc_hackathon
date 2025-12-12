@@ -392,8 +392,8 @@ export const mockUsers: User[] = [
 export const mockSessions: Session[] = [
     {
         id: "s1",
-        hostIds: ["u1"],
-        hostNames: ["Ivan Argueta"],
+        hostIds: ["u1", "u2"],
+        hostNames: ["Ivan Argueta", "Ammaar Khan"],
         title: "CSE 13S – Pointers & Memory Workshop",
         description:
             "Working through segmentation faults, valgrind output, and pointer tracing problems. Bring your laptop!",

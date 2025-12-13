@@ -27,6 +27,9 @@ import {useUserStore} from "@/store/userStore";
 import Modal from '@mui/material/Modal';
 import GroupsIcon from '@mui/icons-material/Groups';
 import {Sparkles} from "lucide-react";
+import Groups2OutlinedIcon from '@mui/icons-material/Groups2Outlined';
+import {UserPlus} from "lucide-react";
+import {Badge} from "@mui/material";
 
 type FilterKey = "title" | "description" | "location";
 
@@ -42,10 +45,12 @@ export default function Sessions() {
     };
 
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
-    const handleDetailModalOpen = () => setIsDetailModalOpen(true);
-    const handleDetailModalClose = () => setIsDetailModalOpen(false);
+    const [detailSession, setDetailSession] = useState<Session | null>(null);
+    const isDetailModalOpen = Boolean(detailSession);
+
+    const handleDetailModalOpen = (s: Session) => setDetailSession(s);
+    const handleDetailModalClose = () => setDetailSession(null);
     const handleModalOpen = () => setIsModalOpen(true);
     const handleModalClose = () => setIsModalOpen(false);
 
@@ -795,103 +800,10 @@ export default function Sessions() {
                                                             <Button
                                                                 variant="link"
                                                                 className="!bg-transparent !border-transparent text-blue-600 px-0 text-sm"
-                                                                onClick={handleDetailModalOpen}
+                                                                onClick={() => handleDetailModalOpen(session)}
                                                             >
                                                                 View session details
                                                             </Button>
-                                                            <Modal open={isDetailModalOpen} onClose={handleDetailModalClose}  slotProps={{
-                                                                backdrop: {
-                                                                    sx: {
-                                                                        backgroundColor: "rgba(0,0,0,0.1)"
-                                                                    },
-                                                                },
-                                                            }}>
-                                                                <div className="px-5 py-6">
-                                                                    <div className="px-5 py-6 flex justify-center">
-                                                                        <Card className="bg-white w-[1000px] max-w-[40vw] mt-[15vh] rounded-lg shadow-lg">
-                                                                            <CardHeader className="pb-4 border-b">
-                                                                                <div className="flex items-start justify-between gap-4">
-                                                                                    <div className="space-y-1">
-                                                                                        <CardTitle className="text-lg font-semibold">
-                                                                                            {session.title}
-                                                                                        </CardTitle>
-                                                                                        <CardDescription>{session.subject}</CardDescription>
-                                                                                    </div>
-
-                                                                                    {/*<Badge variant={session.status === "ACTIVE" ? "default" : "secondary"}>*/}
-                                                                                    {/*    {session.status}*/}
-                                                                                    {/*</Badge>*/}
-                                                                                </div>
-                                                                            </CardHeader>
-
-                                                                            <CardContent className="pt-6 space-y-6">
-                                                                                {/* Meta */}
-                                                                                <div className="grid gap-4 md:grid-cols-2">
-                                                                                    <div className="space-y-1">
-                                                                                        <p className="text-sm font-medium">Hosted by</p>
-                                                                                        {/*<p className="text-sm text-muted-foreground">{hosts}</p>*/}
-                                                                                    </div>
-
-                                                                                    <div className="space-y-1">
-                                                                                        <p className="text-sm font-medium">Time</p>
-                                                                                        <p className="text-sm text-muted-foreground">
-                                                                                            {new Date(session.startTime).toLocaleString()} –{" "}
-                                                                                            {new Date(session.endTime).toLocaleTimeString()}
-                                                                                        </p>
-                                                                                    </div>
-
-                                                                                    <div className="space-y-1">
-                                                                                        <p className="text-sm font-medium">Location</p>
-                                                                                        {/*{isInPerson ? (*/}
-                                                                                        {/*    <p className="text-sm text-muted-foreground">*/}
-                                                                                        {/*        {session.address.street}, {session.address.city},{" "}*/}
-                                                                                        {/*        {session.address.state} {session.address.zipCode}*/}
-                                                                                        {/*    </p>*/}
-                                                                                        {/*) : (*/}
-                                                                                        {/*    <a*/}
-                                                                                        {/*        className="text-sm underline"*/}
-                                                                                        {/*        href={session.meetingLink}*/}
-                                                                                        {/*        target="_blank"*/}
-                                                                                        {/*        rel="noreferrer"*/}
-                                                                                        {/*    >*/}
-                                                                                        {/*        Join meeting*/}
-                                                                                        {/*    </a>*/}
-                                                                                        {/*)}*/}
-                                                                                    </div>
-
-                                                                                    <div className="space-y-1">
-                                                                                        <p className="text-sm font-medium">Capacity</p>
-                                                                                        <p className="text-sm text-muted-foreground">
-                                                                                            {session.capacity} seats • {session.replies} replies • {session.likes} likes
-                                                                                        </p>
-                                                                                    </div>
-                                                                                </div>
-
-                                                                                {/* Description */}
-                                                                                <div className="space-y-2">
-                                                                                    <p className="text-sm font-medium">Description</p>
-                                                                                    <p className="text-sm text-muted-foreground">
-                                                                                        {session.description}
-                                                                                    </p>
-                                                                                </div>
-                                                                            </CardContent>
-
-                                                                            <CardFooter className="flex items-center justify-end border-t pt-4">
-                                                                                {/*<p>Created: {new Date(session.createdAt).toLocaleString()}</p>*/}
-                                                                                {/*<p>Updated: {new Date(session.updatedAt).toLocaleString()}</p>*/}
-
-                                                                                <Button
-                                                                                    type="button"
-                                                                                    onClick={handleDetailModalClose}
-                                                                                    className="px-4"
-                                                                                >
-                                                                                    Close
-                                                                                </Button>
-                                                                            </CardFooter>
-                                                                        </Card>
-                                                                    </div>
-                                                                </div>
-                                                            </Modal>
 
                                                             <div className="flex items-center gap-2">
                                                                 <Button
@@ -918,11 +830,155 @@ export default function Sessions() {
                                                             </div>
                                                         </div>
                                                     </CardFooter>
-
                                                 </>
                                             </Card>
                                         </motion.div>
                                     ))}
+
+                                    <Modal open={isDetailModalOpen} onClose={handleDetailModalClose} slotProps={{
+                                        backdrop: {
+                                            sx: {
+                                                backgroundColor: "rgba(0,0,0,0.1)"
+                                            },
+                                        },
+                                    }}>
+                                        <div className="px-5 py-6">
+                                            <div className="px-5 py-6 flex justify-center">
+                                                <Card
+                                                    className="bg-white w-[1000px] max-w-[40vw] mt-[15vh] rounded-lg shadow-lg">
+                                                    <CardHeader className="pb-4 border-b">
+                                                        <div className="flex items-start justify-between gap-4">
+                                                            <div className="space-y-1">
+                                                                <CardTitle className="text-lg font-semibold">
+                                                                    {detailSession?.title}
+                                                                </CardTitle>
+                                                                <CardDescription>{detailSession?.subject}</CardDescription>
+                                                            </div>
+
+                                                        </div>
+                                                    </CardHeader>
+
+                                                    <CardContent className="pt-6 space-y-6">
+                                                        {/* Meta */}
+                                                        <div className="grid gap-4 md:grid-cols-2">
+                                                            <div className="space-y-1">
+                                                                <p className="text-sm font-medium">
+                                                                    <div className="flex items-center space-x-2">
+                                                                        <span> <Groups2OutlinedIcon/> </span>
+                                                                        <span>Hosted by</span>
+                                                                    </div>
+                                                                </p>
+                                                                <p className="text-sm text-muted-foreground">{detailSession?.hostNames?.length ? detailSession.hostNames.join(", ") : "—"}</p>
+                                                            </div>
+
+                                                            <div className="space-y-1">
+                                                                <p className="text-sm font-medium">
+                                                                    <div className="flex items-center space-x-2">
+                                                                        <span><Clock/></span>
+                                                                        <span>
+                                                                            Time
+                                                                        </span>
+                                                                    </div>
+                                                                </p>
+                                                                <p className="text-sm text-muted-foreground">
+                                                                    {detailSession && (
+                                                                        <p className="text-sm text-muted-foreground">
+                                                                            {new Date(detailSession.startTime).toLocaleString()} –{" "}
+                                                                            {new Date(detailSession.endTime).toLocaleTimeString()}
+                                                                        </p>
+                                                                    )}
+                                                                </p>
+                                                            </div>
+
+                                                            <div className="space-y-1">
+                                                                <p className="text-sm font-medium">
+                                                                    <div className="flex items-center space-x-2">
+                                                                        <span><LocationPinIcon/></span>
+                                                                        <span>
+                                                                            Location
+                                                                        </span>
+                                                                    </div>
+                                                                </p>
+                                                                {detailSession?.location === "IN_PERSON" && (
+                                                                    <p className="text-sm text-muted-foreground">
+                                                                        {detailSession?.address?.street}, {detailSession?.address?.city},{" "}
+                                                                        {detailSession?.address?.state} {detailSession?.address?.zipCode}
+                                                                    </p>
+                                                                )}
+
+                                                                {detailSession?.location === "ONLINE" && (
+                                                                    <div className="space-y-1">
+                                                                        <p className="text-sm text-muted-foreground">Online</p>
+                                                                        <a
+                                                                            className="text-sm underline text-blue-600"
+                                                                            href={detailSession.meetingLink}
+                                                                            target="_blank"
+                                                                            rel="noreferrer"
+                                                                        >
+                                                                            Join meeting
+                                                                        </a>
+                                                                    </div>
+                                                                )}
+
+                                                                {detailSession?.location === "HYBRID" && (
+                                                                    <div className="space-y-1">
+                                                                        <p className="text-sm text-muted-foreground">
+                                                                            {detailSession.address?.street}, {detailSession.address?.city},{" "}
+                                                                            {detailSession.address?.state} {detailSession.address?.zipCode}
+                                                                        </p>
+                                                                        <a
+                                                                            className="text-sm underline text-blue-600"
+                                                                            href={detailSession.meetingLink}
+                                                                            target="_blank"
+                                                                            rel="noreferrer"
+                                                                        >
+                                                                            Join meeting
+                                                                        </a>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+
+                                                            <div className="space-y-1">
+                                                                <p className="text-sm font-medium">
+                                                                    <div className="flex items-center space-x-2">
+                                                                        <span className="h-5 w-5">
+                                                                            <UserPlus/>
+                                                                        </span>
+                                                                        <span>
+                                                                            Capacity
+                                                                        </span>
+                                                                    </div>
+                                                                </p>
+                                                                <p className="text-sm text-muted-foreground">
+                                                                    {detailSession?.capacity} seats
+                                                                    • {detailSession?.replies} replies
+                                                                    • {detailSession?.likes} likes
+                                                                </p>
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Description */}
+                                                        <div className="space-y-2">
+                                                            <p className="text-sm font-medium">Description</p>
+                                                            <p className="text-sm text-muted-foreground">
+                                                                {detailSession?.description}
+                                                            </p>
+                                                        </div>
+                                                    </CardContent>
+
+                                                    <CardFooter className="flex items-center justify-end border-t pt-4">
+                                                        <Button
+                                                            type="button"
+                                                            onClick={handleDetailModalClose}
+                                                            className="px-4"
+                                                        >
+                                                            Close
+                                                        </Button>
+                                                    </CardFooter>
+                                                </Card>
+                                            </div>
+                                        </div>
+                                    </Modal>
                                 </CardContent>
 
                                 <CardFooter

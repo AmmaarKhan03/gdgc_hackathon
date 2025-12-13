@@ -49,6 +49,13 @@ export default function Register() {
 
     const loading = globalLoading;
 
+    // types/auth.ts
+    type RegisterForm = {
+        email: string;
+        password: string;
+        confirmPassword: string;
+    };
+
     return (
         <div className="flex h-screen bg-gradient-to-br from-[#FFD700] via-[#FFC300] to-[#003C6C]">
             <div className="w-1/3 flex items-center justify-center bg-transparent">

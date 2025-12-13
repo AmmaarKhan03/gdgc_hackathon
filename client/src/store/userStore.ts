@@ -3,31 +3,54 @@ import {mockUsers} from "@/types/mockData";
 
 export type Status = "ACTIVE" | "INACTIVE" | "SUSPENDED" | "PENDING"
 
-interface address {
+type Year = "Freshman" | "Sophomore" | "Junior" | "Senior" | "Graduate" | "Transfer"
+
+interface Address {
     street: string;
     city: string;
     state: string;
     zip: string;
 }
 
-interface userFields {
-    email: string;
-    password: string;
-    confirmPassword: string;
-    address: address;
-}
-
-interface name {
+interface Name {
     firstName: string;
     lastName: string;
 }
 
+interface Profile {
+    bio?: string;
+    phone?: string;
+    major?: string;
+    year?: Year;
+    pronouns?: string[];
+    interests?: string[];
+    links?: {
+        github?: string;
+        linkedin?: string;
+        website?: string;
+    }
+}
+
+export type EditUserInput = {
+    name: Name;
+    email: string;
+    address: Address;
+    profile: Profile;
+    profileImageUrl?: string;
+}
+
 export interface User {
     id: string;
-    name: name;
-    userFields: userFields;
+    name: Name;
+    email: string;
+
+    address: Address;
+    profile: Profile;
+
     status: Status;
     profileImageUrl?: string;
+    createdAt?: string;
+    updatedAt?: string;
 }
 
 interface userStore {
@@ -36,7 +59,7 @@ interface userStore {
     addUser: (newUser: User) => void;
     setCurrentUser: (user: User | null) => void;
     deleteUser: (id: string) => void;
-    editUser: (id: string, updatedUser: User) => void;
+    editUser: (id: string, updatedUser: EditUserInput) => void;
 }
 
 export const useUserStore = create<userStore>((set) => ({
@@ -53,9 +76,32 @@ export const useUserStore = create<userStore>((set) => ({
         users: state.users.filter((u) => u.id !== id)
     })),
 
-    editUser: (id, updatedUser) => set((state) => ({
-        users: state.users.map((user) =>
-            user.id === id ? {...user, ...updatedUser} : user
-        ),
-    }))
+    editUser: (id, updated) =>
+        set((state) => ({
+            users: state.users.map((user) =>
+                user.id === id
+                    ? {
+                        ...user,
+                        name: updated.name,
+                        email: updated.email,
+                        address: updated.address,
+                        profile: updated.profile,
+                        profileImageUrl: updated.profileImageUrl ?? user.profileImageUrl,
+                        updatedAt: new Date().toISOString(),
+                    }
+                    : user
+            ),
+            currentUser:
+                state.currentUser?.id === id
+                    ? {
+                        ...state.currentUser,
+                        name: updated.name,
+                        email: updated.email,
+                        address: updated.address,
+                        profile: updated.profile,
+                        profileImageUrl: updated.profileImageUrl ?? state.currentUser.profileImageUrl,
+                        updatedAt: new Date().toISOString(),
+                    }
+                    : state.currentUser,
+        }))
 }))

@@ -332,48 +332,10 @@ export default function Posts() {
         <div className="px-5 space-y-6">
 
             <Card className="">
-                <CardHeader>
-                    <CardTitle>Popular Subjects</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    {popularSubjects.length === 0 ? (
-                        <p className="text-sm text-gray-500">
-                            No posts yet. Popular subjects will appear here.
-                        </p>
-                    ) : (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                            {popularSubjects.map(([subject, count]) => (
-                                <motion.div
-                                    key={subject}
-                                    whileHover={{y: -6, scale: 1.01}}
-                                    whileTap={{y: -2}}
-                                    transition={{type: "tween", ease: "easeOut", duration: 0.18}}
-                                    className="relative z-0"
-                                >
-                                    <div
-                                        key={subject}
-                                        className="border rounded-md px-4 py-3 flex flex-col items-center"
-                                    >
-                                    <span className="text-base font-semibold">
-                                        {subjectToUpper(subject)}
-                                    </span>
-                                        <span className="text-xs text-gray-500 mt-1">
-                                        {count} post{count !== 1 ? "s" : ""}
-                                    </span>
-                                    </div>
-                                </motion.div>
-                            ))}
-                        </div>
-                    )}
-                </CardContent>
-            </Card>
-
-            <Card className="">
                 <CardHeader className="flex items-center justify-between w-full">
                     <CardTitle className="flex items-center justify-between w-full">
                         <div className="flex-1 text-left">
-                            {searchQuery.trim() ? "Search Results" : "All Posts"}
-                            <GroupsIcon/>
+
                         </div>
 
                         <div className="flex-1 flex justify-center space-x-3">
@@ -609,7 +571,7 @@ export default function Posts() {
                                 <CardHeader className="pb-3">
                                     <CardTitle className="text-lg">
                                         <span className="flex items-center gap-3">
-                                            {searchQuery.trim() ? "Search Results" : "All Sessions"}
+                                            {searchQuery.trim() ? "Search Results" : "All Posts"}
 
                                         </span>
                                     </CardTitle>

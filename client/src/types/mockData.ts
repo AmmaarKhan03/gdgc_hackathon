@@ -279,7 +279,6 @@ export const mockUsers: User[] = [
         userFields: {
             email: "user@gmail.com",
             password: "password",
-            confirmPassword: "password",
             address: {
                 street: "123 Test St",
                 city: "Test City",
@@ -296,7 +295,6 @@ export const mockUsers: User[] = [
         userFields: {
             email: "iargueta@ucsc.edu",
             password: "password123",
-            confirmPassword: "password123",
             address: { street: "1156 High St", city: "Santa Cruz", state: "CA", zip: "95064" },
         },
         status: "ACTIVE",
@@ -308,7 +306,6 @@ export const mockUsers: User[] = [
         userFields: {
             email: "mchen7@ucsc.edu",
             password: "hunter2!!",
-            confirmPassword: "hunter2!!",
             address: { street: "100 Bay St", city: "Santa Cruz", state: "CA", zip: "95060" },
         },
 
@@ -321,7 +318,6 @@ export const mockUsers: User[] = [
         userFields: {
             email: "dramirez@ucsc.edu",
             password: "scslug2025",
-            confirmPassword: "scslug2025",
             address: { street: "44 Seabright Ave", city: "Santa Cruz", state: "CA", zip: "95062" },
         },
         status: "ACTIVE",
@@ -333,7 +329,6 @@ export const mockUsers: User[] = [
         userFields: {
             email: "aikhan@ucsc.edu",
             password: "liftStrong!",
-            confirmPassword: "liftStrong!",
             address: { street: "200 Laurel St", city: "Santa Cruz", state: "CA", zip: "95060" },
         },
         status: "SUSPENDED",
@@ -345,7 +340,6 @@ export const mockUsers: User[] = [
         userFields: {
             email: "npatel@ucsc.edu",
             password: "gym-time",
-            confirmPassword: "gym-time",
             address: { street: "5 Mission St", city: "Santa Cruz", state: "CA", zip: "95060" },
         },
         status: "INACTIVE",
@@ -357,7 +351,6 @@ export const mockUsers: User[] = [
         userFields: {
             email: "slopez9@ucsc.edu",
             password: "bananaSlug!",
-            confirmPassword: "bananaSlug!",
             address: { street: "500 River St", city: "Santa Cruz", state: "CA", zip: "95060" },
         },
         status: "ACTIVE",
@@ -369,7 +362,6 @@ export const mockUsers: User[] = [
         userFields: {
             email: "enguyen3@ucsc.edu",
             password: "pushpulllegs",
-            confirmPassword: "pushpulllegs",
             address: { street: "888 Pacific Ave", city: "Santa Cruz", state: "CA", zip: "95060" },
         },
         status: "PENDING",
@@ -381,7 +373,6 @@ export const mockUsers: User[] = [
         userFields: {
             email: "lhernandez@ucsc.edu",
             password: "cardioDays",
-            confirmPassword: "cardioDays",
             address: { street: "120 Ocean St", city: "Santa Cruz", state: "CA", zip: "95060" },
         },
         status: "ACTIVE",
